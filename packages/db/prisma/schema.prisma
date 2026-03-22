@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  student
+  educator
+  admin
+}
+
+enum Difficulty {
+  beginner
+  intermediate
+  advanced
+}
+
+enum CaseStatus {
+  draft
+  review
+  published
+}
+
+enum StepType {
+  history
+  examination
+  investigation
+  diagnosis
+  management
+}
+
+enum AttemptStatus {
+  in_progress
+  completed
+  abandoned
+}
+
+enum MessageRole {
+  student
+  patient
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(student)
+  institution  String?
+  createdAt    DateTime @default(now())
+
+  cases       Case[]
+  attempts    Attempt[]
+  discussions Discussion[]
+}
+
+model Case {
+  id                String     @id @default(uuid())
+  authorId          String
+  title             String
+  specialty         String
+  difficulty        Difficulty
+  status            CaseStatus @default(draft)
+  patientPersona    Json
+  tags              String[]
+  sourceDocumentUrl String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  author      User         @relation(fields: [authorId], references: [id])
+  steps       CaseStep[]
+  attempts    Attempt[]
+  discussions Discussion[]
+}
+
+model CaseStep {
+  id               String   @id @default(uuid())
+  caseId           String
+  order            Int
+  type             StepType
+  content          String
+  expectedFindings Json
+
+  case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@index([caseId, order])
+}
+
+model Attempt {
+  id          String        @id @default(uuid())
+  userId      String
+  caseId      String
+  status      AttemptStatus @default(in_progress)
+  score       Float?
+  evalResult  Json?
+  completedAt DateTime?
+  createdAt   DateTime      @default(now())
+
+  user     User         @relation(fields: [userId], references: [id])
+  case     Case         @relation(fields: [caseId], references: [id])
+  messages SimMessage[]
+
+  @@index([userId, caseId])
+}
+
+model SimMessage {
+  id        String      @id @default(uuid())
+  attemptId String
+  role      MessageRole
+  content   String
+  createdAt DateTime    @default(now())
+
+  attempt Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+}
+
+model Discussion {
+  id        String   @id @default(uuid())
+  caseId    String
+  userId    String
+  content   String
+  parentId  String?
+  createdAt DateTime @default(now())
+
+  case    Case         @relation(fields: [caseId], references: [id])
+  user    User         @relation(fields: [userId], references: [id])
+  parent  Discussion?  @relation("Replies", fields: [parentId], references: [id])
+  replies Discussion[] @relation("Replies")
+
+  @@index([caseId])
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@caseflow/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "lint": "eslint src",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@caseflow/db": "*",
+    "@caseflow/types": "*",
+    "hono": "^4.4.0",
+    "@hono/node-server": "^1.12.0",
+    "zod": "^3.23.0",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/bcryptjs": "^2.4.6",
+    "tsx": "^4.15.0",
+    "typescript": "^5.4.5"
+  }
+}
