@@ -1,5 +1,5 @@
 import { createMiddleware } from 'hono/factory'
-import { verify } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 import { config } from '../lib/config.js'
 import { UnauthorizedError } from '../lib/errors.js'
 import type { JwtPayload } from '@caseflow/types'
@@ -16,7 +16,7 @@ export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
 
   let payload: JwtPayload
   try {
-    payload = verify(token, config.JWT_SECRET) as JwtPayload
+    payload = jwt.verify(token, config.JWT_SECRET) as JwtPayload
   } catch {
     throw new UnauthorizedError('Invalid or expired token')
   }

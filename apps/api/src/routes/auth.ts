@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { sign } from 'jsonwebtoken'
-import { hash, compare } from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import bcrypt from 'bcryptjs'
 import { prisma } from '@caseflow/db'
 import { config } from '../lib/config.js'
 import { success, error } from '../lib/response.js'
@@ -27,7 +27,7 @@ const loginSchema = z.object({
 
 // Helper — sign a JWT for a user
 function createToken(userId: string, role: string): string {
-  return sign(
+  return jwt.sign(
     { sub: userId, role },
     config.JWT_SECRET,
     { expiresIn: '7d' }
@@ -69,7 +69,7 @@ authRouter.post('/register', async (c) => {
     return error(c, 'An account with this email already exists', 409, 'EMAIL_TAKEN')
   }
 
-  const passwordHash = await hash(password, 12)
+  const passwordHash = await bcrypt.hash(password, 12)
 
   const user = await prisma.user.create({
     data: { name, email, passwordHash, institution: institution ?? null },
@@ -96,7 +96,7 @@ authRouter.post('/login', async (c) => {
 
   // Always run bcrypt compare to prevent user enumeration via timing attacks
   const dummyHash = '$2a$12$dummyhashfortimingattackprevention000000000000000000000'
-  const passwordMatch = await compare(password, user?.passwordHash ?? dummyHash)
+  const passwordMatch = await bcrypt.compare(password, user?.passwordHash ?? dummyHash)
 
   if (!user || !passwordMatch) {
     return error(c, 'Invalid email or password', 401, 'INVALID_CREDENTIALS')
