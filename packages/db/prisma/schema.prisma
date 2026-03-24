@@ -44,6 +44,12 @@ enum MessageRole {
   patient
 }
 
+enum CaseOutcome {
+  survived
+  deteriorated
+  died
+}
+
 model User {
   id           String   @id @default(uuid())
   name         String
@@ -67,6 +73,7 @@ model Case {
   status            CaseStatus @default(draft)
   patientPersona    Json
   tags              String[]
+  timeLimit         Int?
   sourceDocumentUrl String?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
@@ -91,14 +98,17 @@ model CaseStep {
 }
 
 model Attempt {
-  id          String        @id @default(uuid())
-  userId      String
-  caseId      String
-  status      AttemptStatus @default(in_progress)
-  score       Float?
-  evalResult  Json?
-  completedAt DateTime?
-  createdAt   DateTime      @default(now())
+  id              String        @id @default(uuid())
+  userId          String
+  caseId          String
+  status          AttemptStatus @default(in_progress)
+  score           Float?
+  evalResult      Json?
+  heartsRemaining Int           @default(3)
+  timeElapsed     Int           @default(0)
+  outcome         CaseOutcome?
+  completedAt     DateTime?
+  createdAt       DateTime      @default(now())
 
   user     User         @relation(fields: [userId], references: [id])
   case     Case         @relation(fields: [caseId], references: [id])
