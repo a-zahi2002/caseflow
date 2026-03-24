@@ -17,18 +17,19 @@ const app = new Hono<AppEnv>()
 
 // Global middleware
 app.use('*', logger())
-app.use(
-  '*',
-  cors({
-    origin: config.CORS_ORIGIN,
-    allowHeaders: ['Content-Type', 'Authorization'],
-    allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true,
-  })
-)
+app.use('*', cors())
 
 // Health check
-app.get('/health', (c) => c.json({ status: 'ok', env: config.NODE_ENV }))
+app.get('/health', async (c) => {
+  try {
+    const { prisma } = await import('@caseflow/db')
+    await prisma.$queryRaw`SELECT 1`
+    return c.json({ status: 'ok', db: 'reachable', env: config.NODE_ENV })
+  } catch (err) {
+    console.error('Database connection failed:', err)
+    return c.json({ status: 'ok', db: 'unreachable', env: config.NODE_ENV }, 500)
+  }
+})
 app.get('/health/ai', async (c) => {
   const { OllamaClient } = await import('@caseflow/ai')
   const ollama = new OllamaClient({

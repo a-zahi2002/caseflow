@@ -3,6 +3,7 @@ import { createNodeWebSocket } from '@hono/node-ws'
 import { streamPatientResponse, getPatientResponse } from '@caseflow/ai'
 import { prisma } from '@caseflow/db'
 import { ollamaClient } from '../lib/ollama-client.js'
+import { authMiddleware } from '../middleware/auth.js'
 import { NotFoundError, AppError } from '../lib/errors.js'
 import type { AppEnv } from '../types.js'
 import type { OllamaMessage, PatientPromptOptions } from '@caseflow/ai'
@@ -29,32 +30,40 @@ function send(ws: { send: (data: string) => void }, msg: ServerMessage): void {
 
 // POST /simulation/start — creates an Attempt and returns the attemptId
 // The client then opens a WebSocket using that attemptId
-simulationRouter.post('/start', async (c) => {
-  const payload = c.get('jwtPayload')
-  const { caseId } = await c.req.json<{ caseId: string }>()
+simulationRouter.post('/start', authMiddleware, async (c) => {
+  try {
+    const payload = c.get('jwtPayload')
+    const body = await c.req.json().catch(() => ({}))
+    const { caseId } = body
 
-  const caseData = await prisma.case.findUnique({
-    where: { id: caseId },
-    include: { steps: { orderBy: { order: 'asc' } } },
-  })
+    console.log(`[SIMULATION_START] caseId: ${caseId}, user: ${payload.sub}`)
 
-  if (!caseData) throw new NotFoundError('Case')
+    const caseData = await prisma.case.findUnique({
+      where: { id: caseId },
+      include: { steps: { orderBy: { order: 'asc' } } },
+    })
 
-  const attempt = await prisma.attempt.create({
-    data: {
-      userId: payload.sub,
-      caseId,
-      status: 'in_progress',
-      heartsRemaining: 3,
-      timeElapsed: 0,
-    } as any,
-  })
+    if (!caseData) throw new NotFoundError('Case')
 
-  return c.json({ success: true, data: { attemptId: attempt.id } }, 201)
+    const attempt = await prisma.attempt.create({
+      data: {
+        userId: payload.sub,
+        caseId,
+        status: 'in_progress',
+        heartsRemaining: 3,
+        timeElapsed: 0,
+      } as any,
+    })
+
+    return c.json({ success: true, data: { attemptId: attempt.id } }, 201)
+  } catch (err) {
+    console.error('[SIMULATION_START_ERROR]', err)
+    throw err
+  }
 })
 
 // GET /simulation/:attemptId/ws — WebSocket upgrade
-simulationRouter.get('/:attemptId/ws', async (c) => {
+simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
   const { attemptId } = c.req.param()
 
   const attempt = await prisma.attempt.findUnique({
