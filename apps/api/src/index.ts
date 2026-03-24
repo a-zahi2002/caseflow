@@ -29,6 +29,16 @@ app.use(
 
 // Health check
 app.get('/health', (c) => c.json({ status: 'ok', env: config.NODE_ENV }))
+app.get('/health/ai', async (c) => {
+  const { OllamaClient } = await import('@caseflow/ai')
+  const ollama = new OllamaClient({
+    baseUrl: config.OLLAMA_BASE_URL,
+    defaultModel: config.OLLAMA_MODEL,
+    generatorModel: config.OLLAMA_GENERATOR_MODEL,
+  })
+  const healthy = await ollama.isHealthy()
+  return c.json({ status: healthy ? 'ok' : 'unreachable', model: config.OLLAMA_MODEL })
+})
 
 // Routes
 app.route('/auth', authRouter)

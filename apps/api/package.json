@@ -4,13 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
+    "dev": "tsx watch --env-file=.env src/index.ts",
     "build": "tsc",
     "lint": "eslint src",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@caseflow/api": "0.1.0",
     "@caseflow/db": "*",
+    "@caseflow/ai": "*",
     "@caseflow/types": "*",
     "hono": "^4.4.0",
     "@hono/node-server": "^1.12.0",
