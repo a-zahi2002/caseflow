@@ -32,6 +32,7 @@ export interface Case {
   status: CaseStatus
   patientPersona: PatientPersona
   tags: string[]
+  timeLimit?: number
   sourceDocumentUrl?: string
   createdAt: Date
   updatedAt: Date
