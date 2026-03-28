@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api-client'
 import { getToken } from '@/lib/auth'
-import type { Case } from '@caseflow/types'
+import type { Case } from '@cbl/types'
 
 const SPECIALTIES = [
   'Cardiology', 'Respiratory', 'Gastroenterology', 'Neurology',

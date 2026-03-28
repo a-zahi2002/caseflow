@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@caseflow/types'],
-  output: 'standalone',
+  transpilePackages: ['@cbl/types', '@caseflow/ui', '@caseflow/db'],
 }
 
 export default nextConfig

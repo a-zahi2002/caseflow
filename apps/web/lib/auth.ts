@@ -1,4 +1,4 @@
-import type { User } from '@caseflow/types'
+import type { User } from '@cbl/types'
 
 const TOKEN_KEY = 'caseflow_token'
 const USER_KEY = 'caseflow_user'
@@ -33,5 +33,15 @@ export function getDashboardPath(role: User['role']): string {
     case 'educator': return '/educator/dashboard'
     case 'admin': return '/admin/dashboard'
     default: return '/dashboard'
+  }
+}
+
+export async function getCurrentUser() {
+  // Simulate fetching a student session content
+  return {
+    id: 'user-004',
+    name: 'Ashan Karunaratne',
+    email: 'ashan@example.com',
+    role: 'student' as const
   }
 }

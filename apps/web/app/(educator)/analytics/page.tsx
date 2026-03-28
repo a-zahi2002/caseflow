@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api-client'
 import { getToken } from '@/lib/auth'
-import type { EducatorAnalytics } from '@caseflow/types'
+import type { EducatorAnalytics } from '@cbl/types'
 import {
   BarChart,
   Bar,

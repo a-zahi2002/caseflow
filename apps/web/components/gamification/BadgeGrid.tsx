@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { BadgeDefinition, UserBadge, BADGE_DEFINITIONS } from '@caseflow/types'
+import { BadgeDefinition, UserBadge, BADGE_DEFINITIONS } from '@cbl/types'
 import { Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

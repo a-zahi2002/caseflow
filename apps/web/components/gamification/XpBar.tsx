@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { computeLevel, LEVEL_TITLES } from '@caseflow/types'
+import { computeLevel, LEVEL_TITLES } from '@cbl/types'
 import { cn } from '@/lib/utils'
 
 interface XpBarProps {

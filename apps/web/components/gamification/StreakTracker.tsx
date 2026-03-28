@@ -1,6 +1,6 @@
 'use client'
 
-import { StreakStatus } from '@caseflow/types'
+import { StreakStatus } from '@cbl/types'
 import { cn } from '@/lib/utils'
 
 interface StreakTrackerProps {

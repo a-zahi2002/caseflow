@@ -1,285 +1,356 @@
-'use client'
-
-import { useState, useEffect } from 'react'
-import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend
-} from 'recharts'
-import { 
-  History, Trophy, Target, TrendingUp, AlertCircle, 
-  ChevronRight, BookOpen, Clock, CheckCircle2, Star, Target as TargetIcon
-} from 'lucide-react'
-import { apiClient } from '@/lib/api-client'
-import { getToken } from '@/lib/auth'
-import { cn } from '@/lib/utils'
-import type { StudentProgressData } from '@caseflow/types'
+import { Metadata } from 'next'
 import Link from 'next/link'
+import { XpBar } from '@/components/gamification/XpBar'
+import { BadgeGrid } from '@/components/gamification/BadgeGrid'
+import { cn } from '@/lib/utils'
 
-export default function ProgressPage() {
-  const [token, setToken] = useState<string | null>(null)
-  const [data, setData] = useState<StudentProgressData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export const metadata: Metadata = {
+  title: 'Progress — CBL Platform',
+}
 
-  useEffect(() => {
-    const t = getToken()
-    if (!t) {
-      setError('You must be logged in to view progress')
-      setLoading(false)
-      return
-    }
-    setToken(t)
+const MOCK_PROGRESS = {
+  totalXp: 3240,
+  casesCompleted: 47,
+  casesAttempted: 52,
+  overallAverageScore: 78,
+  institutionRank: 4,
+  weeklyXp: [180, 320, 240, 480],
+  specialtyPerformance: [
+    { specialty: 'Cardiology', averageScore: 84, casesCompleted: 12 },
+    { specialty: 'Respiratory', averageScore: 78, casesCompleted: 9 },
+    { specialty: 'Emergency', averageScore: 72, casesCompleted: 8 },
+    { specialty: 'Neurology', averageScore: 65, casesCompleted: 11 },
+    { specialty: 'GI', averageScore: 58, casesCompleted: 7 },
+  ],
+  weakAreas: [
+    { 
+      specialty: 'Neurology', 
+      issue: 'Clinical Localisation',
+      affectedCases: 4, 
+      suggestedFocus: 'Focus on cranial nerve examination in neurology cases',
+      emoji: '🧠'
+    },
+    { 
+      specialty: 'Pharmacology', 
+      issue: 'Drug Dosing',
+      affectedCases: 3, 
+      suggestedFocus: 'Review sepsis antibiotic protocol and dosing',
+      emoji: '💊'
+    },
+  ],
+  badges: [
+    { badgeId: 'first_blood', unlockedAt: new Date(), isNew: false },
+    { badgeId: 'week_warrior', unlockedAt: new Date(), isNew: true },
+    { badgeId: 'cardiologist', unlockedAt: new Date(), isNew: false },
+    { badgeId: 'neuro_master', unlockedAt: new Date(), isNew: false },
+  ]
+}
 
-    apiClient.get<StudentProgressData>('/progress/me', t)
-      .then((res) => {
-        if (res.success) {
-          setData(res.data)
-        } else {
-          setError(res.error)
-        }
-      })
-      .catch(() => setError('Failed to load progress data'))
-      .finally(() => setLoading(false))
-  }, [token])
+const MOCK_LEADERBOARD = [
+  { rank: 1, userId: 'u1', name: 'Rashmi Perera', avatarInitials: 'RP', totalXp: 5820, level: 15, streak: 30, casesCompleted: 89, institution: 'University of Colombo', isCurrentUser: false },
+  { rank: 2, userId: 'u2', name: 'Nimal Silva', avatarInitials: 'NS', totalXp: 4990, level: 13, streak: 14, casesCompleted: 76, institution: 'University of Colombo', isCurrentUser: false },
+  { rank: 3, userId: 'u3', name: 'Priya Fernando', avatarInitials: 'PF', totalXp: 4310, level: 12, streak: 21, casesCompleted: 68, institution: 'University of Colombo', isCurrentUser: false },
+  { rank: 4, userId: 'u4', name: 'Ashan Karunaratne', avatarInitials: 'AK', totalXp: 3240, level: 12, streak: 7, casesCompleted: 47, institution: 'University of Colombo', isCurrentUser: true },
+  { rank: 5, userId: 'u5', name: 'Kasun Wijesinghe', avatarInitials: 'KW', totalXp: 2980, level: 10, streak: 5, casesCompleted: 41, institution: 'University of Colombo', isCurrentUser: false },
+  { rank: 6, userId: 'u6', name: 'Shalini Mendis', avatarInitials: 'SM', totalXp: 2650, level: 9, streak: 3, casesCompleted: 36, institution: 'University of Colombo', isCurrentUser: false },
+]
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <div className="h-2 w-24 bg-gray-100 rounded-full overflow-hidden relative">
-        <div className="h-full bg-primary absolute inset-0 animate-progress" />
-      </div>
-    </div>
-  )
-
-  if (error || !data) return (
-    <div className="p-8 text-center bg-red-50 border border-red-100 text-red-600 rounded-xl max-w-lg mx-auto">
-      <AlertCircle className="mx-auto mb-3 w-8 h-8 opacity-50" />
-      <h3 className="font-bold mb-1">Could not load progress</h3>
-      <p className="text-sm opacity-80">{error || 'Something went wrong while fetching your data.'}</p>
-    </div>
-  )
-
-  const { metrics, recentAttempts, weakAreas, trend } = data
-
-  const radarData = metrics.specialtyBreakdown.map(s => ({
-    subject: s.specialty,
-    A: s.avgScore,
-    fullMark: 100
-  }))
-
-  const chartData = trend.map(t => ({
-    ...t,
-    date: new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  }))
+// Internal StatCard component content
+function StatCard({ label, value, suffix, accent, delta }: {
+  label: string
+  value: string | number
+  suffix?: string
+  accent: 'brand' | 'reward' | 'danger' | 'purple'
+  delta?: string
+}) {
+  const accentColors = {
+    brand: 'bg-brand',
+    reward: 'bg-reward',
+    danger: 'bg-danger',
+    purple: 'bg-[#7C3AED]'
+  }
 
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Learning Progress</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Detailed performance analytics and clinical area analysis.</p>
-        </div>
-        <div className="flex items-center gap-3 bg-white p-3 border border-border rounded-xl shadow-sm">
-           <div className="p-2 bg-amber-50 rounded-lg">
-              <Trophy className="w-5 h-5 text-amber-500" />
-           </div>
-           <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">Current Streak</p>
-              <p className="text-lg font-bold text-foreground font-mono leading-none">12 Days</p>
-           </div>
+    <div className="relative bg-white border border-border-default rounded-xl p-4 shadow-sm overflow-hidden h-28 flex flex-col justify-between">
+      <div className={cn("absolute top-0 left-0 right-0 h-[3px]", accentColors[accent])} />
+      <div>
+        <span className="text-[10px] font-bold font-mono text-text-tertiary uppercase tracking-[0.08em] block mb-1">
+          {label}
+        </span>
+        <div className="flex items-baseline leading-none">
+          <span className="text-2xl font-bold text-text-primary">{value}</span>
+          {suffix && <span className="text-[13px] font-medium text-text-secondary ml-1">{suffix}</span>}
         </div>
       </div>
+      {delta && <span className="text-[11px] font-bold font-mono text-text-secondary uppercase tracking-tight">{delta}</span>}
+    </div>
+  )
+}
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          { label: 'Total Cases', value: metrics.totalAttempts, icon: BookOpen, color: 'emerald' },
-          { label: 'Completed', value: metrics.totalCompleted, icon: CheckCircle2, color: 'primary' },
-          { label: 'Avg. Score', value: `${Math.round(metrics.overallAvgScore)}%`, icon: Star, color: 'amber' },
-          { label: 'Accuracy', value: `${Math.round(metrics.completionRate)}%`, icon: TargetIcon, color: 'red' },
-        ].map((m) => (
-          <div key={m.label} className="bg-white p-6 rounded-xl border border-border shadow-sm flex items-center gap-4 group hover:border-primary/20 transition-all">
-            <div className={cn(
-              "p-3 rounded-lg flex items-center justify-center transition-colors shadow-sm",
-              m.color === 'primary' ? "bg-primary/5 text-primary group-hover:bg-primary group-hover:text-white" :
-              m.color === 'amber' ? "bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white" :
-              m.color === 'emerald' ? "bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white" :
-              "bg-red-50 text-red-600 group-hover:bg-red-500 group-hover:text-white"
-            )}>
-              <m.icon size={20} className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">{m.label}</p>
-              <h3 className="text-2xl font-bold text-foreground font-mono leading-tight">{m.value}</h3>
-            </div>
-          </div>
-        ))}
+export default function ProgressPage() {
+  const maxXp = Math.max(...MOCK_PROGRESS.weeklyXp)
+  const specialtyColors: Record<string, string> = {
+    Cardiology: '#BE123C',
+    Respiratory: 'var(--brand)',
+    Neurology: '#7C3AED',
+    Emergency: '#D97706',
+    GI: '#0891B2',
+  }
+
+  const avatarColors = ['#3730A3', '#6D28D9', '#047857', '#1D4ED8', '#9A3412']
+
+  return (
+    <div className="max-w-[880px] mx-auto p-6 flex flex-col gap-6">
+      
+      {/* SECTION 1: Header */}
+      <div className="flex items-baseline gap-2.5">
+        <h1 className="text-[22px] font-bold text-text-primary tracking-tight">Progress & Analytics</h1>
+        <span className="text-xs font-bold font-mono text-text-tertiary uppercase tracking-widest">Last 30 days</span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Score Trend */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-border shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-2">
-              <TrendingUp size={20} className="text-primary" />
-              <h2 className="text-lg font-bold text-foreground">Diagnostic Accuracy Trend</h2>
-            </div>
-            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono">Last 30 Days</span>
-          </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} tickMargin={10} font-family="DM Mono" />
-                <YAxis stroke="#94a3b8" fontSize={11} domain={[0, 100]} tickMargin={10} font-family="DM Mono" />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #E5E7EB', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  labelStyle={{ fontWeight: 'bold', fontSize: '12px', marginBottom: '4px' }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="score" 
-                  stroke="#0D9488" 
-                  strokeWidth={3} 
-                  dot={{ r: 4, fill: '#0D9488', strokeWidth: 2, stroke: '#fff' }} 
-                  activeDot={{ r: 6, strokeWidth: 0 }} 
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Specialty performance */}
-        <div className="bg-white p-6 rounded-xl border border-border shadow-sm">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-2">
-              <Target size={20} className="text-primary" />
-              <h2 className="text-lg font-bold text-foreground">Aptitude distribution</h2>
-            </div>
-          </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-                <PolarGrid stroke="#E5E7EB" />
-                <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10, fill: '#64748b', fontWeight: 600 }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                <Radar 
-                  name="Proficiency" 
-                  dataKey="A" 
-                  stroke="#0D9488" 
-                  fill="#0D9488" 
-                  fillOpacity={0.2} 
-                />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '20px' }} />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+      {/* SECTION 2: Stats Row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard 
+          label="Total XP" 
+          value={MOCK_PROGRESS.totalXp.toLocaleString()} 
+          accent="brand" 
+          delta="+840 this month" 
+        />
+        <StatCard 
+          label="Cases Completed" 
+          value={MOCK_PROGRESS.casesCompleted} 
+          suffix={`/ ${MOCK_PROGRESS.casesAttempted} attempted`} 
+          accent="reward" 
+        />
+        <StatCard 
+          label="Avg Score" 
+          value={`${MOCK_PROGRESS.overallAverageScore}%`} 
+          accent="danger" 
+          delta="↑ 4% vs last month" 
+        />
+        <StatCard 
+          label="Institution Rank" 
+          value={`#${MOCK_PROGRESS.institutionRank}`} 
+          suffix="of 312" 
+          accent="purple" 
+          delta="↑ 2 positions" 
+        />
       </div>
 
-      {/* Weak Areas */}
-      {weakAreas.length > 0 && (
-        <div className="bg-white border border-border rounded-xl overflow-hidden shadow-sm">
-          <div className="p-6 border-b border-border bg-amber-50/50 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <AlertCircle size={20} className="text-amber-500" />
-              <h2 className="text-lg font-bold text-foreground">Recommended Focus Areas</h2>
-            </div>
-            <p className="text-[10px] font-bold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full uppercase tracking-widest border border-amber-200">Attention Needed</p>
-          </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {weakAreas.map(s => (
-              <div key={s.specialty} className="bg-background p-5 rounded-lg border border-border flex items-center justify-between group hover:border-amber-300 transition-all">
-                <div>
-                  <h4 className="font-bold text-foreground text-sm uppercase tracking-tight">{s.specialty}</h4>
-                  <p className="text-xs text-muted-foreground mt-1 font-mono">Current Proficiency: {Math.round(s.avgScore)}%</p>
+      {/* SECTION 3: XpBar */}
+      <XpBar 
+        totalXp={MOCK_PROGRESS.totalXp} 
+        institutionRank={MOCK_PROGRESS.institutionRank}
+        institutionTotal={312}
+      />
+
+      {/* SECTION 4: Charts Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Specialty Performance */}
+        <div className="bg-white border border-border-default rounded-xl p-5 shadow-sm">
+          <span className="text-[11px] font-bold font-mono text-text-tertiary uppercase tracking-[0.08em] block mb-4">
+            Performance by specialty
+          </span>
+          <div className="flex flex-col gap-3">
+            {MOCK_PROGRESS.specialtyPerformance.map((item) => (
+              <div key={item.specialty} className="flex items-center gap-3">
+                <span className="text-[11px] font-bold font-mono text-text-secondary w-[90px] shrink-0 truncate">
+                  {item.specialty}
+                </span>
+                <div className="flex-1 h-2.5 bg-surface-subtle rounded-full overflow-hidden">
+                  <div 
+                    className="h-full rounded-full transition-all duration-1000" 
+                    style={{ 
+                      width: `${item.averageScore}%`, 
+                      backgroundColor: specialtyColors[item.specialty] || 'var(--brand)' 
+                    }} 
+                  />
                 </div>
-                <Link 
-                  href={`/cases?specialty=${encodeURIComponent(s.specialty)}`}
-                  className="p-2 bg-white text-amber-600 rounded-lg border border-border group-hover:bg-amber-600 group-hover:text-white transition-all shadow-sm"
-                >
-                   <ChevronRight size={16} />
-                </Link>
+                <span className="text-[11px] font-bold font-mono text-text-secondary w-8 text-right">
+                  {item.averageScore}%
+                </span>
               </div>
             ))}
           </div>
         </div>
-      )}
 
-      {/* Recent Attempts */}
-      <div className="bg-white rounded-xl border border-border shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-border flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <History size={20} className="text-primary" />
-            <h2 className="text-lg font-bold text-foreground">Engagement History</h2>
+        {/* Weekly XP Column Chart */}
+        <div className="bg-white border border-border-default rounded-xl p-5 shadow-sm">
+          <span className="text-[11px] font-bold font-mono text-text-tertiary uppercase tracking-[0.08em] block mb-4">
+            Weekly XP earned
+          </span>
+          <div className="flex items-end gap-3 h-[140px]">
+            {MOCK_PROGRESS.weeklyXp.map((xp, i) => {
+              const isLatest = i === 3
+              return (
+                <div key={i} className="flex flex-col items-center flex-1 h-full gap-1.5 grayscale-[0.3] hover:grayscale-0 transition-all">
+                  <span className="text-[9px] font-bold font-mono text-text-tertiary">{xp}</span>
+                  <div className="flex-1 w-full flex flex-col justify-end">
+                    <div 
+                      className={cn(
+                        "w-full rounded-t-md border transition-all duration-1000",
+                        isLatest ? "bg-brand border-brand" : "bg-surface-muted border-border-default"
+                      )}
+                      style={{ height: `${(xp / maxXp) * 100}%` }}
+                    />
+                  </div>
+                  <span className={cn(
+                    "text-[10px] font-bold font-mono uppercase",
+                    isLatest ? "text-brand" : "text-text-tertiary"
+                  )}>
+                    W{i + 1}
+                  </span>
+                </div>
+              )
+            })}
           </div>
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest font-mono">Last {recentAttempts.length} Encounters</span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-slate-50/50 text-slate-500 text-[10px] font-bold uppercase tracking-widest border-b border-border">
-                <th className="px-8 py-4">Clinical Scenario</th>
-                <th className="px-6 py-4">Specialty</th>
-                <th className="px-6 py-4">Score</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Timeline</th>
-                <th className="px-8 py-4"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {recentAttempts.map((a) => (
-                <tr key={a.id} className="group hover:bg-slate-50/50 transition-colors">
-                  <td className="px-8 py-4 font-bold text-foreground text-sm flex items-center gap-3">
-                     <div className="w-2 h-2 rounded-full bg-primary/20 group-hover:bg-primary transition-colors" />
-                     {a.caseTitle}
-                  </td>
-                  <td className="px-6 py-4 text-muted-foreground text-xs uppercase tracking-tight font-semibold">{a.specialty}</td>
-                  <td className="px-6 py-4">
-                    {a.score !== null ? (
-                      <span className={cn(
-                        "font-bold font-mono text-sm",
-                        a.score >= 80 ? 'text-emerald-600' : a.score >= 50 ? 'text-amber-500' : 'text-red-500'
-                      )}>
-                        {Math.round(a.score || 0)}%
-                      </span>
-                    ) : (
-                      <span className="text-slate-300 font-mono">—</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={cn(
-                      "inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter border shadow-sm",
-                      a.status === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
-                      a.status === 'in_progress' ? 'bg-primary/5 text-primary border-primary/20' : 
-                      'bg-slate-100 text-slate-600 border-slate-200'
-                    )}>
-                      {a.status.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-muted-foreground text-xs font-mono">
-                    {new Date(a.date).toLocaleDateString('en-GB')}
-                  </td>
-                  <td className="px-8 py-4 text-right">
-                    <Link 
-                      href={`/attempts/${a.id}/result`} 
-                      className="inline-flex items-center justify-center p-2 text-primary hover:bg-primary/5 rounded-lg transition-colors border border-transparent hover:border-primary/10"
-                    >
-                      <ChevronRight size={18} />
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {recentAttempts.length === 0 && (
-          <div className="p-16 text-center text-slate-400">
-            <BookOpen className="mx-auto mb-4 opacity-10" size={64} />
-            <h4 className="font-bold text-slate-800">No recent engagement</h4>
-            <p className="text-sm mt-1">Visit the Case Library to start your first clinical simulation.</p>
-          </div>
-        )}
       </div>
+
+      {/* SECTION 5: Leaderboard */}
+      <div className="bg-white border border-border-default rounded-xl p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-[13px] font-bold font-mono text-text-tertiary uppercase tracking-widest">Leaderboard</h2>
+          <span className="text-[11px] font-bold font-mono text-text-tertiary uppercase tracking-tight opacity-70">
+            University of Colombo · March 2026
+          </span>
+        </div>
+
+        {/* Period Tabs */}
+        <div className="flex items-center gap-1.5 mb-6">
+          {['This Week', 'This Month', 'All Time'].map((tab) => (
+            <button
+              key={tab}
+              className={cn(
+                "px-4 py-1.5 rounded-full border text-[11px] font-bold uppercase tracking-tight transition-all",
+                tab === 'This Month' 
+                  ? "bg-brand-light border-brand/30 text-brand-text" 
+                  : "bg-white border-border-default text-text-secondary hover:bg-surface-subtle"
+              )}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {/* Board Rows */}
+        <div className="flex flex-col">
+          {MOCK_LEADERBOARD.map((user) => {
+            const isTop3 = user.rank <= 3
+            const rankColors = ['text-[#D97706]', 'text-[#9CA3AF]', 'text-[#A16207]']
+            const avatarBgs = ['bg-[#D97706]', 'bg-[#9CA3AF]', 'bg-[#92400E]']
+            
+            return (
+              <div 
+                key={user.userId} 
+                className={cn(
+                  "flex items-center gap-3.5 py-3 transition-colors",
+                  user.isCurrentUser ? "bg-brand-light border border-brand/20 rounded-xl px-2.5 mx-[-10px] my-1" : "border-b border-border-default last:border-none"
+                )}
+              >
+                <div className={cn(
+                  "w-8 text-center font-mono font-black text-xl leading-none",
+                  isTop3 ? rankColors[user.rank - 1] : user.isCurrentUser ? "text-brand" : "text-text-tertiary"
+                )}>
+                  {user.rank}
+                </div>
+                
+                <div className={cn(
+                  "w-[34px] h-[34px] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm",
+                  user.isCurrentUser ? "bg-gradient-to-br from-brand to-[#0284C7]" : 
+                  isTop3 ? avatarBgs[user.rank - 1] : "bg-neutral-600"
+                )}
+                style={!user.isCurrentUser && !isTop3 ? { backgroundColor: avatarColors[user.rank % avatarColors.length] } : {}}>
+                  {user.avatarInitials}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className={cn(
+                      "text-[13px] font-bold truncate",
+                      user.isCurrentUser ? "text-brand" : "text-text-primary"
+                    )}>
+                      {user.name}
+                    </span>
+                    {user.isCurrentUser && <span className="text-[10px] font-bold text-brand uppercase opacity-70">(You)</span>}
+                  </div>
+                  <div className="text-[10px] font-bold font-mono text-text-tertiary uppercase tracking-tight truncate">
+                    {user.institution} · {user.streak}-day streak
+                  </div>
+                </div>
+
+                <div className="text-right shrink-0">
+                  <div className={cn(
+                    "text-[13px] font-bold font-mono leading-none",
+                    user.isCurrentUser ? "text-brand" : "text-reward-text"
+                  )}>
+                    {user.totalXp.toLocaleString()} <span className="text-[10px] opacity-70">XP</span>
+                  </div>
+                  <div className="text-[10px] font-black font-mono text-text-tertiary uppercase mt-0.5">
+                    Lv. {user.level}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* SECTION 6: AI Weak Areas */}
+      <div className="bg-white border border-border-default rounded-xl p-5 shadow-sm">
+        <div className="flex items-baseline gap-2 mb-4">
+          <h2 className="text-[13px] font-bold font-mono text-text-tertiary uppercase tracking-widest">AI-identified weak areas</h2>
+          <span className="text-[10px] font-bold font-mono text-text-tertiary uppercase opacity-50">Based on your last 30 cases</span>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {MOCK_PROGRESS.weakAreas.map((area, i) => (
+            <div 
+              key={area.specialty}
+              className={cn(
+                "flex items-center gap-4 p-4 rounded-xl border transition-all hover:translate-x-1",
+                i === 0 ? "bg-[#FFF1F2] border-[#FECDD3]" : "bg-[#FFFBEB] border-[#FDE68A]"
+              )}
+            >
+              <span className="text-2xl drop-shadow-sm">{area.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <h3 className={cn(
+                  "text-[13px] font-bold uppercase tracking-tight",
+                  i === 0 ? "text-[#BE123C]" : "text-[#D97706]"
+                )}>
+                  {area.specialty} — {area.issue}
+                </h3>
+                <p className="text-[11px] font-medium text-text-secondary leading-relaxed mt-0.5">
+                  {area.suggestedFocus}
+                </p>
+                <div className="text-[10px] font-bold font-mono text-text-tertiary uppercase mt-1.5 tracking-widest opacity-70">
+                  Affected {area.affectedCases} cases
+                </div>
+              </div>
+              <Link 
+                href={`/cases?specialty=${area.specialty.toLowerCase()}`}
+                className="px-3.5 py-1.5 bg-white border border-border-default rounded-full text-[11px] font-bold text-text-secondary hover:border-brand hover:text-brand hover:bg-brand-light transition-all shadow-sm"
+              >
+                Practice →
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* SECTION 7: All Badges */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-bold text-text-primary uppercase tracking-tight">All Badges</h2>
+          <span className="text-[11px] font-bold font-mono text-text-tertiary uppercase tracking-widest">
+            {MOCK_PROGRESS.badges.length} / 10 unlocked
+          </span>
+        </div>
+        <div className="bg-white border border-border-default rounded-xl p-5 shadow-sm">
+          <BadgeGrid userBadges={MOCK_PROGRESS.badges} />
+        </div>
+      </div>
+
     </div>
   )
 }

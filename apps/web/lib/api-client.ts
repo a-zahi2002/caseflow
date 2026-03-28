@@ -1,5 +1,5 @@
 import { config } from './config'
-import type { ApiResponse } from '@caseflow/types'
+import type { ApiResponse } from '@cbl/types'
 
 async function request<T>(
   path: string,

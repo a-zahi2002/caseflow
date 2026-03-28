@@ -8,7 +8,7 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ChevronRight, ChevronLeft, Plus, Trash2, Save, Tags, User as UserIcon, ListChecks } from 'lucide-react'
-import type { CaseFormInput } from '@caseflow/types'
+import type { CaseFormInput } from '@cbl/types'
 
 const stepTypes = ['history', 'examination', 'investigation', 'diagnosis', 'management'] as const
 

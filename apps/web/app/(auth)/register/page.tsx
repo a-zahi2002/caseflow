@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { apiClient } from '@/lib/api-client'
 import { saveAuth, getDashboardPath } from '@/lib/auth'
-import type { AuthResponse } from '@caseflow/types'
+import type { AuthResponse } from '@cbl/types'
 
 export default function RegisterPage() {
   const router = useRouter()
