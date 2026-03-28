@@ -1,0 +1,15 @@
+# Railway Configuration for Caseflow API
+# Required Env Vars:
+# DATABASE_URL: Postgres Connection String
+# OLLAMA_URL: External Ollama endpoint (e.g. Hetzner VPS or similar)
+# JWT_SECRET: Strong secret for auth
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install && npx turbo build --filter=api"
+
+[deploy]
+startCommand = "cd apps/api && node dist/index.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+restartPolicyType = "ON_FAILURE"

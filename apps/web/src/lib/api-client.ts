@@ -34,6 +34,14 @@ export const apiClient = {
     })
   },
 
+  put<T>(path: string, body: unknown, token?: string): Promise<ApiResponse<T>> {
+    return request<T>(path, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+  },
+
   get<T>(path: string, token?: string): Promise<ApiResponse<T>> {
     return request<T>(path, {
       method: 'GET',

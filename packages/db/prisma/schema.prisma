@@ -50,14 +50,20 @@ enum CaseOutcome {
   died
 }
 
+enum UserStatus {
+  active
+  suspended
+}
+
 model User {
-  id           String   @id @default(uuid())
+  id           String     @id @default(uuid())
   name         String
-  email        String   @unique
+  email        String     @unique
   passwordHash String
-  role         Role     @default(student)
+  role         Role       @default(student)
+  status       UserStatus @default(active)
   institution  String?
-  createdAt    DateTime @default(now())
+  createdAt    DateTime   @default(now())
 
   cases       Case[]
   attempts    Attempt[]
@@ -142,12 +148,14 @@ model Discussion {
   parent  Discussion?  @relation("Replies", fields: [parentId], references: [id])
   replies Discussion[] @relation("Replies")
 
+  @@index([caseId])
+}
 
 model PlatformSettings {
   id                          String   @id @default("global")
   institutionName             String   @default("CBL Platform")
   allowedSpecialties          String[]
-  discussionsEnabled          boolean  @default(true)
-  communitySubmissionsEnabled boolean  @default(true)
+  discussionsEnabled          Boolean  @default(true)
+  communitySubmissionsEnabled Boolean  @default(true)
   updatedAt                   DateTime @updatedAt
 }

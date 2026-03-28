@@ -1,10 +1,29 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { getUser } from '@/lib/auth'
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const router = useRouter()
+  const [authorized, setAuthorized] = useState(false)
+
+  useEffect(() => {
+    const user = getUser()
+    if (!user || user.role !== 'admin') {
+      router.push('/dashboard')
+    } else {
+      setAuthorized(true)
+    }
+  }, [router])
+
+  if (!authorized) return null
+
   return (
     <div className="min-h-screen flex">
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">

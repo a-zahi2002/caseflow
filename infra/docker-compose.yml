@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: caseflow-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-caseflow}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  ollama:
+    image: ollama/ollama
+    container_name: caseflow-ollama
+    restart: always
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # One-time initialization for Ollama models
+  ollama-init:
+    image: alpine:latest
+    container_name: caseflow-ollama-init
+    depends_on:
+      - ollama
+    entrypoint: /bin/sh
+    command: /scripts/init-ollama.sh
+    volumes:
+      - ./scripts:/scripts
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.api
+    container_name: caseflow-api
+    restart: always
+    depends_on:
+      - db
+      - ollama
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-caseflow}?schema=public
+      OLLAMA_URL: http://ollama:11434
+      PORT: 4000
+      JWT_SECRET: ${JWT_SECRET:-supersecret}
+    ports:
+      - "4000:4000"
+
+  web:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.web
+    container_name: caseflow-web
+    restart: always
+    depends_on:
+      - api
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+      PORT: 3000
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
+  ollama_data:

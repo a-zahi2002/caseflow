@@ -13,6 +13,8 @@ import { uploadsRouter } from './routes/uploads.js'
 import { progressRouter } from './routes/progress.js'
 import { discussionsRouter } from './routes/discussions.js'
 import { analyticsRouter } from './routes/analytics.js'
+import { adminRouter } from './routes/admin.js'
+import { healthRouter } from './routes/health.js'
 
 const app = new Hono<AppEnv>()
 
@@ -50,6 +52,8 @@ app.route('/uploads', uploadsRouter)
 app.route('/progress', progressRouter)
 app.route('/discussions', discussionsRouter)
 app.route('/analytics', analyticsRouter)
+app.route('/admin', adminRouter)
+app.route('/health', healthRouter)
 
 // Global error handler
 app.onError((err, c) => {
