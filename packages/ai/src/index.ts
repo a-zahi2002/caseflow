@@ -4,6 +4,8 @@ export { getPatientResponse, streamPatientResponse } from './patient.js'
 export type { PatientTurnInput, PatientTurnOutput } from './patient.js'
 export { buildPatientSystemPrompt } from './prompts/patient.js'
 export type { PatientPromptOptions } from './prompts/patient.js'
+export { extractCaseFromDocument } from './generator.js'
+export { CASE_EXTRACTION_PROMPT } from './prompts/generator.js'
 export type {
   OllamaMessage,
   OllamaChatRequest,

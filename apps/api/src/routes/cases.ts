@@ -150,6 +150,12 @@ casesRouter.post('/', requireRole('educator', 'admin'), async (c) => {
     }),
     tags: z.array(z.string()).max(10).default([]),
     timeLimit: z.number().min(5).max(120).optional(),
+    steps: z.array(z.object({
+      order: z.number(),
+      type: z.enum(['history', 'examination', 'investigation', 'diagnosis', 'management']),
+      content: z.string().min(5),
+      expectedFindings: z.any()
+    })).optional()
   })
 
   const body = await c.req.json()
@@ -159,7 +165,7 @@ casesRouter.post('/', requireRole('educator', 'admin'), async (c) => {
     return error(c, parsed.error.errors[0]?.message ?? 'Invalid input', 422, 'VALIDATION_ERROR')
   }
 
-  const { title, specialty, difficulty, patientPersona, tags, timeLimit } = parsed.data
+  const { title, specialty, difficulty, patientPersona, tags, timeLimit, steps } = parsed.data
   const newCase = await prisma.case.create({
     data: {
       title,
@@ -170,7 +176,20 @@ casesRouter.post('/', requireRole('educator', 'admin'), async (c) => {
       ...(timeLimit !== undefined && { timeLimit }),
       authorId: payload.sub as string,
       status: 'draft' as CaseStatus,
+      ...(steps && {
+        steps: {
+          create: steps.map(s => ({
+             order: s.order,
+             type: s.type as any,
+             content: s.content,
+             expectedFindings: s.expectedFindings as any
+          }))
+        }
+      })
     },
+    include: {
+      steps: true
+    }
   })
 
   return success(c, newCase, 201)

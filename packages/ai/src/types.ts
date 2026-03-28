@@ -7,6 +7,7 @@ export interface OllamaChatRequest {
   model: string
   messages: OllamaMessage[]
   stream: boolean
+  format?: string
   options?: {
     temperature?: number
     top_p?: number
@@ -25,6 +26,7 @@ export interface OllamaGenerateRequest {
   model: string
   prompt: string
   stream: boolean
+  format?: string
   options?: {
     temperature?: number
     num_predict?: number

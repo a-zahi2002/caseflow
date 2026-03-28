@@ -27,14 +27,17 @@ export class OllamaClient {
   // Single prompt — no conversation history
   async generate(
     prompt: string,
-    options?: OllamaGenerateRequest['options'],
+    options?: OllamaGenerateRequest['options'] & { format?: string },
     model?: string
   ): Promise<string> {
+    const { format, ...restOptions } = options ?? {}
+
     const body: OllamaGenerateRequest = {
       model: model ?? this.defaultModel,
       prompt,
       stream: false,
-      options,
+      ...(format && { format }),
+      ...(Object.keys(restOptions).length > 0 && { options: restOptions }),
     }
 
     const res = await fetch(`${this.baseUrl}/api/generate`, {
@@ -54,14 +57,17 @@ export class OllamaClient {
   // Multi-turn conversation
   async chat(
     messages: OllamaMessage[],
-    options?: OllamaChatRequest['options'],
+    options?: OllamaChatRequest['options'] & { format?: string },
     model?: string
   ): Promise<string> {
+    const { format, ...restOptions } = options ?? {}
+
     const body: OllamaChatRequest = {
       model: model ?? this.defaultModel,
       messages,
       stream: false,
-      options,
+      ...(format && { format }),
+      ...(Object.keys(restOptions).length > 0 && { options: restOptions }),
     }
 
     const res = await fetch(`${this.baseUrl}/api/chat`, {

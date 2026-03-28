@@ -11,7 +11,7 @@ export interface PatientPersona {
 
 export interface ExpectedFindings {
   keyPoints: string[]
-  redFlags: string[]
+  redFlags?: string[] | undefined
 }
 
 export interface CaseStep {
@@ -32,9 +32,9 @@ export interface Case {
   status: CaseStatus
   patientPersona: PatientPersona
   tags: string[]
-  timeLimit?: number
-  sourceDocumentUrl?: string
+  timeLimit?: number | undefined
+  sourceDocumentUrl?: string | undefined
   createdAt: Date
   updatedAt: Date
-  steps?: CaseStep[]
+  steps?: CaseStep[] | undefined
 }
