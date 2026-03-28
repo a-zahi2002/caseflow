@@ -7,10 +7,13 @@ export type {
   Attempt,
   SimMessage,
   Discussion,
+  PlatformSettings,
   Role,
+  UserStatus,
   Difficulty,
   CaseStatus,
   StepType,
   AttemptStatus,
   MessageRole,
+  CaseOutcome,
 } from '@prisma/client'

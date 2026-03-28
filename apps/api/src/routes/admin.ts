@@ -29,7 +29,7 @@ adminRouter.get('/users', async (c) => {
   const users = await prisma.user.findMany({
     where: {
       ...(role && { role }),
-      ...(status && { status }),
+      ...(status && { status } as any),
       ...(institution && { institution }),
     },
     orderBy: { createdAt: 'desc' },
@@ -41,7 +41,7 @@ adminRouter.get('/users', async (c) => {
     email: u.email,
     role: u.role as any,
     institution: u.institution,
-    status: u.status as any,
+    status: (u as any).status,
     createdAt: u.createdAt.toISOString(),
   }))
 
@@ -54,7 +54,7 @@ const updateRoleSchema = z.object({
 
 adminRouter.patch('/users/:id/role', zValidator('json', updateRoleSchema), async (c) => {
   const id = c.req.param('id')
-  const { role } = c.req.valid('json')
+  const { role } = (c.req as any).valid('json')
 
   const user = await prisma.user.update({
     where: { id },
@@ -70,14 +70,14 @@ const suspendSchema = z.object({
 
 adminRouter.patch('/users/:id/suspend', zValidator('json', suspendSchema), async (c) => {
   const id = c.req.param('id')
-  const { suspend } = c.req.valid('json')
+  const { suspend } = (c.req as any).valid('json')
 
   const user = await prisma.user.update({
     where: { id },
-    data: { status: suspend ? 'suspended' : 'active' },
+    data: { status: suspend ? 'suspended' : 'active' } as any,
   })
 
-  return success(c, { id: user.id, status: user.status })
+  return success(c, { id: user.id, status: (user as any).status })
 })
 
 // --- Content Moderation ---
@@ -125,7 +125,7 @@ adminRouter.patch('/cases/:id/reject', async (c) => {
 // --- Platform Settings ---
 
 adminRouter.get('/settings', async (c) => {
-  const settings = await prisma.platformSettings.findUnique({
+  const settings = await (prisma as any).platformSettings.findUnique({
     where: { id: 'global' },
   })
 
@@ -158,14 +158,13 @@ const settingsSchema = z.object({
 })
 
 adminRouter.put('/settings', zValidator('json', settingsSchema), async (c) => {
-  const input = c.req.valid('json')
-
-  const settings = await prisma.platformSettings.upsert({
+  const input = (c.req as any).valid('json')
+  const settings = await (prisma as any).platformSettings.upsert({
     where: { id: 'global' },
     update: input,
     create: {
       id: 'global',
-      ...input,
+      ...(input as any),
     },
   })
 

@@ -37,7 +37,7 @@ export default function ModerationPage() {
   const handlePreview = async (id: string) => {
     setSelectedCaseId(id)
     setPreviewLoading(true)
-    const token = getToken()
+    const token = getToken() ?? undefined
     const res = await apiClient.get<any>(`/cases/${id}`, token)
     if (res.success) {
       setPreviewData(res.data)
@@ -47,7 +47,7 @@ export default function ModerationPage() {
 
   const handleApprove = async (id: string) => {
     if (!id) return
-    const token = getToken()
+    const token = getToken() ?? undefined
     const res = await apiClient.patch(`/admin/cases/${id}/approve`, {}, token)
     if (res.success) {
       setItems(prev => prev.filter(item => item.id !== id))
@@ -59,7 +59,7 @@ export default function ModerationPage() {
 
   const handleReject = async (id: string) => {
     if (!id) return
-    const token = getToken()
+    const token = getToken() ?? undefined
     const res = await apiClient.patch(`/admin/cases/${id}/reject`, {}, token)
     if (res.success) {
       setItems(prev => prev.filter(item => item.id !== id))
