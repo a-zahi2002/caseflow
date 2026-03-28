@@ -16,6 +16,7 @@
     "@caseflow/types": "*",
     "@hono/node-server": "^1.12.0",
     "@hono/node-ws": "^1.3.0",
+    "@hono/zod-validator": "^0.2.2",
     "@supabase/supabase-js": "^2.100.1",
     "bcryptjs": "^2.4.3",
     "hono": "^4.4.0",

@@ -106,10 +106,41 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
         const data = JSON.parse(event.data.toString()) as ClientMessage
 
         if (data.type === 'end_simulation') {
+          // Fetch full attempt details for evaluation
+          const completedAttempt = await prisma.attempt.findUnique({
+            where: { id: attemptId },
+            include: {
+              case: { include: { steps: { orderBy: { order: 'asc' } } } },
+              messages: { orderBy: { createdAt: 'asc' } },
+            },
+          })
+
+          if (!completedAttempt) throw new NotFoundError('Attempt')
+
+          // Run Evaluator
+          const { runEvaluator } = await import('@caseflow/ai')
+          const evalResult = await runEvaluator({
+            ollama: ollamaClient,
+            expectedFindings: completedAttempt.case.steps.map(s => ({
+              stepType: s.type,
+              findings: s.expectedFindings
+            })),
+            messages: completedAttempt.messages.map(m => ({
+              role: m.role as 'student' | 'patient',
+              content: m.content
+            }))
+          })
+
           await prisma.attempt.update({
             where: { id: attemptId },
-            data: { status: 'completed', completedAt: new Date() },
+            data: { 
+              status: 'completed', 
+              completedAt: new Date(),
+              score: evalResult.overallScore,
+              evalResult: evalResult as any
+            },
           })
+
           send(ws, { type: 'simulation_ended' })
           ws.close()
           return
