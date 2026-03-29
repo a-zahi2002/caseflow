@@ -19,7 +19,7 @@ const listQuerySchema = z.object({
   tag: z.string().optional(),
   search: z.string().optional(),
   page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(50).default(20),
+  limit: z.coerce.number().min(1).max(200).default(100),
 })
 
 // GET /cases — list published cases with search, filter, pagination
@@ -54,7 +54,6 @@ casesRouter.get('/', async (c) => {
       where,
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
       include: {
         author: {
           select: { id: true, name: true },
@@ -71,7 +70,13 @@ casesRouter.get('/', async (c) => {
     prisma.case.count({ where }),
   ])
 
-  const cases = casesRaw.map((c) => {
+  // Custom sort: beginner -> intermediate -> advanced
+  const difficultyOrder = { beginner: 1, intermediate: 2, advanced: 3 }
+  const casesSorted = casesRaw.sort((a, b) => {
+    return (difficultyOrder[a.difficulty] || 99) - (difficultyOrder[b.difficulty] || 99)
+  })
+
+  const cases = casesSorted.map((c) => {
     const userAttempts = c.attempts
     const isCompleted = userAttempts.some((a) => a.status === 'completed')
     const bestScore = userAttempts.length > 0

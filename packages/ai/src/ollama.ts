@@ -113,25 +113,47 @@ export class OllamaClient {
 
     const reader = res.body.getReader()
     const decoder = new TextDecoder()
+    let buffer = ''
 
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
+    try {
+      while (true) {
+        const { done, value } = await reader.read()
+        
+        if (value) {
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n')
+          buffer = lines.pop() ?? ''
 
-      const lines = decoder.decode(value, { stream: true }).split('\n')
-
-      for (const line of lines) {
-        if (!line.trim()) continue
-        try {
-          const chunk = JSON.parse(line) as OllamaStreamChunk
-          if (chunk.message?.content) {
-            yield chunk.message.content
+          for (const line of lines) {
+            if (!line.trim()) continue
+            try {
+              const chunk = JSON.parse(line) as OllamaStreamChunk
+              if (chunk.message?.content) {
+                yield chunk.message.content
+              }
+              if (chunk.done) return
+            } catch (err) {
+              console.error('Failed to parse NDJSON chunk:', err)
+            }
           }
-          if (chunk.done) return
-        } catch {
-          // incomplete JSON chunk — skip
+        }
+
+        if (done) {
+          if (buffer.trim()) {
+            try {
+              const chunk = JSON.parse(buffer) as OllamaStreamChunk
+              if (chunk.message?.content) {
+                yield chunk.message.content
+              }
+            } catch (err) {
+              console.error('Failed to parse trailing NDJSON chunk:', err)
+            }
+          }
+          break
         }
       }
+    } finally {
+      reader.releaseLock()
     }
   }
 

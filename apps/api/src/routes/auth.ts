@@ -41,6 +41,11 @@ function sanitizeUser(user: {
   email: string
   role: string
   institution: string | null
+  totalXp: number
+  currentStreak: number
+  longestStreak: number
+  lastActiveDate: Date | null
+  badges: any // Prisma returns Json
   createdAt: Date
 }): User {
   return {
@@ -49,7 +54,12 @@ function sanitizeUser(user: {
     email: user.email,
     role: user.role as User['role'],
     createdAt: user.createdAt,
+    totalXp: user.totalXp,
+    currentStreak: user.currentStreak,
+    longestStreak: user.longestStreak,
+    badges: user.badges as User['badges'],
     ...(user.institution != null && { institution: user.institution }),
+    ...(user.lastActiveDate != null && { lastActiveDate: user.lastActiveDate }),
   }
 }
 
@@ -120,6 +130,11 @@ authRouter.get('/me', authMiddleware, async (c) => {
       email: true,
       role: true,
       institution: true,
+      totalXp: true,
+      currentStreak: true,
+      longestStreak: true,
+      lastActiveDate: true,
+      badges: true,
       createdAt: true,
     },
   })

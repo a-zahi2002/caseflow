@@ -140,6 +140,11 @@ export default function SimulationPage() {
 
   const hearts = Array.from({ length: 3 }, (_, i) => i < simState.heartsRemaining)
 
+  const persona = attempt?.case?.patientPersona
+  const isFemale = persona?.sex?.toLowerCase() === 'female'
+  const displayName = persona?.name || (isFemale ? 'Ms. Nimali Perera' : 'Mr. Kamal Perera')
+  const displayEmoji = persona?.emoji || (isFemale ? '👩🏽‍🦳' : '🧑🏽‍🦳')
+
   return (
     <div className="flex flex-col h-screen bg-slate-50 overflow-hidden">
       {/* Simulation Header */}
@@ -192,10 +197,10 @@ export default function SimulationPage() {
           {/* Patient Info */}
           <div className="bg-surface-subtle border border-border-default rounded-2xl p-5 flex flex-col items-center text-center shadow-inner">
             <div className="w-20 h-20 rounded-full flex items-center justify-center text-[40px] border-2 border-brand-light bg-white mb-4 shadow-sm">
-              {attempt?.case?.patientPersona?.emoji || '🧑‍🦳'}
+              {displayEmoji}
             </div>
             <h2 className="text-base font-bold text-text-primary leading-tight">
-              {attempt?.case?.patientPersona?.name || 'Mr. Kamal Perera'}
+              {displayName}
             </h2>
             <span className="text-[11px] font-bold font-mono text-text-tertiary uppercase tracking-widest mt-1.5">
               {attempt?.case?.patientPersona?.age || 45} {attempt?.case?.patientPersona?.sex || 'Male'} · {attempt?.case?.patientPersona?.presentingComplaint || 'Chest Pain'}
@@ -270,7 +275,7 @@ export default function SimulationPage() {
                     "w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 mt-0.5 shadow-sm transition-transform group-hover:scale-105",
                     msg.role === 'student' ? "bg-brand text-white border-brand" : "bg-white border-border-default text-text-tertiary text-xl"
                   )}>
-                     {msg.role === 'student' ? <User size={16} /> : (attempt?.case?.patientPersona?.emoji || '🧑‍🦳')}
+                     {msg.role === 'student' ? <User size={16} /> : displayEmoji}
                   </div>
                   <div
                     className={cn(
@@ -291,7 +296,7 @@ export default function SimulationPage() {
               {isPatientTyping && messages[messages.length - 1]?.role !== 'patient' && (
                 <div className="flex justify-start items-start gap-3.5 animate-slide-up">
                    <div className="w-9 h-9 rounded-xl bg-white border border-border-default text-xl flex items-center justify-center shrink-0 shadow-sm">
-                      {attempt?.case?.patientPersona?.emoji || '🧑‍🦳'}
+                      {displayEmoji}
                    </div>
                    <div className="bg-white border border-border-default rounded-2xl rounded-tl-sm px-5 py-4 shadow-sm">
                     <div className="flex gap-2">

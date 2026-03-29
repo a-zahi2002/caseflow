@@ -107,6 +107,7 @@ export default function CaseLibraryPage() {
   const [loading, setLoading] = useState(true)
   const [q, setQ] = useState('')
   const [specialty, setSpecialty] = useState('all')
+  const [sortBy, setSortBy] = useState<'beginner' | 'newest'>('beginner')
 
   useEffect(() => {
     async function loadCases() {
@@ -128,9 +129,15 @@ export default function CaseLibraryPage() {
     const sMatch = specialty === 'all' || c.specialty.toLowerCase() === specialty.toLowerCase()
     const qMatch = !q || `${c.title} ${c.description} ${c.tags.join(' ')}`.toLowerCase().includes(q.toLowerCase())
     return sMatch && qMatch
+  }).sort((a, b) => {
+    if (sortBy === 'beginner') {
+      const order = { beginner: 1, intermediate: 2, advanced: 3 }
+      return (order[a.difficulty] || 99) - (order[b.difficulty] || 99)
+    }
+    return 0 // Keep default (newest)
   })
 
-  const specialtyFilters = ['all', 'Cardiology', 'Neurology', 'Respiratory', 'Emergency']
+  const specialtyFilters = ['all', 'Cardiology', 'Neurology', 'Respiratory', 'Emergency', 'Gastroenterology', 'Endocrinology', 'Surgery']
 
   if (loading) {
     return (
@@ -164,22 +171,45 @@ export default function CaseLibraryPage() {
         </div>
       </div>
 
-      {/* SECTION 2: Filter Chips */}
-      <div className="flex items-center gap-2.5 flex-wrap">
-        {specialtyFilters.map((s) => (
-          <button
-            key={s}
-            onClick={() => setSpecialty(s.toLowerCase())}
+      {/* SECTION 2: Filter Chips & Sort */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {specialtyFilters.map((s) => (
+            <button
+              key={s}
+              onClick={() => setSpecialty(s.toLowerCase())}
+              className={cn(
+                "px-5 py-2 rounded-xl border font-bold text-[12px] uppercase tracking-wider transition-all",
+                specialty === s.toLowerCase() 
+                  ? "bg-brand border-brand text-white shadow-lg shadow-brand/20" 
+                  : "bg-white border-border-default text-text-secondary hover:border-brand/40"
+              )}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-xl border border-border-default">
+          <button 
+            onClick={() => setSortBy('beginner')}
             className={cn(
-              "px-5 py-2 rounded-xl border font-bold text-[12px] uppercase tracking-wider transition-all",
-              specialty === s.toLowerCase() 
-                ? "bg-brand border-brand text-white shadow-lg shadow-brand/20" 
-                : "bg-white border-border-default text-text-secondary hover:border-brand/40"
+              "px-4 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-tight transition-all",
+              sortBy === 'beginner' ? "bg-white text-brand shadow-sm" : "text-text-tertiary"
             )}
           >
-            {s}
+            Sort: Level
           </button>
-        ))}
+          <button 
+            onClick={() => setSortBy('newest')}
+            className={cn(
+              "px-4 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-tight transition-all",
+              sortBy === 'newest' ? "bg-white text-brand shadow-sm" : "text-text-tertiary"
+            )}
+          >
+            Newest
+          </button>
+        </div>
       </div>
 
       {/* SECTION 3: Grid or Empty State */}

@@ -6,6 +6,11 @@ export interface User {
   email: string
   role: Role
   institution?: string
+  totalXp: number
+  currentStreak: number
+  longestStreak: number
+  lastActiveDate?: Date
+  badges: Array<{ badgeId: string; unlockedAt: Date }>
   createdAt: Date
 }
 

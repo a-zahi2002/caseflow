@@ -28,8 +28,8 @@ export async function getPatientResponse(
   ]
 
   const patientResponse = await client.chat(messages, {
-    temperature: 0.7,
-    num_predict: 200,
+    temperature: 0.8,
+    num_predict: 250,
   })
 
   const updatedHistory: OllamaMessage[] = [
@@ -56,7 +56,7 @@ export async function* streamPatientResponse(
   ]
 
   yield* client.chatStream(messages, {
-    temperature: 0.7,
-    num_predict: 200,
+    temperature: 0.8,
+    num_predict: 250,
   })
 }

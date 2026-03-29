@@ -1,0 +1,3257 @@
+[
+  {
+    "id": "case-001",
+    "title": "Acute Chest Pain",
+    "specialty": "Cardiology",
+    "difficulty": "intermediate",
+    "timeLimit": 30,
+    "tags": [
+      "chest pain",
+      "STEMI",
+      "emergency"
+    ],
+    "emoji": "👨🏽‍🦳",
+    "age": 52,
+    "sex": "male",
+    "name": "Kamal Perera",
+    "complaint": "crushing chest pain for the last 2 hours",
+    "background": "Known hypertensive, smoker",
+    "dx": "STEMI",
+    "diff": [
+      "NSTEMI",
+      "PE",
+      "aortic dissection"
+    ],
+    "h_keys": [
+      "Onset and duration",
+      "Radiation to arm/jaw",
+      "Associated sweating/nausea",
+      "Cardiac risk factors"
+    ],
+    "h_reds": [
+      "Syncope",
+      "Severe tearing pain"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "Heart sounds",
+      "JVP",
+      "Chest auscultation"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Signs of heart failure"
+    ],
+    "i_keys": [
+      "12-lead ECG",
+      "Troponin",
+      "Chest X-ray",
+      "UEC"
+    ],
+    "i_reds": [
+      "ST elevation"
+    ],
+    "m_keys": [
+      "Aspirin 300mg",
+      "Oxygen if sats <94%",
+      "Activate cath lab / PCI",
+      "Morphine"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-002",
+    "title": "Diabetic Ketoacidosis",
+    "specialty": "Endocrinology",
+    "difficulty": "intermediate",
+    "timeLimit": 35,
+    "tags": [
+      "DKA",
+      "diabetes",
+      "emergency",
+      "metabolic"
+    ],
+    "emoji": "👩🏽",
+    "age": 19,
+    "sex": "female",
+    "name": "Nimali Silva",
+    "complaint": "vomiting and feeling very unwell for the past day",
+    "background": "Type 1 diabetes, missed insulin due to exams",
+    "dx": "DKA",
+    "diff": [
+      "HHS",
+      "gastroenteritis",
+      "alcohol ketoacidosis"
+    ],
+    "h_keys": [
+      "Insulin compliance",
+      "Polyuria/polydipsia",
+      "Vomiting frequency",
+      "Precipitating factors"
+    ],
+    "h_reds": [
+      "Reduced consciousness",
+      "Kussmaul breathing"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "Signs of dehydration",
+      "Respiratory pattern",
+      "Abdominal examination"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Reduced GCS"
+    ],
+    "i_keys": [
+      "Capillary blood glucose",
+      "Arterial blood gas",
+      "Urinary ketones",
+      "UEC"
+    ],
+    "i_reds": [
+      "pH below 7.3",
+      "Ketones above 3"
+    ],
+    "m_keys": [
+      "IV fluid resuscitation 0.9% NaCl",
+      "Fixed rate insulin",
+      "Potassium replacement",
+      "Hourly monitoring"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-003",
+    "title": "Community Acquired Pneumonia",
+    "specialty": "Respiratory",
+    "difficulty": "beginner",
+    "timeLimit": 25,
+    "tags": [
+      "pneumonia",
+      "respiratory",
+      "infection"
+    ],
+    "emoji": "👴🏽",
+    "age": 67,
+    "sex": "male",
+    "name": "Sunil Fernando",
+    "complaint": "cough with yellow sputum and fever for 4 days",
+    "background": "Retired teacher, ex-smoker, mild COPD",
+    "dx": "Community acquired pneumonia",
+    "diff": [
+      "PE",
+      "lung cancer",
+      "TB"
+    ],
+    "h_keys": [
+      "Cough and sputum",
+      "Fever/rigors",
+      "Breathlessness",
+      "Pleuritic chest pain"
+    ],
+    "h_reds": [
+      "Haemoptysis",
+      "Confusion"
+    ],
+    "e_keys": [
+      "Temperature and sats",
+      "Respiratory rate",
+      "Chest expansion",
+      "Auscultation"
+    ],
+    "e_reds": [
+      "Oxygen sat < 92%",
+      "RR > 30"
+    ],
+    "i_keys": [
+      "Chest X-ray",
+      "FBC, CRP",
+      "Blood cultures",
+      "Sputum culture"
+    ],
+    "i_reds": [
+      "Consolidation on CXR",
+      "Urea > 7"
+    ],
+    "m_keys": [
+      "Oxygen",
+      "Antibiotics (amoxicillin + clarithromycin)",
+      "IV fluids",
+      "Analgesia"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-004",
+    "title": "Acute Appendicitis",
+    "specialty": "Gastroenterology",
+    "difficulty": "beginner",
+    "timeLimit": 25,
+    "tags": [
+      "appendicitis",
+      "acute abdomen",
+      "surgery"
+    ],
+    "emoji": "👩🏽",
+    "age": 23,
+    "sex": "female",
+    "name": "Sanduni Perera",
+    "complaint": "worsening right sided abdominal pain for 18 hours, nausea",
+    "background": "No significant medical history, LMP 2 weeks ago",
+    "dx": "Acute appendicitis",
+    "diff": [
+      "Ovarian cyst",
+      "Ectopic pregnancy",
+      "Mesenteric adenitis"
+    ],
+    "h_keys": [
+      "Pain migration periumbilical to RIF",
+      "Nausea/vomiting",
+      "Urinary symptoms",
+      "LMP/sexual history"
+    ],
+    "h_reds": [
+      "Generalised peritonism",
+      "Rigid abdomen"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "McBurney's point tenderness",
+      "Rebound tenderness",
+      "Rovsing's sign"
+    ],
+    "e_reds": [
+      "Guarding",
+      "Signs of peritonitis"
+    ],
+    "i_keys": [
+      "FBC",
+      "CRP",
+      "Urine pregnancy test",
+      "Ultrasound abdomen"
+    ],
+    "i_reds": [
+      "Positive pregnancy test changes mx"
+    ],
+    "m_keys": [
+      "Nil by mouth",
+      "IV fluids",
+      "IV antibiotics",
+      "Surgical referral"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-005",
+    "title": "First Seizure in a Young Adult",
+    "specialty": "Neurology",
+    "difficulty": "advanced",
+    "timeLimit": 40,
+    "tags": [
+      "seizure",
+      "epilepsy",
+      "neurology",
+      "first presentation"
+    ],
+    "emoji": "👨🏽",
+    "age": 21,
+    "sex": "male",
+    "name": "Kasun Silva",
+    "complaint": "collapsed and shaking at a party, now drowsy",
+    "background": "No medical history, admits to alcohol and energy drinks tonight",
+    "dx": "First generalised tonic-clonic seizure",
+    "diff": [
+      "Syncope",
+      "Psychogenic non-epileptic seizure",
+      "Hypoglycaemia"
+    ],
+    "h_keys": [
+      "Eyewitness account",
+      "Duration of convulsion",
+      "Post-ictal period",
+      "Alcohol/drug use"
+    ],
+    "h_reds": [
+      "Prolonged seizure",
+      "Focal neurology"
+    ],
+    "e_keys": [
+      "GCS",
+      "Vital signs",
+      "Full neurological exam",
+      "Signs of head injury"
+    ],
+    "e_reds": [
+      "Focal neurological deficit",
+      "Papilloedema"
+    ],
+    "i_keys": [
+      "Blood glucose",
+      "FBC, UEC, LFT",
+      "CT head",
+      "EEG outpatient"
+    ],
+    "i_reds": [
+      "Hypoglycaemia",
+      "Hyponatraemia"
+    ],
+    "m_keys": [
+      "Observe until recovered",
+      "Correct metabolic abnormalities",
+      "Neurology referral",
+      "DVLA advice"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-acute-asthma-exacerbation",
+    "title": "Acute Asthma Exacerbation",
+    "specialty": "Respiratory",
+    "difficulty": "beginner",
+    "timeLimit": 25,
+    "tags": [
+      "asthma",
+      "wheeze",
+      "respiratory"
+    ],
+    "emoji": "👩🏼",
+    "age": 24,
+    "sex": "female",
+    "name": "Lucy Evans",
+    "complaint": "worsening breathlessness and wheeze for 2 days",
+    "background": "Known asthmatic on salbutamol PRN, no past ICU admissions. Recent upper respiratory tract infection.",
+    "dx": "Acute asthma exacerbation",
+    "diff": [
+      "Anaphylaxis",
+      "Pneumothorax",
+      "Pneumonia"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-gastroenteritis",
+    "title": "Gastroenteritis",
+    "specialty": "Gastroenterology",
+    "difficulty": "beginner",
+    "timeLimit": 20,
+    "tags": [
+      "diarrhea",
+      "vomiting",
+      "infection"
+    ],
+    "emoji": "👨🏼‍🦱",
+    "age": 30,
+    "sex": "male",
+    "name": "Mark Johnson",
+    "complaint": "profuse watery diarrhea and vomiting for 24 hours",
+    "background": "Ate leftover chicken 36 hours ago. Otherwise healthy.",
+    "dx": "Infective gastroenteritis",
+    "diff": [
+      "Food poisoning",
+      "IBD flare",
+      "Hyperthyroidism"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-urinary-tract-infection",
+    "title": "Urinary Tract Infection",
+    "specialty": "Urology",
+    "difficulty": "beginner",
+    "timeLimit": 20,
+    "tags": [
+      "dysuria",
+      "frequency",
+      "infection"
+    ],
+    "emoji": "👵🏼",
+    "age": 65,
+    "sex": "female",
+    "name": "Mary Smith",
+    "complaint": "pain on passing urine and going to toilet frequently",
+    "background": "Type 2 diabetes, previous UTIs.",
+    "dx": "Lower UTI",
+    "diff": [
+      "Pyelonephritis",
+      "Asymptomatic bacteriuria",
+      "Vaginitis"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-cellulitis",
+    "title": "Cellulitis",
+    "specialty": "Dermatology",
+    "difficulty": "beginner",
+    "timeLimit": 20,
+    "tags": [
+      "skin",
+      "infection",
+      "red leg"
+    ],
+    "emoji": "👨👴",
+    "age": 55,
+    "sex": "male",
+    "name": "John Doe",
+    "complaint": "red, hot, swollen right lower leg for 3 days",
+    "background": "Type 2 diabetes, peripheral vascular disease. Suffered a minor scratch last week.",
+    "dx": "Cellulitis",
+    "diff": [
+      "DVT",
+      "Venous eczema",
+      "Necrotising fasciitis"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-deep-vein-thrombosis",
+    "title": "Deep Vein Thrombosis",
+    "specialty": "Vascular",
+    "difficulty": "beginner",
+    "timeLimit": 25,
+    "tags": [
+      "leg swelling",
+      "clot",
+      "vascular"
+    ],
+    "emoji": "👩🏻",
+    "age": 45,
+    "sex": "female",
+    "name": "Sarah Lee",
+    "complaint": "unilateral painful swollen left calf for 2 days",
+    "background": "Recent long haul flight (14 hours). On oral contraceptive pill.",
+    "dx": "DVT",
+    "diff": [
+      "Cellulitis",
+      "Ruptured Baker's cyst",
+      "Muscle tear"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-renal-colic",
+    "title": "Renal Colic",
+    "specialty": "Urology",
+    "difficulty": "beginner",
+    "timeLimit": 25,
+    "tags": [
+      "loin pain",
+      "stone",
+      "emergency"
+    ],
+    "emoji": "👨🏽",
+    "age": 38,
+    "sex": "male",
+    "name": "David Rajan",
+    "complaint": "sudden onset severe right loin to groin pain, pacing around",
+    "background": "Previous episode of kidney stones 5 years ago. Low fluid intake.",
+    "dx": "Ureteric colic (Renal stone)",
+    "diff": [
+      "Appendicitis",
+      "AAA leak",
+      "Pyelonephritis"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-migraine",
+    "title": "Migraine",
+    "specialty": "Neurology",
+    "difficulty": "beginner",
+    "timeLimit": 20,
+    "tags": [
+      "headache",
+      "aura",
+      "neurology"
+    ],
+    "emoji": "👩🏽",
+    "age": 28,
+    "sex": "female",
+    "name": "Priya Patel",
+    "complaint": "severe right sided throbbing headache with photophobia",
+    "background": "History of migraines with aura. Triggered by stress and missed meals.",
+    "dx": "Migraine with aura",
+    "diff": [
+      "Tension headache",
+      "Cluster headache",
+      "SAH"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-gout-flare",
+    "title": "Gout Flare",
+    "specialty": "Rheumatology",
+    "difficulty": "beginner",
+    "timeLimit": 20,
+    "tags": [
+      "joint pain",
+      "toe",
+      "arthritis"
+    ],
+    "emoji": "👨🏼‍🦳",
+    "age": 60,
+    "sex": "male",
+    "name": "Arthur White",
+    "complaint": "woke up with extremely painful, red, swollen right big toe",
+    "background": "Hypertension on bendroflumethiazide. Drinks 3-4 pints of beer daily.",
+    "dx": "Acute gout",
+    "diff": [
+      "Septic arthritis",
+      "Pseudogout",
+      "Cellulitis"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-tension-headache",
+    "title": "Tension Headache",
+    "specialty": "Neurology",
+    "difficulty": "beginner",
+    "timeLimit": 20,
+    "tags": [
+      "headache",
+      "stress",
+      "neurology"
+    ],
+    "emoji": "👩🏼",
+    "age": 35,
+    "sex": "female",
+    "name": "Emma Clark",
+    "complaint": "band-like headache around head for last week",
+    "background": "Works as accountant, current tax season, poor sleep, high stress.",
+    "dx": "Tension-type headache",
+    "diff": [
+      "Migraine",
+      "Brain tumour",
+      "Temporal arteritis"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-viral-tonsillitis",
+    "title": "Viral Tonsillitis",
+    "specialty": "ENT",
+    "difficulty": "beginner",
+    "timeLimit": 20,
+    "tags": [
+      "sore throat",
+      "fever",
+      "infection"
+    ],
+    "emoji": "👦🏻",
+    "age": 16,
+    "sex": "male",
+    "name": "Kevin Wong",
+    "complaint": "severe sore throat, pain on swallowing, and mild fever",
+    "background": "No significant past medical history, unwell sick contacts at school.",
+    "dx": "Viral tonsillitis",
+    "diff": [
+      "Strep throat",
+      "Epstein-Barr virus / Mononucleosis",
+      "Quinsy"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-iron-deficiency-anemia",
+    "title": "Iron Deficiency Anemia",
+    "specialty": "Hematology",
+    "difficulty": "beginner",
+    "timeLimit": 25,
+    "tags": [
+      "fatigue",
+      "anemia",
+      "blood"
+    ],
+    "emoji": "👩🏾",
+    "age": 42,
+    "sex": "female",
+    "name": "Grace Ofori",
+    "complaint": "feeling constantly tired and short of breath on exertion",
+    "background": "Heavy menstrual bleeding, diet low in red meat.",
+    "dx": "Iron deficiency anemia",
+    "diff": [
+      "B12 deficiency",
+      "Hypothyroidism",
+      "Thalassemia trait"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-stable-angina",
+    "title": "Stable Angina",
+    "specialty": "Cardiology",
+    "difficulty": "beginner",
+    "timeLimit": 25,
+    "tags": [
+      "chest pain",
+      "exertional",
+      "cardiology"
+    ],
+    "emoji": "👴🏼",
+    "age": 68,
+    "sex": "male",
+    "name": "Robert Brown",
+    "complaint": "central chest tightness brought on by walking uphill, relieved by rest",
+    "background": "Hypertension, Hyperlipidemia, ex-smoker 30 pack years.",
+    "dx": "Stable Angina",
+    "diff": [
+      "ACS",
+      "GERD",
+      "Musculoskeletal pain"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-hypothyroidism",
+    "title": "Hypothyroidism",
+    "specialty": "Endocrinology",
+    "difficulty": "beginner",
+    "timeLimit": 25,
+    "tags": [
+      "weight gain",
+      "fatigue",
+      "thyroid"
+    ],
+    "emoji": "👩🏻",
+    "age": 50,
+    "sex": "female",
+    "name": "Ling Chen",
+    "complaint": "weight gain, feeling cold constantly, and constipation over 6 months",
+    "background": "No significant past medical history.",
+    "dx": "Primary Hypothyroidism",
+    "diff": [
+      "Depression",
+      "Menopause",
+      "Chronic fatigue syndrome"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-benign-prostatic-hyperplasia",
+    "title": "Benign Prostatic Hyperplasia",
+    "specialty": "Urology",
+    "difficulty": "beginner",
+    "timeLimit": 25,
+    "tags": [
+      "urinary",
+      "prostate",
+      "LUTS"
+    ],
+    "emoji": "👴🏾",
+    "age": 70,
+    "sex": "male",
+    "name": "James Williams",
+    "complaint": "poor urine flow, hesitancy, and going to the toilet 4 times a night",
+    "background": "Hypertension, borderline diabetes.",
+    "dx": "BPH",
+    "diff": [
+      "Prostate cancer",
+      "UTI",
+      "Overactive bladder"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-viral-upper-respiratory-tract-infection",
+    "title": "Viral Upper Respiratory Tract Infection",
+    "specialty": "Primary Care",
+    "difficulty": "beginner",
+    "timeLimit": 15,
+    "tags": [
+      "cough",
+      "cold",
+      "viral"
+    ],
+    "emoji": "👩🏼",
+    "age": 25,
+    "sex": "female",
+    "name": "Chloe Smith",
+    "complaint": "runny nose, mild sore throat, and dry cough for 3 days",
+    "background": "Otherwise fit and well.",
+    "dx": "Viral URI (Common Cold)",
+    "diff": [
+      "Allergic rhinitis",
+      "COVID-19",
+      "Influenza"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-pulmonary-embolism",
+    "title": "Pulmonary Embolism",
+    "specialty": "Respiratory",
+    "difficulty": "intermediate",
+    "timeLimit": 30,
+    "tags": [
+      "breathless",
+      "pleuritic pain",
+      "clot"
+    ],
+    "emoji": "👩🏽",
+    "age": 40,
+    "sex": "female",
+    "name": "Nina Gupta",
+    "complaint": "sudden onset breathlessness and left sided pleuritic chest pain",
+    "background": "Recent knee surgery 3 weeks ago, currently immobile.",
+    "dx": "Pulmonary Embolism",
+    "diff": [
+      "Pneumonia",
+      "ACS",
+      "Pneumothorax"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-transient-ischemic-attack",
+    "title": "Transient Ischemic Attack",
+    "specialty": "Neurology",
+    "difficulty": "intermediate",
+    "timeLimit": 30,
+    "tags": [
+      "weakness",
+      "stroke",
+      "neurology"
+    ],
+    "emoji": "👴🏻",
+    "age": 72,
+    "sex": "male",
+    "name": "George Taylor",
+    "complaint": "had right sided weakness and slurred speech lasting 30 minutes, now resolved",
+    "background": "Atrial fibrillation not on anticoagulation, hypertension.",
+    "dx": "TIA",
+    "diff": [
+      "Stroke",
+      "Todd's paresis",
+      "Hypoglycaemia"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-acute-pancreatitis",
+    "title": "Acute Pancreatitis",
+    "specialty": "Gastroenterology",
+    "difficulty": "intermediate",
+    "timeLimit": 30,
+    "tags": [
+      "abdominal pain",
+      "alcohol",
+      "gallstones"
+    ],
+    "emoji": "👨🏼‍🦱",
+    "age": 48,
+    "sex": "male",
+    "name": "Steven Davis",
+    "complaint": "severe epigastric pain radiating to back, vomiting multiple times",
+    "background": "Heavy alcohol intake, known gallstones.",
+    "dx": "Acute Pancreatitis",
+    "diff": [
+      "Peptic ulcer perforation",
+      "Cholecystitis",
+      "AAA rupture"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-chronic-obstructive-pulmonary-disease-exacerbation",
+    "title": "Chronic Obstructive Pulmonary Disease Exacerbation",
+    "specialty": "Respiratory",
+    "difficulty": "intermediate",
+    "timeLimit": 30,
+    "tags": [
+      "breathless",
+      "sputum",
+      "COPD"
+    ],
+    "emoji": "👴🏼",
+    "age": 75,
+    "sex": "male",
+    "name": "William Jones",
+    "complaint": "worsening breathlessness, wheeze, and green sputum for 3 days",
+    "background": "Known COPD, 50 pack year smoking history, on home oxygen.",
+    "dx": "Infective exacerbation of COPD",
+    "diff": [
+      "Heart failure",
+      "Pneumonia",
+      "PE"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-decompensated-heart-failure",
+    "title": "Decompensated Heart Failure",
+    "specialty": "Cardiology",
+    "difficulty": "intermediate",
+    "timeLimit": 35,
+    "tags": [
+      "edema",
+      "dyspnea",
+      "cardiology"
+    ],
+    "emoji": "👨🏾‍🦳",
+    "age": 78,
+    "sex": "male",
+    "name": "Joseph Ali",
+    "complaint": "increasing shortness of breath, orthopnea, and swollen ankles over 2 weeks",
+    "background": "Ischemic heart disease, previous anterior MI, on furosemide.",
+    "dx": "Decompensated congestive heart failure",
+    "diff": [
+      "COPD exacerbation",
+      "Renal failure",
+      "PE"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-acute-cholecystitis",
+    "title": "Acute Cholecystitis",
+    "specialty": "Surgery",
+    "difficulty": "intermediate",
+    "timeLimit": 30,
+    "tags": [
+      "RUQ pain",
+      "gallstones",
+      "surgery"
+    ],
+    "emoji": "👩🏼",
+    "age": 45,
+    "sex": "female",
+    "name": "Anna Miller",
+    "complaint": "fever and constant severe right upper quadrant pain for 12 hours",
+    "background": "Known gallstones, multiparous.",
+    "dx": "Acute Cholecystitis",
+    "diff": [
+      "Biliary colic",
+      "Pancreatitis",
+      "Peptic ulcer disease"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-ectopic-pregnancy",
+    "title": "Ectopic Pregnancy",
+    "specialty": "Obstetrics & Gynaecology",
+    "difficulty": "intermediate",
+    "timeLimit": 30,
+    "tags": [
+      "abdominal pain",
+      "pregnancy",
+      "emergency"
+    ],
+    "emoji": "👩🏻",
+    "age": 26,
+    "sex": "female",
+    "name": "Rachel Wong",
+    "complaint": "sharp lower abdominal pain and light vaginal spotting",
+    "background": "Sexually active, unsure of last menstrual period, history of PID.",
+    "dx": "Ectopic Pregnancy",
+    "diff": [
+      "Appendicitis",
+      "Ovarian cyst rupture",
+      "Miscarriage"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-peptic-ulcer-disease-bleed",
+    "title": "Peptic Ulcer Disease Bleed",
+    "specialty": "Gastroenterology",
+    "difficulty": "intermediate",
+    "timeLimit": 35,
+    "tags": [
+      "hematemesis",
+      "melena",
+      "bleed"
+    ],
+    "emoji": "👨🏼",
+    "age": 60,
+    "sex": "male",
+    "name": "Thomas Jackson",
+    "complaint": "vomited coffee-ground like material twice, black tarry stools",
+    "background": "Osteoarthritis, takes regular ibuprofen, smokes 20/day.",
+    "dx": "Upper GI Bleed secondary to PUD",
+    "diff": [
+      "Variceal bleed",
+      "Gastric cancer",
+      "Mallory-Weiss tear"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-rheumatoid-arthritis-flare",
+    "title": "Rheumatoid Arthritis Flare",
+    "specialty": "Rheumatology",
+    "difficulty": "intermediate",
+    "timeLimit": 25,
+    "tags": [
+      "joint pain",
+      "stiffness",
+      "autoimmune"
+    ],
+    "emoji": "👩🏾",
+    "age": 35,
+    "sex": "female",
+    "name": "Diana Osei",
+    "complaint": "painful, swollen small joints of both hands, morning stiffness lasting 2 hours",
+    "background": "Diagnosed 2 years ago, non-compliant with MTX.",
+    "dx": "Rheumatoid arthritis flare",
+    "diff": [
+      "Osteoarthritis",
+      "Systemic lupus erythematosus",
+      "Psoriatic arthritis"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-pyelonephritis",
+    "title": "Pyelonephritis",
+    "specialty": "Urology",
+    "difficulty": "intermediate",
+    "timeLimit": 30,
+    "tags": [
+      "fever",
+      "loin pain",
+      "infection"
+    ],
+    "emoji": "👩🏼",
+    "age": 30,
+    "sex": "female",
+    "name": "Emily Wilson",
+    "complaint": "fevers, rigors, right flank pain and dysuria for 2 days",
+    "background": "Previous UTIs, sexually active.",
+    "dx": "Acute Pyelonephritis",
+    "diff": [
+      "Renal colic",
+      "Lower UTI",
+      "Pelvic inflammatory disease"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-hypertensive-emergency",
+    "title": "Hypertensive Emergency",
+    "specialty": "Cardiology",
+    "difficulty": "intermediate",
+    "timeLimit": 35,
+    "tags": [
+      "headache",
+      "blood pressure",
+      "emergency"
+    ],
+    "emoji": "👨🏽‍🦳",
+    "age": 58,
+    "sex": "male",
+    "name": "Rajiv Kumar",
+    "complaint": "severe headache, blurred vision, and confusion",
+    "background": "Non-compliant with anti-hypertensives for 6 months.",
+    "dx": "Hypertensive emergency",
+    "diff": [
+      "Stroke",
+      "SAH",
+      "Phaeochromocytoma"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-inflammatory-bowel-disease-flare",
+    "title": "Inflammatory Bowel Disease Flare",
+    "specialty": "Gastroenterology",
+    "difficulty": "intermediate",
+    "timeLimit": 30,
+    "tags": [
+      "diarrhea",
+      "blood",
+      "IBD"
+    ],
+    "emoji": "👩🏻",
+    "age": 28,
+    "sex": "female",
+    "name": "Mei Lin",
+    "complaint": "passing 6-8 bloody, loose stools daily with crampy abdominal pain",
+    "background": "Known Ulcerative Colitis.",
+    "dx": "Ulcerative Colitis Flare",
+    "diff": [
+      "Infective gastroenteritis",
+      "Crohn's disease",
+      "Colorectal cancer"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-atrial-fibrillation-with-rvr",
+    "title": "Atrial Fibrillation with RVR",
+    "specialty": "Cardiology",
+    "difficulty": "intermediate",
+    "timeLimit": 35,
+    "tags": [
+      "palpitations",
+      "arrhythmia",
+      "cardiology"
+    ],
+    "emoji": "👴🏼",
+    "age": 68,
+    "sex": "male",
+    "name": "Frank Harper",
+    "complaint": "sudden onset fast irregular heart beat and feeling lightheaded",
+    "background": "Hypertension, ischemic heart disease.",
+    "dx": "Atrial Fibrillation with Rapid Ventricular Response",
+    "diff": [
+      "SVT",
+      "Sinus tachycardia",
+      "Ventricular tachycardia"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-bell's-palsy",
+    "title": "Bell's Palsy",
+    "specialty": "Neurology",
+    "difficulty": "intermediate",
+    "timeLimit": 25,
+    "tags": [
+      "facial weakness",
+      "neurology",
+      "nerve"
+    ],
+    "emoji": "👨🏼",
+    "age": 40,
+    "sex": "male",
+    "name": "Daniel Scott",
+    "complaint": "woke up with right sided facial droop, unable to close right eye",
+    "background": "Recent viral URI. Otherwise fit and well.",
+    "dx": "Bell's Palsy",
+    "diff": [
+      "Stroke",
+      "Lyme disease",
+      "Ramsay Hunt syndrome"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-acute-kidney-injury",
+    "title": "Acute Kidney Injury",
+    "specialty": "Nephrology",
+    "difficulty": "intermediate",
+    "timeLimit": 35,
+    "tags": [
+      "oliguria",
+      "renal",
+      "AKI"
+    ],
+    "emoji": "👴🏾",
+    "age": 75,
+    "sex": "male",
+    "name": "Clement Okafor",
+    "complaint": "reduced urine output and feeling extremely lethargic over 3 days",
+    "background": "Hypertension on ACE inhibitor, recent bout of D&V.",
+    "dx": "Pre-renal AKI (Dehydration + ACEi)",
+    "diff": [
+      "Post-renal obstruction",
+      "Intrinsic renal disease (ATN)",
+      "Heart failure"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-thyrotoxicosis",
+    "title": "Thyrotoxicosis",
+    "specialty": "Endocrinology",
+    "difficulty": "intermediate",
+    "timeLimit": 30,
+    "tags": [
+      "weight loss",
+      "palpitations",
+      "thyroid"
+    ],
+    "emoji": "👩🏼",
+    "age": 32,
+    "sex": "female",
+    "name": "Jessica Turner",
+    "complaint": "tremor, sweating, weight loss despite increased appetite, palpitations",
+    "background": "No past medical history. Exopthalmos noted on examination.",
+    "dx": "Graves' Disease (Thyrotoxicosis)",
+    "diff": [
+      "Anxiety",
+      "Pheochromocytoma",
+      "Malignancy"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-osteoporosis-with-vertebral-crush-fracture",
+    "title": "Osteoporosis with Vertebral Crush Fracture",
+    "specialty": "Rheumatology",
+    "difficulty": "intermediate",
+    "timeLimit": 25,
+    "tags": [
+      "back pain",
+      "fracture",
+      "bone"
+    ],
+    "emoji": "👵🏼",
+    "age": 80,
+    "sex": "female",
+    "name": "Elizabeth Clark",
+    "complaint": "sudden sharp mid-back pain while lifting a small box",
+    "background": "Post-menopausal, previous Colles fracture.",
+    "dx": "Osteoporotic vertebral crush fracture",
+    "diff": [
+      "Metastatic bone disease",
+      "Multiple myeloma",
+      "Muscular spasm"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-meniere's-disease",
+    "title": "Meniere's Disease",
+    "specialty": "ENT",
+    "difficulty": "intermediate",
+    "timeLimit": 25,
+    "tags": [
+      "vertigo",
+      "tinnitus",
+      "hearing"
+    ],
+    "emoji": "👨🏻",
+    "age": 50,
+    "sex": "male",
+    "name": "Liang Wei",
+    "complaint": "episodes of severe room-spinning dizziness, ringing in left ear, and hearing loss",
+    "background": "Otherwise healthy.",
+    "dx": "Meniere's Disease",
+    "diff": [
+      "BPPV",
+      "Vestibular neuritis",
+      "Acoustic neuroma"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-acute-angle-closure-glaucoma",
+    "title": "Acute Angle Closure Glaucoma",
+    "specialty": "Ophthalmology",
+    "difficulty": "intermediate",
+    "timeLimit": 30,
+    "tags": [
+      "eye pain",
+      "vision",
+      "emergency"
+    ],
+    "emoji": "👵🏽",
+    "age": 65,
+    "sex": "female",
+    "name": "Leela Patel",
+    "complaint": "severe left eye pain, blurred vision, seeing halos around lights, and nausea",
+    "background": "Hypermetropia (long-sighted). Sent from optician.",
+    "dx": "Acute Angle Closure Glaucoma",
+    "diff": [
+      "Conjunctivitis",
+      "Anterior uveitis",
+      "Corneal ulcer"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-gastroesophageal-reflux-disease",
+    "title": "Gastroesophageal Reflux Disease",
+    "specialty": "Gastroenterology",
+    "difficulty": "beginner",
+    "timeLimit": 20,
+    "tags": [
+      "heartburn",
+      "acid",
+      "GI"
+    ],
+    "emoji": "👨🏾",
+    "age": 50,
+    "sex": "male",
+    "name": "Samuel Okafor",
+    "complaint": "burning chest pain after meals, acidic taste in mouth",
+    "background": "Obesity, frequent spicy food and late night eating.",
+    "dx": "GERD",
+    "diff": [
+      "Angina",
+      "Peptic ulcer disease",
+      "Esophageal spasm"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-sepsis-unknown-origin",
+    "title": "Sepsis Unknown Origin",
+    "specialty": "Emergency",
+    "difficulty": "advanced",
+    "timeLimit": 45,
+    "tags": [
+      "sepsis",
+      "shock",
+      "infection"
+    ],
+    "emoji": "👵🏼",
+    "age": 82,
+    "sex": "female",
+    "name": "Margaret Brown",
+    "complaint": "found confused on the floor by neighbor, hot to touch",
+    "background": "Dementia, Type 2 Diabetes, frequent UTIs.",
+    "dx": "Sepsis (Likely urinary source)",
+    "diff": [
+      "Stroke",
+      "Hypoglycaemia",
+      "Hypothermia"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-acute-subarachnoid-hemorrhage",
+    "title": "Acute Subarachnoid Hemorrhage",
+    "specialty": "Nephrology",
+    "difficulty": "advanced",
+    "timeLimit": 40,
+    "tags": [
+      "headache",
+      "thunderclap",
+      "neurology"
+    ],
+    "emoji": "👨🏼",
+    "age": 45,
+    "sex": "male",
+    "name": "Edward Baker",
+    "complaint": "sudden onset 'worst headache of my life' at the back of the head, vomited once",
+    "background": "Hypertension, smoker.",
+    "dx": "Subarachnoid Hemorrhage",
+    "diff": [
+      "Migraine",
+      "Meningitis",
+      "Venous sinus thrombosis"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-meningococcal-septicemia",
+    "title": "Meningococcal Septicemia",
+    "specialty": "Infectious Disease",
+    "difficulty": "advanced",
+    "timeLimit": 40,
+    "tags": [
+      "rash",
+      "fever",
+      "meningitis"
+    ],
+    "emoji": "👦🏼",
+    "age": 19,
+    "sex": "male",
+    "name": "Tom Harris",
+    "complaint": "high fever, neck stiffness, photophobia and a non-blanching purpuric rash",
+    "background": "First year university student living in halls.",
+    "dx": "Meningococcal Septicemia / Meningitis",
+    "diff": [
+      "Viral meningitis",
+      "Encephalitis",
+      "ITP"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-aortic-dissection",
+    "title": "Aortic Dissection",
+    "specialty": "Vascular",
+    "difficulty": "advanced",
+    "timeLimit": 45,
+    "tags": [
+      "chest pain",
+      "tearing",
+      "emergency"
+    ],
+    "emoji": "👨🏽‍🦳",
+    "age": 65,
+    "sex": "male",
+    "name": "Ahmed Khan",
+    "complaint": "sudden catastrophic tearing chest pain radiating straight through to the back",
+    "background": "Poorly controlled hypertension, Marfan syndrome trait.",
+    "dx": "Acute Aortic Dissection",
+    "diff": [
+      "STEMI",
+      "PE",
+      "Esophageal rupture"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-status-epilepticus",
+    "title": "Status Epilepticus",
+    "specialty": "Neurology",
+    "difficulty": "advanced",
+    "timeLimit": 40,
+    "tags": [
+      "seizure",
+      "epilepsy",
+      "emergency"
+    ],
+    "emoji": "👨🏻",
+    "age": 30,
+    "sex": "male",
+    "name": "Wei Chen",
+    "complaint": "continuous tonic-clonic seizing for over 10 minutes",
+    "background": "Known epilepsy, ran out of anti-epileptic medication 3 days ago.",
+    "dx": "Status Epilepticus",
+    "diff": [
+      "Pseudoseizure",
+      "Eclampsia",
+      "Encephalitis"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-hyperosmolar-hyperglycemic-state",
+    "title": "Hyperosmolar Hyperglycemic State",
+    "specialty": "Endocrinology",
+    "difficulty": "advanced",
+    "timeLimit": 40,
+    "tags": [
+      "diabetes",
+      "confusion",
+      "HHS"
+    ],
+    "emoji": "👴🏾",
+    "age": 75,
+    "sex": "male",
+    "name": "Adebayo Johnson",
+    "complaint": "increasing confusion, severe dehydration, polyuria over the last week",
+    "background": "Type 2 diabetes, lives alone, poor fluid intake during recent heatwave.",
+    "dx": "HHS",
+    "diff": [
+      "DKA",
+      "Sepsis",
+      "Stroke"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-myocardial-infarction-with-cardiogenic-shock",
+    "title": "Myocardial Infarction with Cardiogenic Shock",
+    "specialty": "Cardiology",
+    "difficulty": "advanced",
+    "timeLimit": 45,
+    "tags": [
+      "chest pain",
+      "shock",
+      "STEMI"
+    ],
+    "emoji": "👨🏼‍🦳",
+    "age": 62,
+    "sex": "male",
+    "name": "Richard White",
+    "complaint": "severe central chest pain, cold, clammy, confused, unrecordable BP",
+    "background": "Previous MI, heavy smoker, hyperlipidemia.",
+    "dx": "STEMI + Cardiogenic Shock",
+    "diff": [
+      "Massive PE",
+      "Aortic dissection",
+      "Septic shock"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-guillain-barre-syndrome",
+    "title": "Guillain-Barre Syndrome",
+    "specialty": "Neurology",
+    "difficulty": "advanced",
+    "timeLimit": 40,
+    "tags": [
+      "weakness",
+      "neurology",
+      "paralysis"
+    ],
+    "emoji": "👨🏽",
+    "age": 35,
+    "sex": "male",
+    "name": "Vikram Singh",
+    "complaint": "ascending symmetrical muscle weakness starting in legs, now affecting arms, areflexia",
+    "background": "Recent campylobacter gastroenteritis 2 weeks ago.",
+    "dx": "Guillain-Barre Syndrome",
+    "diff": [
+      "Multiple sclerosis",
+      "Transverse myelitis",
+      "Myasthenia gravis"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-necrotising-fasciitis",
+    "title": "Necrotising Fasciitis",
+    "specialty": "Surgery",
+    "difficulty": "advanced",
+    "timeLimit": 40,
+    "tags": [
+      "skin",
+      "infection",
+      "emergency"
+    ],
+    "emoji": "👨🏼",
+    "age": 55,
+    "sex": "male",
+    "name": "Colin Davies",
+    "complaint": "severe, disproportionate pain in right lower leg, rapidly spreading purple discoloration",
+    "background": "Type 2 diabetes, IV drug user.",
+    "dx": "Necrotising Fasciitis",
+    "diff": [
+      "Cellulitis",
+      "DVT",
+      "Compartment syndrome"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-thyroid-storm",
+    "title": "Thyroid Storm",
+    "specialty": "Endocrinology",
+    "difficulty": "advanced",
+    "timeLimit": 40,
+    "tags": [
+      "thyroid",
+      "emergency",
+      "fever"
+    ],
+    "emoji": "👩🏻",
+    "age": 29,
+    "sex": "female",
+    "name": "Mei-Ling Yao",
+    "complaint": "high fever 40°C, extreme agitation, severe tachycardia (160 bpm)",
+    "background": "Known Graves' disease, stopped carbimazole due to side effects.",
+    "dx": "Thyroid Storm",
+    "diff": [
+      "Sepsis",
+      "Sympathomimetic overdose",
+      "Pheochromocytoma"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-addisonian-crisis",
+    "title": "Addisonian Crisis",
+    "specialty": "Endocrinology",
+    "difficulty": "advanced",
+    "timeLimit": 40,
+    "tags": [
+      "shock",
+      "steroid",
+      "emergency"
+    ],
+    "emoji": "👩🏼",
+    "age": 40,
+    "sex": "female",
+    "name": "Sarah Jenkins",
+    "complaint": "profound vomiting, severe abdominal pain, dizzy on standing, profound hypotension",
+    "background": "Known Addison's disease, recent bout of flu, did not double steroid dose.",
+    "dx": "Addisonian Crisis",
+    "diff": [
+      "Sepsis",
+      "Acute abdomen",
+      "Myocardial infarction"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-massive-gastrointestinal-hemorrhage-(varices)",
+    "title": "Massive Gastrointestinal Hemorrhage (Varices)",
+    "specialty": "Gastroenterology",
+    "difficulty": "advanced",
+    "timeLimit": 45,
+    "tags": [
+      "bleeding",
+      "liver",
+      "cirrhosis"
+    ],
+    "emoji": "👨🏾",
+    "age": 55,
+    "sex": "male",
+    "name": "Kofi Annan",
+    "complaint": "vomiting large amounts of bright red blood, hemodynamically unstable",
+    "background": "Alcoholic liver cirrhosis, portal hypertension.",
+    "dx": "Ruptured Esophageal Varices",
+    "diff": [
+      "Bleeding peptic ulcer",
+      "Mallory-Weiss tear",
+      "Aortoenteric fistula"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-acute-respiratory-distress-syndrome-(ards)",
+    "title": "Acute Respiratory Distress Syndrome (ARDS)",
+    "specialty": "Intensive Care",
+    "difficulty": "advanced",
+    "timeLimit": 45,
+    "tags": [
+      "respiratory",
+      "failure",
+      "ICU"
+    ],
+    "emoji": "👨🏼‍🦱",
+    "age": 45,
+    "sex": "male",
+    "name": "Chris Wood",
+    "complaint": "profound, refractory hypoxemia, bilateral pulmonary infiltrates",
+    "background": "Admitted 3 days ago with severe acute pancreatitis.",
+    "dx": "ARDS",
+    "diff": [
+      "Cardiogenic pulmonary edema",
+      "Bilateral pneumonia",
+      "Massive PE"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-tumor-lysis-syndrome",
+    "title": "Tumor Lysis Syndrome",
+    "specialty": "Oncology",
+    "difficulty": "advanced",
+    "timeLimit": 45,
+    "tags": [
+      "oncology",
+      "renal",
+      "metabolic"
+    ],
+    "emoji": "👦🏻",
+    "age": 14,
+    "sex": "male",
+    "name": "Jin Park",
+    "complaint": "oliguric, muscle cramps, and arrhythmias 2 days after starting chemotherapy",
+    "background": "Recently diagnosed with Burkitt Lymphoma.",
+    "dx": "Tumor Lysis Syndrome",
+    "diff": [
+      "Acute kidney injury (other causes)",
+      "Sepsis",
+      "Hyperkalemia due to other causes"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  },
+  {
+    "id": "case-auto-hepatic-encephalopathy",
+    "title": "Hepatic Encephalopathy",
+    "specialty": "Gastroenterology",
+    "difficulty": "advanced",
+    "timeLimit": 40,
+    "tags": [
+      "liver",
+      "confusion",
+      "cirrhosis"
+    ],
+    "emoji": "👴🏼",
+    "age": 66,
+    "sex": "male",
+    "name": "Alan Stone",
+    "complaint": "fluctuating confusion, day/night reversal, flapping tremor (asterixis)",
+    "background": "Known hepatitis C cirrhosis. Constipated for 4 days.",
+    "dx": "Hepatic Encephalopathy",
+    "diff": [
+      "Subdural hematoma",
+      "Alcohol withdrawal",
+      "Wernicke's encephalopathy"
+    ],
+    "h_keys": [
+      "Onset and progression of symptoms",
+      "Associated symptoms",
+      "Past medical history",
+      "Medication compliance and allergies"
+    ],
+    "h_reds": [
+      "Altered mental status",
+      "Severe hemodynamic instability"
+    ],
+    "e_keys": [
+      "Vital signs",
+      "System-specific examination",
+      "General appearance"
+    ],
+    "e_reds": [
+      "Hypotension",
+      "Tachycardia",
+      "Hypoxia"
+    ],
+    "i_keys": [
+      "Targeted blood tests (FBC, UEC, CRP)",
+      "Relevant imaging (X-ray, CT or US)",
+      "Bedside tests (ECG, VBG/ABG, BM)"
+    ],
+    "i_reds": [
+      "Critical laboratory derangements"
+    ],
+    "m_keys": [
+      "Immediate resuscitation (ABCDE)",
+      "Specific targeted therapy",
+      "Seniors/Specialist referral",
+      "Supportive care"
+    ],
+    "m_reds": []
+  }
+]

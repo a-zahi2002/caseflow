@@ -1,12 +1,12 @@
-import { Metadata } from 'next'
+'use client'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { XpBar } from '@/components/gamification/XpBar'
 import { BadgeGrid } from '@/components/gamification/BadgeGrid'
 import { cn } from '@/lib/utils'
-
-export const metadata: Metadata = {
-  title: 'Progress — CBL Platform',
-}
+import { getUser } from '@/lib/auth'
+import { User, computeLevel } from '@caseflow/types'
 
 const MOCK_PROGRESS = {
   totalXp: 3240,
@@ -88,6 +88,13 @@ function StatCard({ label, value, suffix, accent, delta }: {
 }
 
 export default function ProgressPage() {
+  const [user, setUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    setUser(getUser())
+  }, [])
+
+  const totalXp = user?.totalXp ?? 0
   const maxXp = Math.max(...MOCK_PROGRESS.weeklyXp)
   const specialtyColors: Record<string, string> = {
     Cardiology: '#BE123C',
@@ -98,6 +105,8 @@ export default function ProgressPage() {
   }
 
   const avatarColors = ['#3730A3', '#6D28D9', '#047857', '#1D4ED8', '#9A3412']
+
+  if (!user) return null
 
   return (
     <div className="max-w-[880px] mx-auto p-6 flex flex-col gap-6">
@@ -112,9 +121,9 @@ export default function ProgressPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard 
           label="Total XP" 
-          value={MOCK_PROGRESS.totalXp.toLocaleString()} 
+          value={totalXp.toLocaleString()} 
           accent="brand" 
-          delta="+840 this month" 
+          delta="+0 this month" 
         />
         <StatCard 
           label="Cases Completed" 
@@ -139,7 +148,7 @@ export default function ProgressPage() {
 
       {/* SECTION 3: XpBar */}
       <XpBar 
-        totalXp={MOCK_PROGRESS.totalXp} 
+        totalXp={totalXp} 
         institutionRank={MOCK_PROGRESS.institutionRank}
         institutionTotal={312}
       />
@@ -235,59 +244,59 @@ export default function ProgressPage() {
 
         {/* Board Rows */}
         <div className="flex flex-col">
-          {MOCK_LEADERBOARD.map((user) => {
-            const isTop3 = user.rank <= 3
+          {MOCK_LEADERBOARD.map((userStats) => {
+            const isTop3 = userStats.rank <= 3
             const rankColors = ['text-[#D97706]', 'text-[#9CA3AF]', 'text-[#A16207]']
             const avatarBgs = ['bg-[#D97706]', 'bg-[#9CA3AF]', 'bg-[#92400E]']
             
             return (
               <div 
-                key={user.userId} 
+                key={userStats.userId} 
                 className={cn(
                   "flex items-center gap-3.5 py-3 transition-colors",
-                  user.isCurrentUser ? "bg-brand-light border border-brand/20 rounded-xl px-2.5 mx-[-10px] my-1" : "border-b border-border-default last:border-none"
+                  userStats.isCurrentUser ? "bg-brand-light border border-brand/20 rounded-xl px-2.5 mx-[-10px] my-1" : "border-b border-border-default last:border-none"
                 )}
               >
                 <div className={cn(
                   "w-8 text-center font-mono font-black text-xl leading-none",
-                  isTop3 ? rankColors[user.rank - 1] : user.isCurrentUser ? "text-brand" : "text-text-tertiary"
+                  isTop3 ? rankColors[userStats.rank - 1] : userStats.isCurrentUser ? "text-brand" : "text-text-tertiary"
                 )}>
-                  {user.rank}
+                  {userStats.rank}
                 </div>
                 
                 <div className={cn(
                   "w-[34px] h-[34px] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm",
-                  user.isCurrentUser ? "bg-gradient-to-br from-brand to-[#0284C7]" : 
-                  isTop3 ? avatarBgs[user.rank - 1] : "bg-neutral-600"
+                  userStats.isCurrentUser ? "bg-gradient-to-br from-brand to-[#0284C7]" : 
+                  isTop3 ? avatarBgs[userStats.rank - 1] : "bg-neutral-600"
                 )}
-                style={!user.isCurrentUser && !isTop3 ? { backgroundColor: avatarColors[user.rank % avatarColors.length] } : {}}>
-                  {user.avatarInitials}
+                style={!userStats.isCurrentUser && !isTop3 ? { backgroundColor: avatarColors[userStats.rank % avatarColors.length] } : {}}>
+                  {userStats.avatarInitials}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className={cn(
                       "text-[13px] font-bold truncate",
-                      user.isCurrentUser ? "text-brand" : "text-text-primary"
+                      userStats.isCurrentUser ? "text-brand" : "text-text-primary"
                     )}>
-                      {user.name}
+                      {userStats.isCurrentUser ? user?.name : userStats.name}
                     </span>
-                    {user.isCurrentUser && <span className="text-[10px] font-bold text-brand uppercase opacity-70">(You)</span>}
+                    {userStats.isCurrentUser && <span className="text-[10px] font-bold text-brand uppercase opacity-70">(You)</span>}
                   </div>
                   <div className="text-[10px] font-bold font-mono text-text-tertiary uppercase tracking-tight truncate">
-                    {user.institution} · {user.streak}-day streak
+                    {userStats.institution} · {userStats.isCurrentUser ? (user?.currentStreak || 0) : userStats.streak}-day streak
                   </div>
                 </div>
 
                 <div className="text-right shrink-0">
                   <div className={cn(
                     "text-[13px] font-bold font-mono leading-none",
-                    user.isCurrentUser ? "text-brand" : "text-reward-text"
+                    userStats.isCurrentUser ? "text-brand" : "text-reward-text"
                   )}>
-                    {user.totalXp.toLocaleString()} <span className="text-[10px] opacity-70">XP</span>
+                    {userStats.isCurrentUser ? totalXp.toLocaleString() : userStats.totalXp.toLocaleString()} <span className="text-[10px] opacity-70">XP</span>
                   </div>
                   <div className="text-[10px] font-black font-mono text-text-tertiary uppercase mt-0.5">
-                    Lv. {user.level}
+                    Lv. {userStats.isCurrentUser ? computeLevel(totalXp).level : userStats.level}
                   </div>
                 </div>
               </div>

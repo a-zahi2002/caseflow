@@ -3,6 +3,8 @@ export type CaseStatus = 'draft' | 'review' | 'published'
 export type StepType = 'history' | 'examination' | 'investigation' | 'diagnosis' | 'management'
 
 export interface PatientPersona {
+  name?: string
+  emoji?: string
   age: number
   sex: 'male' | 'female' | 'other'
   presentingComplaint: string

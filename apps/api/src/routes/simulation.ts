@@ -5,6 +5,7 @@ import { ollamaClient } from '../lib/ollama-client.js'
 import { authMiddleware } from '../middleware/auth.js'
 import { NotFoundError, AppError } from '../lib/errors.js'
 import { upgradeWebSocket } from '../lib/ws.js'
+import { success, error } from '../lib/response.js'
 import type { AppEnv } from '../types.js'
 import type { OllamaMessage, PatientPromptOptions } from '@caseflow/ai'
 
@@ -29,6 +30,34 @@ interface ServerMessage {
 function send(ws: { send: (data: string) => void }, msg: ServerMessage): void {
   ws.send(JSON.stringify(msg))
 }
+
+
+// GET /simulation/:attemptId — Get specific attempt details
+simulationRouter.get('/:attemptId', async (c) => {
+  const { attemptId } = c.req.param()
+  const payload = c.get('jwtPayload')
+
+  const attempt = await prisma.attempt.findUnique({
+    where: { id: attemptId },
+    include: {
+      case: {
+        include: {
+          steps: { orderBy: { order: 'asc' } }
+        }
+      },
+      messages: { orderBy: { createdAt: 'asc' } }
+    }
+  })
+
+  if (!attempt) throw new NotFoundError('Attempt')
+
+  // Security check: only the owner or an educator/admin can see this
+  if (attempt.userId !== payload.sub && payload.role !== 'admin' && payload.role !== 'educator') {
+    throw new AppError('Forbidden', 403, 'FORBIDDEN')
+  }
+
+  return success(c, attempt)
+})
 
 // POST /simulation/start — creates an Attempt and returns the attemptId
 simulationRouter.post('/start', authMiddleware, async (c) => {
@@ -127,15 +156,38 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
             }))
           })
 
-          await prisma.attempt.update({
-            where: { id: attemptId },
-            data: { 
-              status: 'completed', 
-              completedAt: new Date(),
-              score: evalResult.overallScore,
-              evalResult: evalResult as any
-            },
-          })
+          const { overallScore } = evalResult
+          const { XP_AWARDS } = await import('@caseflow/types')
+          
+          let xpAwarded = 0
+          const difficulty = completedAttempt.case.difficulty
+          
+          if (difficulty === 'beginner') xpAwarded += XP_AWARDS.CASE_COMPLETE_BEGINNER
+          else if (difficulty === 'intermediate') xpAwarded += XP_AWARDS.CASE_COMPLETE_INTERMEDIATE
+          else if (difficulty === 'advanced') xpAwarded += XP_AWARDS.CASE_COMPLETE_ADVANCED
+          
+          if (overallScore >= 90) xpAwarded += XP_AWARDS.SCORE_BONUS_90_PLUS
+          else if (overallScore >= 80) xpAwarded += XP_AWARDS.SCORE_BONUS_80_PLUS
+          if (overallScore === 100) xpAwarded += XP_AWARDS.PERFECT_SCORE
+
+          await prisma.$transaction([
+            prisma.attempt.update({
+              where: { id: attemptId },
+              data: { 
+                status: 'completed', 
+                completedAt: new Date(),
+                score: overallScore,
+                evalResult: evalResult as any
+              },
+            }),
+            prisma.user.update({
+              where: { id: completedAttempt.userId },
+              data: { 
+                totalXp: { increment: xpAwarded },
+                lastActiveDate: new Date()
+              }
+            })
+          ])
 
           send(ws, { type: 'simulation_ended' })
           ws.close()
@@ -181,9 +233,14 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
             timeElapsed: (attempt as any).timeElapsed,
           })
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Simulation error:', err)
-        send(ws, { type: 'error', content: 'Something went wrong. Please try again.' })
+        send(ws, { 
+          type: 'error', 
+          content: process.env.NODE_ENV === 'development' 
+            ? `AI Error: ${err.message || 'Unknown error'}` 
+            : 'Something went wrong. Please try again.' 
+        })
       }
     },
 

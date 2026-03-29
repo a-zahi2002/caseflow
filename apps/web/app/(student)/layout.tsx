@@ -41,9 +41,9 @@ export default function StudentRouteLayout({ children }: { children: ReactNode }
         <StudentNav 
           userName={user.name}
           userInitials={initials}
-          totalXp={0} // Default to 0 until API supports it
-          streak={0}  // Default to 0 until API supports it
-          currentPath="/"
+          totalXp={user.totalXp ?? 0}
+          streak={user.currentStreak ?? 0}
+          currentPath={typeof window !== 'undefined' ? window.location.pathname : '/'}
         />
         <main className="flex-1 bg-surface-page">
           {children}

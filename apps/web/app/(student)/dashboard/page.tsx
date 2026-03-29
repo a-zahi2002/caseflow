@@ -154,7 +154,7 @@ export default function StudentDashboard() {
                 <Link href="/progress" className="text-xs font-bold text-brand uppercase tracking-widest hover:underline">Full Analytics →</Link>
              </div>
              <XpBar 
-               totalXp={(user as any).xp || 0} 
+               totalXp={user?.totalXp ?? 0} 
                institutionRank={0}
                institutionTotal={500}
              />

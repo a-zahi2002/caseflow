@@ -63,6 +63,11 @@ model User {
   role         Role       @default(student)
   status       UserStatus @default(active)
   institution  String?
+  totalXp      Int        @default(0)
+  currentStreak Int       @default(0)
+  longestStreak Int       @default(0)
+  lastActiveDate DateTime?
+  badges       Json       @default("[]") // Store array of { badgeId, unlockedAt }
   createdAt    DateTime   @default(now())
 
   cases       Case[]
