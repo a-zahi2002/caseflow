@@ -1,14 +1,16 @@
 import { Hono } from 'hono'
-import { createNodeWebSocket } from '@hono/node-ws'
 import { streamPatientResponse, getPatientResponse } from '@caseflow/ai'
 import { prisma } from '@caseflow/db'
 import { ollamaClient } from '../lib/ollama-client.js'
 import { authMiddleware } from '../middleware/auth.js'
 import { NotFoundError, AppError } from '../lib/errors.js'
+import { upgradeWebSocket } from '../lib/ws.js'
 import type { AppEnv } from '../types.js'
 import type { OllamaMessage, PatientPromptOptions } from '@caseflow/ai'
 
 export const simulationRouter = new Hono<AppEnv>()
+
+simulationRouter.use('*', authMiddleware)
 
 // WebSocket message types — client sends these
 interface ClientMessage {
@@ -29,7 +31,6 @@ function send(ws: { send: (data: string) => void }, msg: ServerMessage): void {
 }
 
 // POST /simulation/start — creates an Attempt and returns the attemptId
-// The client then opens a WebSocket using that attemptId
 simulationRouter.post('/start', authMiddleware, async (c) => {
   try {
     const payload = c.get('jwtPayload')
@@ -97,16 +98,12 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
     timeLimit: (attempt.case as any).timeLimit ?? undefined,
   }
 
-  // Upgrade to WebSocket
-  const { upgradeWebSocket } = createNodeWebSocket({ app: simulationRouter })
-
   return upgradeWebSocket(c, {
     async onMessage(event: any, ws: any) {
       try {
         const data = JSON.parse(event.data.toString()) as ClientMessage
 
         if (data.type === 'end_simulation') {
-          // Fetch full attempt details for evaluation
           const completedAttempt = await prisma.attempt.findUnique({
             where: { id: attemptId },
             include: {
@@ -117,7 +114,6 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
 
           if (!completedAttempt) throw new NotFoundError('Attempt')
 
-          // Run Evaluator
           const { runEvaluator } = await import('@caseflow/ai')
           const evalResult = await runEvaluator({
             ollama: ollamaClient,
@@ -147,7 +143,6 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
         }
 
         if (data.type === 'message' && data.content) {
-          // Save student message
           await prisma.simMessage.create({
             data: {
               attemptId,
@@ -156,7 +151,6 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
             },
           })
 
-          // Stream patient response token by token
           let fullResponse = ''
 
           for await (const chunk of streamPatientResponse(ollamaClient, {
@@ -168,7 +162,6 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
             send(ws, { type: 'stream_chunk', content: chunk })
           }
 
-          // Save patient message
           await prisma.simMessage.create({
             data: {
               attemptId,
@@ -177,7 +170,6 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
             },
           })
 
-          // Update conversation history for next turn
           conversationHistory.push(
             { role: 'user', content: data.content },
             { role: 'assistant', content: fullResponse }

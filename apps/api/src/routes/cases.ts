@@ -48,27 +48,20 @@ casesRouter.get('/', async (c) => {
     }),
   }
 
-  const [cases, total] = await Promise.all([
+  const payload = c.get('jwtPayload')
+  const [casesRaw, total] = await Promise.all([
     prisma.case.findMany({
       where,
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        specialty: true,
-        difficulty: true,
-        status: true,
-        tags: true,
-        timeLimit: true,
-        patientPersona: true,
-        authorId: true,
-        sourceDocumentUrl: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
         author: {
           select: { id: true, name: true },
+        },
+        attempts: {
+          where: { userId: payload.sub },
+          select: { status: true, score: true },
         },
         _count: {
           select: { attempts: true },
@@ -77,6 +70,22 @@ casesRouter.get('/', async (c) => {
     }),
     prisma.case.count({ where }),
   ])
+
+  const cases = casesRaw.map((c) => {
+    const userAttempts = c.attempts
+    const isCompleted = userAttempts.some((a) => a.status === 'completed')
+    const bestScore = userAttempts.length > 0
+      ? Math.max(...userAttempts.map((a) => a.score ?? 0))
+      : null
+
+    return {
+      ...c,
+      isCompleted,
+      bestScore,
+      attemptCount: c._count?.attempts || 0,
+      rating: 4.5,
+    }
+  })
 
   return success(c, {
     cases,

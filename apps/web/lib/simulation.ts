@@ -1,3 +1,5 @@
+import { getToken } from './auth'
+
 export type ServerMessageType = 'stream_chunk' | 'stream_end' | 'error' | 'simulation_ended'
 
 export interface ServerMessage {
@@ -29,8 +31,9 @@ export class SimulationClient {
       .replace('http://', 'ws://')
       .replace('https://', 'wss://')
 
+    const token = getToken()
     this.ws = new WebSocket(
-      `${wsUrl}/simulation/${this.options.attemptId}/ws`
+      `${wsUrl}/simulation/${this.options.attemptId}/ws?token=${token}`
     )
 
     this.ws.onmessage = (event) => {

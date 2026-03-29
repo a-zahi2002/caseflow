@@ -6,13 +6,13 @@ import type { JwtPayload } from '@caseflow/types'
 import type { AppEnv } from '../types.js'
 
 export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
-  const authHeader = c.req.header('Authorization')
+  let token = c.req.header('Authorization')?.startsWith('Bearer ') 
+    ? c.req.header('Authorization')?.slice(7) 
+    : c.req.query('token')
 
-  if (!authHeader?.startsWith('Bearer ')) {
-    throw new UnauthorizedError('Missing or malformed Authorization header')
+  if (!token) {
+    throw new UnauthorizedError('Missing authentication token')
   }
-
-  const token = authHeader.slice(7)
 
   let payload: JwtPayload
   try {

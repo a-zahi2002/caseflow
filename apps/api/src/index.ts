@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { serve } from '@hono/node-server'
+import { app, injectWebSocket } from './lib/ws.js'
 import { config } from './lib/config.js'
 import { AppError } from './lib/errors.js'
 import { error } from './lib/response.js'
@@ -15,8 +16,6 @@ import { discussionsRouter } from './routes/discussions.js'
 import { analyticsRouter } from './routes/analytics.js'
 import { adminRouter } from './routes/admin.js'
 import { healthRouter } from './routes/health.js'
-
-const app = new Hono<AppEnv>()
 
 // Global middleware
 app.use('*', logger())
@@ -68,9 +67,11 @@ app.onError((err, c) => {
 app.notFound((c) => error(c, 'Route not found', 404, 'NOT_FOUND'))
 
 // Start server
-serve(
+const server = serve(
   { fetch: app.fetch, port: config.PORT },
   () => console.log(`🚀 Caseflow API running on http://localhost:${config.PORT}`)
 )
+
+injectWebSocket(server)
 
 export default app

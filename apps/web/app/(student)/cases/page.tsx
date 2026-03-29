@@ -1,11 +1,10 @@
-import { Metadata } from 'next'
-import Link from 'next/link'
-import { SearchX } from 'lucide-react'
-import { cn } from '@/lib/utils'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Case Library — CBL Platform',
-}
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { SearchX, Loader2, Play } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
 
 interface Case {
   id: string
@@ -18,89 +17,6 @@ interface Case {
   isCompleted: boolean
   bestScore: number | null
   tags: string[]
-}
-
-const MOCK_CASES: Case[] = [
-  {
-    id: 'c1',
-    title: 'Acute Chest Pain — Possible MI',
-    specialty: 'Cardiology',
-    difficulty: 'intermediate',
-    rating: 4.8,
-    attemptCount: 1200,
-    isCompleted: false,
-    bestScore: null,
-    tags: ['ECG', 'Troponin', 'STEMI'],
-    description: '45M with crushing substernal chest pain radiating to the left arm and jaw. ST elevation noted in leads II, III and aVF on initial ECG.'
-  },
-  {
-    id: 'c2',
-    title: 'COPD Exacerbation — Acute Dyspnea',
-    specialty: 'Respiratory',
-    difficulty: 'beginner',
-    rating: 4.6,
-    attemptCount: 890,
-    isCompleted: true,
-    bestScore: 82,
-    tags: ['COPD', 'Spirometry', 'Bronchodilator'],
-    description: '62F smoker with 3-day worsening dyspnea and productive cough. Known COPD — assess severity and initiate appropriate management.'
-  },
-  {
-    id: 'c3',
-    title: 'Thunderclap Headache — SAH vs Migraine',
-    specialty: 'Neurology',
-    difficulty: 'advanced',
-    rating: 4.9,
-    attemptCount: 560,
-    isCompleted: false,
-    bestScore: null,
-    tags: ['LP', 'CT-Head', 'SAH'],
-    description: '28F with sudden worst-ever headache, neck stiffness and photophobia. Differentiate subarachnoid haemorrhage from migraine and manage appropriately.'
-  },
-  {
-    id: 'c4',
-    title: 'Septic Shock — Source Identification',
-    specialty: 'Emergency',
-    difficulty: 'advanced',
-    rating: 4.7,
-    attemptCount: 430,
-    isCompleted: false,
-    bestScore: null,
-    tags: ['Sepsis', 'Cultures', 'Fluids'],
-    description: '55M diabetic with fever, hypotension and altered consciousness. Identify the septic focus and initiate time-critical resuscitation.'
-  },
-  {
-    id: 'c5',
-    title: 'TIA — Risk Stratification and Management',
-    specialty: 'Neurology',
-    difficulty: 'beginner',
-    rating: 4.5,
-    attemptCount: 720,
-    isCompleted: true,
-    bestScore: 91,
-    tags: ['ABCD2', 'Antiplatelet', 'Imaging'],
-    description: '67M hypertensive with 30-minute episode of right-sided weakness now fully resolved. Apply ABCD2 score and determine appropriate management pathway.'
-  },
-  {
-    id: 'c6',
-    title: 'Palpitations — AF vs SVT',
-    specialty: 'Cardiology',
-    difficulty: 'intermediate',
-    rating: 4.7,
-    attemptCount: 640,
-    isCompleted: false,
-    bestScore: null,
-    tags: ['ECG', 'Adenosine', 'Cardioversion'],
-    description: '38F with sudden-onset palpitations, mild dyspnea and an irregular pulse on examination. Work up the arrhythmia and initiate rate or rhythm control.'
-  }
-]
-
-interface CaseLibraryProps {
-  searchParams: {
-    specialty?: string
-    difficulty?: string
-    q?: string
-  }
 }
 
 function CaseCard({ caseItem }: { caseItem: Case }) {
@@ -120,32 +36,32 @@ function CaseCard({ caseItem }: { caseItem: Case }) {
   const { bg, text } = specialtyColors[caseItem.specialty] || { bg: 'bg-surface-subtle', text: 'text-text-secondary' }
 
   return (
-    <div className="relative bg-white border border-border-default rounded-xl p-5 flex flex-col gap-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-hover overflow-hidden h-full group">
+    <div className="relative bg-white border border-border-default rounded-2xl p-6 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group">
       {caseItem.isCompleted && (
         <div className="absolute top-4 right-4 z-10">
-          <span className="inline-flex items-center px-2 py-0.5 rounded-sm bg-brand-light text-brand-text border border-border-brand font-mono text-[9px] font-bold uppercase tracking-wider">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-brand/10 text-brand border border-brand/20 font-bold text-[9px] uppercase tracking-wider">
             ✓ Completed
           </span>
         </div>
       )}
 
-      <div className="flex items-center gap-2">
-        <span className={cn("inline-flex items-center px-2 py-0.5 rounded-sm font-mono text-[10px] font-bold uppercase tracking-widest border border-transparent", bg, text)}>
+      <div className="flex items-center gap-3">
+        <span className={cn("inline-flex items-center px-3 py-1 rounded-full font-bold text-[10px] uppercase tracking-widest border", bg, text)}>
           {caseItem.specialty}
         </span>
         <span 
-          className="text-[10px] font-mono font-bold uppercase tracking-tight"
+          className="text-[10px] font-bold uppercase tracking-tight"
           style={{ color: caseItem.difficulty === 'beginner' ? 'var(--brand)' : caseItem.difficulty === 'intermediate' ? '#D97706' : '#DC2626' }}
         >
           {caseItem.difficulty}
         </span>
       </div>
 
-      <h3 className="text-sm font-bold text-text-primary leading-snug line-clamp-1 min-h-[1.25rem]">
+      <h3 className="text-base font-bold text-text-primary leading-tight line-clamp-1 min-h-[1.25rem] group-hover:text-brand transition-colors">
         {caseItem.title}
       </h3>
 
-      <p className="text-xs text-text-secondary leading-relaxed line-clamp-2 min-h-[2.5rem]">
+      <p className="text-[13px] text-text-secondary leading-relaxed line-clamp-2 min-h-[2.5rem]">
         {caseItem.description}
       </p>
 
@@ -153,143 +69,135 @@ function CaseCard({ caseItem }: { caseItem: Case }) {
         {caseItem.tags.map((tag) => (
           <span 
             key={tag} 
-            className="px-1.5 py-0.5 bg-surface-subtle border border-border-default rounded-sm text-text-tertiary font-mono text-[10px] whitespace-nowrap"
+            className="px-2 py-1 bg-slate-50 border border-border-default rounded-md text-text-tertiary font-bold text-[9px] uppercase tracking-tighter"
           >
             {tag}
           </span>
         ))}
       </div>
 
-      <div className="mt-auto flex items-center justify-between pt-3 border-t border-border-default">
+      <div className="mt-4 flex items-center justify-between pt-4 border-t border-slate-100">
         <div className="flex items-center gap-3">
-          <span className="text-[11px] font-bold font-mono text-[#92400E]">⚡ +{xpReward} XP</span>
+          <span className="text-[11px] font-bold text-[#92400E] flex items-center gap-1">
+             <span className="text-sm">⚡</span> +{xpReward} XP
+          </span>
           {caseItem.bestScore !== null && (
-            <span className="text-[10px] font-bold font-mono text-brand-text">Best: {caseItem.bestScore}%</span>
+            <span className="text-[10px] font-bold text-brand ring-1 ring-brand/20 px-1.5 rounded bg-brand/5">Best: {caseItem.bestScore}%</span>
           )}
         </div>
-        <div className="flex items-center gap-2 text-[10px] font-bold font-mono text-text-tertiary">
-          <span>👥 {caseItem.attemptCount.toLocaleString()}</span>
-          <span>⭐ {caseItem.rating.toFixed(1)}</span>
+        <div className="flex items-center gap-2 text-[10px] font-bold text-text-tertiary">
+          <span>👥 {caseItem.attemptCount?.toLocaleString() || '0'}</span>
+          <span>⭐ {(caseItem.rating || 4.5).toFixed(1)}</span>
         </div>
       </div>
 
       <Link 
         href={`/simulation/start/${caseItem.id}`}
-        className="mt-1 w-full h-10 rounded-lg border border-border-brand flex items-center justify-center bg-transparent text-brand font-bold text-[13px] hover:bg-brand hover:text-white transition-all shadow-sm active:translate-y-0.5"
+        className="mt-3 w-full h-11 rounded-xl bg-brand text-white font-bold text-[13px] flex items-center justify-center gap-2 shadow-lg shadow-brand/20 hover:bg-brand-hover transition-all active:translate-y-0.5"
       >
-        {caseItem.isCompleted ? 'Retry Case →' : 'Start Case →'}
+        <Play className="w-4 h-4 fill-current" />
+        {caseItem.isCompleted ? 'Retry Encouter' : 'Start Encounter'}
       </Link>
     </div>
   )
 }
 
-export default function CaseLibraryPage({ searchParams }: CaseLibraryProps) {
-  const { specialty, difficulty, q } = searchParams
-  
-  const filteredCases = MOCK_CASES.filter((c) => {
-    const sMatch = !specialty || specialty === 'all' || c.specialty.toLowerCase() === specialty.toLowerCase()
-    const dMatch = !difficulty || difficulty === 'all' || c.difficulty.toLowerCase() === difficulty.toLowerCase()
-    
-    let qMatch = true
-    if (q) {
-      const term = q.toLowerCase()
-      const content = `${c.title} ${c.description} ${c.tags.join(' ')}`.toLowerCase()
-      qMatch = content.includes(term)
+export default function CaseLibraryPage() {
+  const [cases, setCases] = useState<Case[]>([])
+  const [loading, setLoading] = useState(true)
+  const [q, setQ] = useState('')
+  const [specialty, setSpecialty] = useState('all')
+
+  useEffect(() => {
+    async function loadCases() {
+      try {
+        const res = await apiClient.get<{ cases: Case[] }>('/cases')
+        if (res.success && res.data?.cases) {
+          setCases(res.data.cases)
+        }
+      } catch (err) {
+        console.error('Failed to load cases')
+      } finally {
+        setLoading(false)
+      }
     }
-    
-    return sMatch && dMatch && qMatch
+    loadCases()
+  }, [])
+
+  const filteredCases = cases.filter((c) => {
+    const sMatch = specialty === 'all' || c.specialty.toLowerCase() === specialty.toLowerCase()
+    const qMatch = !q || `${c.title} ${c.description} ${c.tags.join(' ')}`.toLowerCase().includes(q.toLowerCase())
+    return sMatch && qMatch
   })
 
-  const specialtyFilters = ['all', 'cardiology', 'neurology', 'respiratory', 'emergency']
-  const difficultyFilters = ['all', 'beginner', 'intermediate', 'advanced']
+  const specialtyFilters = ['all', 'Cardiology', 'Neurology', 'Respiratory', 'Emergency']
 
-  const getFilterUrl = (key: string, value: string) => {
-    const params = new URLSearchParams()
-    if (specialty) params.set('specialty', specialty)
-    if (difficulty) params.set('difficulty', difficulty)
-    if (q) params.set('q', q)
-    
-    if (value === 'all') params.delete(key)
-    else params.set(key, value)
-    
-    return `/cases?${params.toString()}`
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-10 h-10 text-brand animate-spin" />
+        <p className="text-sm font-bold text-text-tertiary uppercase tracking-widest animate-pulse">Accessing Medical Database...</p>
+      </div>
+    )
   }
 
   return (
-    <div className="max-w-[880px] mx-auto p-6 flex flex-col gap-5">
+    <div className="max-w-[1000px] mx-auto p-8 flex flex-col gap-8">
       {/* SECTION 1: Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-baseline gap-2.5">
-          <h1 className="text-[22px] font-bold text-text-primary tracking-tight">Case Library</h1>
-          <span className="text-xs font-bold font-mono text-text-tertiary uppercase tracking-wider">{filteredCases.length} cases</span>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-text-primary tracking-tight">Clinical Case Library</h1>
+          <p className="text-sm text-text-secondary mt-1 max-w-sm">Advance your proficiency through evidence-based AI patient simulations.</p>
         </div>
         
-        <form action="/cases" method="GET" className="relative group">
+        <div className="relative group min-w-[300px]">
           <input 
             type="text" 
-            name="q"
-            defaultValue={q}
-            placeholder="Search cases…"
-            className="w-[220px] h-[38px] pl-4 pr-10 border border-border-default rounded-full text-[13px] font-medium bg-white focus:outline-none focus:border-brand transition-all shadow-sm"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search specialties, symptoms…"
+            className="w-full h-[46px] pl-12 pr-6 border border-border-default rounded-2xl text-[14px] font-medium bg-white focus:outline-none focus:ring-4 focus:ring-brand/5 focus:border-brand transition-all shadow-sm"
           />
-          {specialty && <input type="hidden" name="specialty" value={specialty} />}
-          {difficulty && <input type="hidden" name="difficulty" value={difficulty} />}
-          <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary group-focus-within:text-brand">
-             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-          </button>
-        </form>
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-tertiary">
+             <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          </div>
+        </div>
       </div>
 
       {/* SECTION 2: Filter Chips */}
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          {specialtyFilters.map((s) => (
-            <Link
-              key={s}
-              href={getFilterUrl('specialty', s)}
-              className={cn(
-                "px-3.5 py-1.5 rounded-full border border-border-default text-[12px] font-bold capitalize transition-all hover:bg-surface-subtle hover:text-text-primary",
-                (!specialty && s === 'all') || specialty === s 
-                  ? "bg-brand-light border-border-brand text-brand-text" 
-                  : "text-text-secondary bg-white"
-              )}
-            >
-              {s}
-            </Link>
-          ))}
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          {difficultyFilters.map((d) => (
-            <Link
-              key={d}
-              href={getFilterUrl('difficulty', d)}
-              className={cn(
-                "px-3.5 py-1.5 rounded-full border border-border-default text-[12px] font-bold capitalize transition-all hover:bg-surface-subtle hover:text-text-primary",
-                (!difficulty && d === 'all') || difficulty === d 
-                  ? "bg-brand-light border-border-brand text-brand-text" 
-                  : "text-text-secondary bg-white"
-              )}
-            >
-              {d}
-            </Link>
-          ))}
-        </div>
+      <div className="flex items-center gap-2.5 flex-wrap">
+        {specialtyFilters.map((s) => (
+          <button
+            key={s}
+            onClick={() => setSpecialty(s.toLowerCase())}
+            className={cn(
+              "px-5 py-2 rounded-xl border font-bold text-[12px] uppercase tracking-wider transition-all",
+              specialty === s.toLowerCase() 
+                ? "bg-brand border-brand text-white shadow-lg shadow-brand/20" 
+                : "bg-white border-border-default text-text-secondary hover:border-brand/40"
+            )}
+          >
+            {s}
+          </button>
+        ))}
       </div>
 
       {/* SECTION 3: Grid or Empty State */}
       {filteredCases.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCases.map((c) => (
             <CaseCard key={c.id} caseItem={c} />
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center p-20 bg-white border border-dashed border-border-default rounded-2xl animate-slide-up">
-          <SearchX className="w-10 h-10 text-text-tertiary mb-4 opacity-40" />
-          <h3 className="text-base font-bold text-text-secondary mb-2">No cases match your filters</h3>
-          <Link href="/cases" className="text-sm font-bold font-mono text-brand uppercase tracking-widest hover:underline">
+        <div className="flex flex-col items-center justify-center p-20 bg-white border border-dashed border-border-default rounded-3xl animate-slide-up">
+          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+             <SearchX className="w-8 h-8 text-text-tertiary opacity-40" />
+          </div>
+          <h3 className="text-lg font-bold text-text-primary mb-2">No matching cases found</h3>
+          <button onClick={() => { setQ(''); setSpecialty('all') }} className="text-sm font-bold text-brand uppercase tracking-widest hover:underline">
             Clear all filters
-          </Link>
+          </button>
         </div>
       )}
     </div>

@@ -59,10 +59,10 @@ export function StudentNav({ userName, userInitials, totalXp, streak }: StudentN
   }
 
   const navItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Cases', href: '/cases' },
-    { label: 'Simulation', href: '#', disabled: true },
-    { label: 'Progress', href: '/progress' },
+    { label: 'Dashboard', href: '/dashboard', disabled: false },
+    { label: 'Cases', href: '/cases', disabled: false },
+    { label: 'Simulation', href: '/simulation', disabled: false },
+    { label: 'Progress', href: '/progress', disabled: false },
   ]
 
   return (
