@@ -48,5 +48,12 @@ export const apiClient = {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
   },
+
+  delete<T>(path: string, token?: string): Promise<ApiResponse<T>> {
+    return request<T>(path, {
+      method: 'DELETE',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+  },
 }
 

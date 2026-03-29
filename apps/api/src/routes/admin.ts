@@ -1,10 +1,11 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
+import bcrypt from 'bcryptjs'
 import { zValidator } from '@hono/zod-validator'
 import { prisma } from '@caseflow/db'
 import { authMiddleware } from '../middleware/auth.js'
 import { requireRole } from '../middleware/require-role.js'
-import { success } from '../lib/response.js'
+import { success, error } from '../lib/response.js'
 import { NotFoundError } from '../lib/errors.js'
 import type { AppEnv } from '../types.js'
 import type { 
@@ -25,12 +26,20 @@ adminRouter.get('/users', async (c) => {
   const role = c.req.query('role') as any
   const status = c.req.query('status') as any
   const institution = c.req.query('institution')
+  const search = c.req.query('search')
 
   const users = await prisma.user.findMany({
     where: {
       ...(role && { role }),
       ...(status && { status } as any),
       ...(institution && { institution }),
+      ...(search && {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { institution: { contains: search, mode: 'insensitive' } },
+        ],
+      }),
     },
     orderBy: { createdAt: 'desc' },
   })
@@ -48,37 +57,107 @@ adminRouter.get('/users', async (c) => {
   return success(c, data)
 })
 
-const updateRoleSchema = z.object({
-  role: z.enum(['student', 'educator', 'admin']),
+const createUserSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email().toLowerCase(),
+  password: z.string().min(8),
+  role: z.enum(['student', 'educator', 'admin']).default('student'),
+  institution: z.string().optional(),
 })
 
-adminRouter.patch('/users/:id/role', zValidator('json', updateRoleSchema), async (c) => {
+adminRouter.post('/users', zValidator('json', createUserSchema), async (c) => {
+  const { name, email, password, role, institution } = (c.req as any).valid('json')
+
+  const existing = await prisma.user.findUnique({ where: { email } })
+  if (existing) {
+    return error(c, 'User with this email already exists', 409)
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12)
+
+  const user = await prisma.user.create({
+    data: {
+      name,
+      email,
+      passwordHash,
+      role: role as any,
+      institution: institution || null,
+    },
+  })
+
+  const data: UserManagementData = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role as any,
+    institution: user.institution,
+    status: (user as any).status,
+    createdAt: user.createdAt.toISOString(),
+  }
+
+  return success(c, data, 201)
+})
+
+const updateUserSchema = z.object({
+  name: z.string().min(2).optional(),
+  email: z.string().email().toLowerCase().optional(),
+  password: z.string().min(8).optional(),
+  role: z.enum(['student', 'educator', 'admin']).optional(),
+  institution: z.string().optional(),
+  status: z.enum(['active', 'suspended']).optional(),
+})
+
+adminRouter.patch('/users/:id', zValidator('json', updateUserSchema), async (c) => {
   const id = c.req.param('id')
-  const { role } = (c.req as any).valid('json')
+  const updates = (c.req as any).valid('json')
+
+  if (updates.email) {
+    const existing = await prisma.user.findFirst({
+      where: { email: updates.email, NOT: { id } }
+    })
+    if (existing) {
+      return error(c, 'Email already taken by another user', 409)
+    }
+  }
+
+  if (updates.password) {
+    updates.passwordHash = await bcrypt.hash(updates.password, 12)
+    delete updates.password
+  }
 
   const user = await prisma.user.update({
     where: { id },
-    data: { role: role as any },
+    data: updates,
   })
 
-  return success(c, { id: user.id, role: user.role })
+  const data: UserManagementData = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role as any,
+    institution: user.institution,
+    status: (user as any).status,
+    createdAt: user.createdAt.toISOString(),
+  }
+
+  return success(c, data)
 })
 
-const suspendSchema = z.object({
-  suspend: z.boolean(),
-})
-
-adminRouter.patch('/users/:id/suspend', zValidator('json', suspendSchema), async (c) => {
+adminRouter.delete('/users/:id', async (c) => {
   const id = c.req.param('id')
-  const { suspend } = (c.req as any).valid('json')
+  
+  // Optional: prevent deleting self
+  // const me = c.get('jwtPayload').sub
+  // if (id === me) return error(c, 'Cannot delete yourself', 400)
 
-  const user = await prisma.user.update({
-    where: { id },
-    data: { status: suspend ? 'suspended' : 'active' } as any,
-  })
-
-  return success(c, { id: user.id, status: (user as any).status })
+  await prisma.user.delete({ where: { id } })
+  
+  return success(c, { id, deleted: true })
 })
+
+// Consolidating specific updates into the general PATCH route above
+// Keeping these for backward compatibility if needed, or remove them
+// For now, let's keep the general one as the primary.
 
 // --- Content Moderation ---
 

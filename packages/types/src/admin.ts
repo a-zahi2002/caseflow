@@ -26,6 +26,19 @@ export interface PlatformSettingsData {
   communitySubmissionsEnabled: boolean
 }
 
-export interface UpdateUserRoleInput {
+export interface CreateUserInput {
+  name: string
+  email: string
+  password: string
   role: 'student' | 'educator' | 'admin'
+  institution?: string
+}
+
+export interface UpdateUserInput {
+  name?: string
+  email?: string
+  password?: string
+  role?: 'student' | 'educator' | 'admin'
+  institution?: string
+  status?: UserStatus
 }
