@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { apiClient } from '@/lib/api-client'
-import { saveAuth, getDashboardPath } from '@/lib/auth'
+import { saveAuth, getDashboardPath, getUser } from '@/lib/auth'
 import type { AuthResponse } from '@caseflow/types'
 
 export default function RegisterPage() {
@@ -15,6 +15,13 @@ export default function RegisterPage() {
   const [institution, setInstitution] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const user = getUser()
+    if (user) {
+      router.push(getDashboardPath(user.role))
+    }
+  }, [router])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

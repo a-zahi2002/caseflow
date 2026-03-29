@@ -14,6 +14,46 @@ async function main() {
       email: 'educator@caseflow.dev',
       passwordHash,
       role: 'educator',
+      institution: 'St. Mary\'s Medical School',
+    },
+  })
+
+  // Create test student 1
+  await prisma.user.upsert({
+    where: { email: 'student@caseflow.dev' },
+    update: {},
+    create: {
+      name: 'Sam Student',
+      email: 'student@caseflow.dev',
+      passwordHash,
+      role: 'student',
+      institution: 'City Hospital University',
+    },
+  })
+
+  // Create test student 2 (Zahi)
+  await prisma.user.upsert({
+    where: { email: 'zahi@caseflow.dev' },
+    update: {},
+    create: {
+      name: 'Zahi',
+      email: 'zahi@caseflow.dev',
+      passwordHash,
+      role: 'student',
+      institution: 'Zahi University',
+    },
+  })
+
+  // Create test admin
+  const admin = await prisma.user.upsert({
+    where: { email: 'admin@caseflow.dev' },
+    update: {},
+    create: {
+      name: 'Admin User',
+      email: 'admin@caseflow.dev',
+      passwordHash,
+      role: 'admin',
+      institution: 'Caseflow Platform',
     },
   })
 
@@ -523,7 +563,11 @@ async function main() {
     },
   })
 
-  console.log('✅ Seed complete — 5 cases across Cardiology, Endocrinology, Respiratory, Gastroenterology, Neurology')
+  console.log('✅ Seed complete — Created Educator, Student, and Admin test accounts')
+  console.log('   Educator: educator@caseflow.dev | password123')
+  console.log('   Student:  student@caseflow.dev  | password123')
+  console.log('   Student:  zahi@caseflow.dev     | password123')
+  console.log('   Admin:    admin@caseflow.dev    | password123')
 }
 
 main()

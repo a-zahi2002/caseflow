@@ -19,9 +19,19 @@ Visit `http://localhost:3000` to start.
 ```bash
 npm install
 npx prisma migrate dev
+npm run db:seed --workspace=@caseflow/db
 ollama pull meditron
 npm run dev
 ```
+
+### 🔐 Test Credentials
+After running the seed command, use these credentials to test:
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Educator** | `educator@caseflow.dev` | `password123` |
+| **Student** | `student@caseflow.dev` | `password123` |
+| **Admin** | `admin@caseflow.dev` | `password123` |
 
 ## 📖 Documentation
 

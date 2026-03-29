@@ -3,8 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Zap, Menu, X, ChevronDown } from 'lucide-react'
+import { Zap, Menu, X, ChevronDown, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { clearAuth } from '@/lib/auth'
+import { useRouter } from 'next/navigation'
 
 export interface StudentNavProps {
   userName: string
@@ -18,7 +20,7 @@ interface NavTabProps {
   href: string
   label: string
   isActive: boolean
-  disabled?: boolean
+  disabled?: boolean | undefined
 }
 
 function NavTab({ href, label, isActive, disabled }: NavTabProps) {
@@ -48,7 +50,13 @@ function NavTab({ href, label, isActive, disabled }: NavTabProps) {
 
 export function StudentNav({ userName, userInitials, totalXp, streak }: StudentNavProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  const handleLogout = () => {
+    clearAuth()
+    router.push('/login')
+  }
 
   const navItems = [
     { label: 'Dashboard', href: '/dashboard' },
@@ -120,9 +128,22 @@ export function StudentNav({ userName, userInitials, totalXp, streak }: StudentN
             <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full" />
           </button>
           
-          <div className="hidden lg:flex items-center gap-1 cursor-pointer group">
+          <div className="hidden lg:flex items-center gap-1 cursor-pointer group relative">
              <span className="text-xs font-bold text-text-primary group-hover:text-brand transition-colors">{userName}</span>
              <ChevronDown className="w-3 h-3 text-text-tertiary group-hover:text-brand transition-colors" />
+             
+             {/* Simple Dropdown for Logout content */}
+             <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-border-default rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[60]">
+               <div className="p-2">
+                 <button 
+                   onClick={handleLogout}
+                   className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                 >
+                   <LogOut size={14} />
+                   Sign out
+                 </button>
+               </div>
+             </div>
           </div>
         </div>
 
@@ -167,6 +188,13 @@ export function StudentNav({ userName, userInitials, totalXp, streak }: StudentN
                 <span className="text-xs font-bold text-text-tertiary uppercase tracking-widest">Total XP</span>
                 <span className="text-xs font-bold text-reward-text font-mono">{totalXp.toLocaleString()}</span>
              </div>
+             <button 
+               onClick={handleLogout}
+               className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 rounded-lg text-sm font-bold mt-2"
+             >
+               <LogOut size={16} />
+               Sign out
+             </button>
           </div>
         </div>
       )}
