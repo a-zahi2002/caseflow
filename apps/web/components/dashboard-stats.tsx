@@ -39,3 +39,4 @@ export function StatCard({ label, value, subValue, icon: Icon, trend }: StatCard
     </div>
   )
 }
+

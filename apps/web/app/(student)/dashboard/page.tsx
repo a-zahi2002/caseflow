@@ -146,7 +146,7 @@ function InProgressCaseCard({
 
   return (
     <Link 
-      href={`/simulation/${id}`}
+      href={`/simulation/start/${id}`}
       className="bg-white border border-border-default rounded-xl p-[18px] flex flex-col gap-4 shadow-sm hover:-translate-y-0.5 hover:shadow-hover transition-all duration-200"
     >
       <div className="flex items-center justify-between">
@@ -273,3 +273,4 @@ export default function StudentDashboard() {
     </div>
   )
 }
+

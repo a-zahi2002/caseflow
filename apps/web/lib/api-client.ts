@@ -1,5 +1,5 @@
 import { config } from './config'
-import type { ApiResponse } from '@cbl/types'
+import type { ApiResponse } from '@caseflow/types'
 
 async function request<T>(
   path: string,
@@ -49,3 +49,4 @@ export const apiClient = {
     })
   },
 }
+

@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
 import { getToken } from '@/lib/auth'
-import type { PlatformSettingsData } from '@cbl/types'
+import type { PlatformSettingsData } from '@caseflow/types'
 
 export default function PlatformSettingsPage() {
   const [settings, setSettings] = useState<PlatformSettingsData>({
@@ -210,3 +210,4 @@ export default function PlatformSettingsPage() {
     </div>
   )
 }
+

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
 import { getToken } from '@/lib/auth'
-import type { UserManagementData } from '@cbl/types'
+import type { UserManagementData } from '@caseflow/types'
 
 export default function UserManagementPage() {
   const [users, setUsers] = useState<UserManagementData[]>([])
@@ -190,3 +190,4 @@ export default function UserManagementPage() {
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-import type { User } from '@cbl/types'
+import type { User } from '@caseflow/types'
 
 const TOKEN_KEY = 'caseflow_token'
 const USER_KEY = 'caseflow_user'
@@ -45,3 +45,4 @@ export async function getCurrentUser() {
     role: 'student' as const
   }
 }
+

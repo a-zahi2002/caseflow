@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { apiClient } from '@/lib/api-client'
 import { saveAuth, getDashboardPath } from '@/lib/auth'
-import type { AuthResponse } from '@cbl/types'
+import type { AuthResponse } from '@caseflow/types'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -99,3 +99,4 @@ export default function LoginPage() {
     </div>
   )
 }
+

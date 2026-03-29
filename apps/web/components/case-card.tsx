@@ -72,3 +72,4 @@ export function CaseCard({ id, title, specialty, difficulty, duration, progress 
     </div>
   )
 }
+

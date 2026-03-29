@@ -11,3 +11,4 @@ const env = envSchema.parse({
 export const config = {
   apiUrl: env.apiUrl,
 } as const
+

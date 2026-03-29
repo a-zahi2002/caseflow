@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api-client'
 import { getToken } from '@/lib/auth'
-import type { Case } from '@cbl/types'
+import type { Case } from '@caseflow/types'
 
 type CaseWithCount = Case & { _count: { attempts: number } }
 
@@ -129,3 +129,4 @@ export default function EducatorCasesPage() {
     </div>
   )
 }
+

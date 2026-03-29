@@ -9,7 +9,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@cbl/types": "*",
+    "@caseflow/types": "*",
     "@hookform/resolvers": "^5.2.2",
     "clsx": "^2.1.1",
     "lucide-react": "^1.7.0",

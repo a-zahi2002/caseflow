@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { computeLevel, LEVEL_TITLES } from '@cbl/types'
+import { computeLevel, LEVEL_TITLES } from '@caseflow/types'
 import { cn } from '@/lib/utils'
 
 interface XpBarProps {
@@ -83,3 +83,4 @@ export function XpBar({ totalXp, institutionRank, institutionTotal }: XpBarProps
     </div>
   )
 }
+

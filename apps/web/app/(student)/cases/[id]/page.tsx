@@ -64,7 +64,7 @@ export default function CaseDetailPage() {
     )
 
     if (res.success) {
-      router.push(`/simulation/${res.data.attemptId}`)
+      router.push(`/simulation/run/${res.data.attemptId}`)
     } else {
       setStarting(false)
     }

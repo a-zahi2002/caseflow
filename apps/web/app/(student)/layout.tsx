@@ -20,3 +20,4 @@ export default function StudentRouteLayout({ children }: { children: ReactNode }
     </XpToastProvider>
   )
 }
+

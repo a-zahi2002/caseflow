@@ -1,4 +1,4 @@
-import { StudentProgressSummary, LeaderboardEntry, computeLevel } from '@cbl/types'
+import { StudentProgressSummary, LeaderboardEntry, computeLevel } from '@caseflow/types'
 
 const MOCK_PROGRESS_DATA = {
   totalXp: 3240,
@@ -76,3 +76,4 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   await new Promise(resolve => setTimeout(resolve, 100))
   return MOCK_LEADERBOARD
 }
+

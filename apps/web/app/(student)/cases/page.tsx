@@ -174,7 +174,7 @@ function CaseCard({ caseItem }: { caseItem: Case }) {
       </div>
 
       <Link 
-        href={`/simulation/${caseItem.id}`}
+        href={`/simulation/start/${caseItem.id}`}
         className="mt-1 w-full h-10 rounded-lg border border-border-brand flex items-center justify-center bg-transparent text-brand font-bold text-[13px] hover:bg-brand hover:text-white transition-all shadow-sm active:translate-y-0.5"
       >
         {caseItem.isCompleted ? 'Retry Case →' : 'Start Case →'}
@@ -295,3 +295,4 @@ export default function CaseLibraryPage({ searchParams }: CaseLibraryProps) {
     </div>
   )
 }
+

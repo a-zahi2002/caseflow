@@ -1,6 +1,6 @@
 'use client'
 
-import { StreakStatus } from '@cbl/types'
+import { StreakStatus } from '@caseflow/types'
 import { cn } from '@/lib/utils'
 
 interface StreakTrackerProps {
@@ -77,3 +77,4 @@ export function StreakTracker({ streak, compact = false }: StreakTrackerProps) {
     </div>
   )
 }
+

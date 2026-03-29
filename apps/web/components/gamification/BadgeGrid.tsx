@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { BadgeDefinition, UserBadge, BADGE_DEFINITIONS } from '@cbl/types'
+import { BadgeDefinition, UserBadge, BADGE_DEFINITIONS } from '@caseflow/types'
 import { Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -111,3 +111,4 @@ export function BadgeGrid({ userBadges, limit }: BadgeGridProps) {
     </div>
   )
 }
+

@@ -37,3 +37,4 @@ export function XpToastProvider({ children }: { children: ReactNode }) {
     </XpToastContext.Provider>
   )
 }
+

@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { apiClient } from '@/lib/api-client'
 import { getToken } from '@/lib/auth'
-import type { ModerationQueueItem } from '@cbl/types'
+import type { ModerationQueueItem } from '@caseflow/types'
 
 export default function ModerationPage() {
   const [items, setItems] = useState<ModerationQueueItem[]>([])
@@ -227,3 +227,4 @@ export default function ModerationPage() {
     </div>
   )
 }
+

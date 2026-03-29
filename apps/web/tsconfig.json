@@ -15,12 +15,8 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@cbl/types": ["../../packages/types/src/index.ts"],
-      "@cbl/types/*": ["../../packages/types/src/*"],
-      "@cbl/ui": ["../../packages/ui/src/index.ts"],
-      "@cbl/ui/*": ["../../packages/ui/src/*"],
-      "@cbl/types": ["../../packages/types/src/index.ts"],
-      "@cbl/types/*": ["../../packages/types/src/*"],
+      "@caseflow/types": ["../../packages/types/src/index.ts"],
+      "@caseflow/types/*": ["../../packages/types/src/*"],
       "@caseflow/ui": ["../../packages/ui/src/index.ts"],
       "@caseflow/ui/*": ["../../packages/ui/src/*"]
     },

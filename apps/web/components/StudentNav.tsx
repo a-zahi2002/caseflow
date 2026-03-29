@@ -173,3 +173,4 @@ export function StudentNav({ userName, userInitials, totalXp, streak }: StudentN
     </nav>
   )
 }
+
