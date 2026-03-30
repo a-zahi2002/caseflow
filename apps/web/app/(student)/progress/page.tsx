@@ -6,7 +6,9 @@ import { XpBar } from '@/components/gamification/XpBar'
 import { BadgeGrid } from '@/components/gamification/BadgeGrid'
 import { cn } from '@/lib/utils'
 import { getUser } from '@/lib/auth'
-import { User, computeLevel } from '@caseflow/types'
+import { apiClient } from '@/lib/api-client'
+import { Loader2 } from 'lucide-react'
+import { User, computeLevel, StudentProgressData } from '@caseflow/types'
 
 const MOCK_PROGRESS = {
   totalXp: 3240,
@@ -88,14 +90,44 @@ function StatCard({ label, value, suffix, accent, delta }: {
 }
 
 export default function ProgressPage() {
-  const [user, setUser] = useState<User | null>(null)
+  const [progress, setProgress] = useState<StudentProgressData | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setUser(getUser())
+    async function loadProgress() {
+      try {
+        const res = await apiClient.get<StudentProgressData>('/progress/me')
+        if (res.success) {
+          setProgress(res.data)
+        }
+      } catch (err) {
+        console.error('Failed to load progress data', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadProgress()
   }, [])
 
-  const totalXp = user?.totalXp ?? 0
-  const maxXp = Math.max(...MOCK_PROGRESS.weeklyXp)
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <Loader2 className="w-10 h-10 text-brand animate-spin" />
+      <p className="text-sm font-bold text-text-tertiary uppercase tracking-widest animate-pulse">Analyzing your progress...</p>
+    </div>
+  )
+
+  if (!progress) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
+       <p className="text-red-500 font-bold uppercase tracking-widest">Failed to load progress data</p>
+       <button onClick={() => window.location.reload()} className="px-4 py-2 bg-brand text-white rounded-lg text-xs font-bold">Retry</button>
+    </div>
+  )
+
+  const { user, metrics } = progress
+  const totalXp = user.totalXp
+  const maxXp = Math.max(...MOCK_PROGRESS.weeklyXp, 100) // Fallback for now as weeklyXp isn't in API yet
+  
   const specialtyColors: Record<string, string> = {
     Cardiology: '#BE123C',
     Respiratory: 'var(--brand)',
@@ -106,15 +138,13 @@ export default function ProgressPage() {
 
   const avatarColors = ['#3730A3', '#6D28D9', '#047857', '#1D4ED8', '#9A3412']
 
-  if (!user) return null
-
   return (
     <div className="max-w-[880px] mx-auto p-6 flex flex-col gap-6">
       
       {/* SECTION 1: Header */}
       <div className="flex items-baseline gap-2.5">
         <h1 className="text-[22px] font-bold text-text-primary tracking-tight">Progress & Analytics</h1>
-        <span className="text-xs font-bold font-mono text-text-tertiary uppercase tracking-widest">Last 30 days</span>
+        <span className="text-xs font-bold font-mono text-text-tertiary uppercase tracking-widest">Live Sync</span>
       </div>
 
       {/* SECTION 2: Stats Row */}
@@ -123,26 +153,26 @@ export default function ProgressPage() {
           label="Total XP" 
           value={totalXp.toLocaleString()} 
           accent="brand" 
-          delta="+0 this month" 
+          delta={`Level ${computeLevel(totalXp).level}`} 
         />
         <StatCard 
           label="Cases Completed" 
-          value={MOCK_PROGRESS.casesCompleted} 
-          suffix={`/ ${MOCK_PROGRESS.casesAttempted} attempted`} 
+          value={metrics.totalCompleted} 
+          suffix={`/ ${metrics.totalAttempts} attempted`} 
           accent="reward" 
         />
         <StatCard 
           label="Avg Score" 
-          value={`${MOCK_PROGRESS.overallAverageScore}%`} 
+          value={`${Math.round(metrics.overallAvgScore)}%`} 
           accent="danger" 
-          delta="↑ 4% vs last month" 
+          delta={metrics.overallAvgScore >= 70 ? "Meeting standards" : "Keep practicing"} 
         />
         <StatCard 
           label="Institution Rank" 
-          value={`#${MOCK_PROGRESS.institutionRank}`} 
-          suffix="of 312" 
+          value={`--`} 
+          suffix="--" 
           accent="purple" 
-          delta="↑ 2 positions" 
+          delta="Coming soon" 
         />
       </div>
 
@@ -161,7 +191,7 @@ export default function ProgressPage() {
             Performance by specialty
           </span>
           <div className="flex flex-col gap-3">
-            {MOCK_PROGRESS.specialtyPerformance.map((item) => (
+            {metrics.specialtyBreakdown.length > 0 ? metrics.specialtyBreakdown.map((item) => (
               <div key={item.specialty} className="flex items-center gap-3">
                 <span className="text-[11px] font-bold font-mono text-text-secondary w-[90px] shrink-0 truncate">
                   {item.specialty}
@@ -170,16 +200,18 @@ export default function ProgressPage() {
                   <div 
                     className="h-full rounded-full transition-all duration-1000" 
                     style={{ 
-                      width: `${item.averageScore}%`, 
+                      width: `${item.avgScore}%`, 
                       backgroundColor: specialtyColors[item.specialty] || 'var(--brand)' 
                     }} 
                   />
                 </div>
                 <span className="text-[11px] font-bold font-mono text-text-secondary w-8 text-right">
-                  {item.averageScore}%
+                  {Math.round(item.avgScore)}%
                 </span>
               </div>
-            ))}
+            )) : (
+              <p className="text-xs text-text-tertiary font-bold uppercase tracking-widest text-center py-4">No data available yet</p>
+            )}
           </div>
         </div>
 
@@ -356,7 +388,7 @@ export default function ProgressPage() {
           </span>
         </div>
         <div className="bg-white border border-border-default rounded-xl p-5 shadow-sm">
-          <BadgeGrid userBadges={MOCK_PROGRESS.badges} />
+          <BadgeGrid userBadges={user.badges} />
         </div>
       </div>
 

@@ -33,6 +33,7 @@ export default function RootLayout({
           fontSans.variable,
           fontMono.variable
         )}
+        suppressHydrationWarning
       >
         {children}
       </body>

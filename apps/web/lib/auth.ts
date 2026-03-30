@@ -9,6 +9,7 @@ export function saveAuth(token: string, user: User): void {
 }
 
 export function getToken(): string | null {
+  if (typeof window === 'undefined') return null
   return localStorage.getItem(TOKEN_KEY)
 }
 

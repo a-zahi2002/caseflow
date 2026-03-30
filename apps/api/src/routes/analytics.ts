@@ -78,8 +78,9 @@ analyticsRouter.get('/educator', requireRole('educator', 'admin'), async (c) => 
     });
 
     const sortedMisses = Object.entries(stepMisses).sort((a, b) => b[1] - a[1]);
-    const mostMissedStep = sortedMisses.length > 0
-      ? { type: sortedMisses[0][0], missedCount: sortedMisses[0][1] }
+    const topMiss = sortedMisses[0];
+    const mostMissedStep = topMiss
+      ? { type: topMiss[0], missedCount: topMiss[1] }
       : undefined;
 
     caseStats.push({
@@ -89,7 +90,7 @@ analyticsRouter.get('/educator', requireRole('educator', 'admin'), async (c) => 
       attemptCount,
       averageScore: Number(avgScore.toFixed(2)),
       completionRate: Number(completionRate.toFixed(1)),
-      mostMissedStep,
+      ...(mostMissedStep ? { mostMissedStep } : {}),
     });
 
     specialtyCounts[caseData.specialty] = (specialtyCounts[caseData.specialty] || 0) + 1;

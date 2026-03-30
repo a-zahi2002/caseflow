@@ -53,14 +53,10 @@ function StatCard({ label, value, suffix, accent, delta, icon }: StatCardProps) 
 }
 
 export default function StudentDashboard() {
-  const [user, setUser] = useState<any>(null)
   const [progress, setProgress] = useState<StudentProgressData | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const currentUser = getUser()
-    setUser(currentUser)
-
     async function loadProgress() {
       try {
         const res = await apiClient.get<StudentProgressData>('/progress/me')
@@ -74,21 +70,29 @@ export default function StudentDashboard() {
       }
     }
 
-    if (currentUser) loadProgress()
+    loadProgress()
   }, [])
 
-  if (loading || !user) return (
+  if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
       <Loader2 className="w-10 h-10 text-brand animate-spin" />
       <p className="text-sm font-bold text-text-tertiary uppercase tracking-widest animate-pulse">Personalizing your experience...</p>
     </div>
   )
 
+  if (!progress) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
+       <p className="text-red-500 font-bold uppercase tracking-widest">Failed to load profile</p>
+       <button onClick={() => window.location.reload()} className="px-4 py-2 bg-brand text-white rounded-lg text-xs font-bold">Retry</button>
+    </div>
+  )
+
+  const user = progress.user
   const firstName = user.name.split(' ')[0]
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
-  const metrics = progress?.metrics || { totalCompleted: 0, overallAvgScore: 0, totalAttempts: 0 }
+  const metrics = progress.metrics
 
   return (
     <div className="max-w-[1000px] mx-auto p-8 flex flex-col gap-10">
@@ -106,7 +110,7 @@ export default function StudentDashboard() {
         <div className="flex items-center gap-3">
            <div className="px-4 py-2 bg-red-50 border border-red-100 rounded-xl flex items-center gap-2 shadow-sm">
               <Flame className="w-4 h-4 text-red-500 fill-current" />
-              <span className="text-sm font-bold text-red-700">0 Day Streak</span>
+              <span className="text-sm font-bold text-red-700">{user.currentStreak} Day Streak</span>
            </div>
         </div>
       </div>
@@ -210,7 +214,15 @@ export default function StudentDashboard() {
         {/* Sidebar */}
         <div className="space-y-6">
            <BadgeGrid userBadges={user?.badges || []} />
-           <StreakTracker streak={{ currentStreak: 0, longestStreak: 0, last7Days: [], lastActiveDate: new Date(), completedToday: false }} />
+           <StreakTracker 
+             streak={{ 
+               currentStreak: user.currentStreak, 
+               longestStreak: user.longestStreak, 
+               last7Days: [], // This could be calculated from attempts if needed
+               lastActiveDate: user.lastActiveDate ? new Date(user.lastActiveDate) : new Date(), 
+               completedToday: user.lastActiveDate ? new Date(user.lastActiveDate).toDateString() === new Date().toDateString() : false
+             }} 
+           />
         </div>
       </div>
     </div>

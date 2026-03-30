@@ -20,6 +20,16 @@ interface SimState {
   timeElapsed: number
 }
 
+type SimStep = 'history' | 'examination' | 'investigation' | 'diagnosis' | 'management'
+
+const QUICK_ACTIONS: Record<SimStep, string[]> = {
+  history: ['Where is the pain?', 'How long has this been going on?', 'Any similar episodes before?', 'Any other symptoms?'],
+  examination: ['Auscultate the heart', 'Auscultate the lungs', 'Check for peripheral oedema', 'Assess JVP'],
+  investigation: ['Order an ECG', 'Order FBC and U&E', 'Request a chest X-ray', 'Order troponin'],
+  diagnosis: ['My primary diagnosis is...', 'I need to rule out...', 'The differentials include...'],
+  management: ['Establish IV access', 'Give aspirin 300mg stat', 'Call the cardiology team', 'Start continuous monitoring'],
+}
+
 export default function SimulationPage() {
   const { attemptId } = useParams<{ attemptId: string }>()
   const router = useRouter()
@@ -30,6 +40,7 @@ export default function SimulationPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [simState, setSimState] = useState<SimState>({ heartsRemaining: 3, timeElapsed: 0 })
+  const [currentStep, setCurrentStep] = useState<SimStep>('history')
   const [isPatientTyping, setIsPatientTyping] = useState(false)
   const [isEnded, setIsEnded] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -115,8 +126,8 @@ export default function SimulationPage() {
     return () => client.disconnect()
   }, [attemptId, router])
 
-  function sendMessage() {
-    const content = input.trim()
+  function sendMessage(text?: string) {
+    const content = text || input.trim()
     if (!content || isPatientTyping || isEnded) return
 
     setMessages((prev) => [...prev, { role: 'student', content }])
@@ -124,7 +135,7 @@ export default function SimulationPage() {
     setIsPatientTyping(true)
     setError(null)
 
-    clientRef.current?.sendMessage(content)
+    clientRef.current?.sendMessage(content, currentStep)
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -213,24 +224,28 @@ export default function SimulationPage() {
               Simulation Progress
             </span>
             <div className="flex flex-col gap-2">
-              {['History', 'Examination', 'Investigation', 'Diagnosis', 'Management'].map((step, index) => (
-                <div 
-                  key={step} 
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all",
-                    index === 0 ? "bg-brand-light border-border-brand text-brand-text" : "bg-transparent border-transparent text-text-tertiary"
-                  )}
-                >
-                  <div className={cn(
-                    "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold font-mono",
-                    index === 0 ? "bg-brand text-white shadow-sm" : "bg-white border border-border-default text-text-tertiary"
-                  )}>
-                    {index + 1}
-                  </div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider">{step}</span>
-                  {index === 0 && <span className="ml-auto w-1.5 h-1.5 bg-brand rounded-full animate-pulse" />}
-                </div>
-              ))}
+              {['history', 'examination', 'investigation', 'diagnosis', 'management'].map((step, index) => {
+                const isActive = currentStep === step
+                return (
+                  <button 
+                    key={step} 
+                    onClick={() => setCurrentStep(step as SimStep)}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-left",
+                      isActive ? "bg-brand-light border-border-brand text-brand-text" : "bg-transparent border-transparent text-text-tertiary hover:bg-surface-subtle"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold font-mono",
+                      isActive ? "bg-brand text-white shadow-sm" : "bg-white border border-border-default text-text-tertiary"
+                    )}>
+                      {index + 1}
+                    </div>
+                    <span className="text-[11px] font-bold uppercase tracking-wider">{step}</span>
+                    {isActive && <span className="ml-auto w-1.5 h-1.5 bg-brand rounded-full animate-pulse" />}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -319,6 +334,20 @@ export default function SimulationPage() {
           {/* Input Section */}
           <div className="bg-white border-t border-border-default p-6 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.05)] shrink-0 z-20">
             <div className="max-w-3xl mx-auto">
+              {/* Quick Actions */}
+              <div className="flex items-center gap-2 flex-wrap mb-4">
+                {QUICK_ACTIONS[currentStep].map((action) => (
+                  <button
+                    key={action}
+                    onClick={() => sendMessage(action)}
+                    disabled={isPatientTyping || isEnded || !attempt}
+                    className="px-3 py-1.5 bg-surface-subtle border border-border-default rounded-full text-[11px] font-bold text-text-secondary hover:border-brand hover:text-brand transition-all disabled:opacity-40 shadow-sm"
+                  >
+                    {action}
+                  </button>
+                ))}
+              </div>
+
               <div className="relative group">
                 <textarea
                   value={input}
@@ -330,7 +359,7 @@ export default function SimulationPage() {
                   className="w-full pl-6 pr-16 py-4 bg-slate-50 border border-border-default rounded-2xl text-[14px] font-medium resize-none focus:outline-none focus:ring-4 focus:ring-brand/5 focus:border-brand transition-all disabled:opacity-50 disabled:bg-slate-100 shadow-inner"
                 />
                 <button
-                  onClick={sendMessage}
+                  onClick={() => sendMessage()}
                   disabled={!input.trim() || isPatientTyping || isEnded || !attempt}
                   className="absolute right-4 bottom-4 p-3 bg-brand text-white rounded-xl hover:bg-brand-hover disabled:opacity-50 shadow-lg shadow-brand/20 active:translate-y-0.5 transition-all"
                 >

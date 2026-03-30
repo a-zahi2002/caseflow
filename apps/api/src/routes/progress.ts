@@ -80,7 +80,31 @@ progressRouter.get('/me', async (c) => {
       caseTitle: a.case.title,
     }))
 
+  const userData = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      name: true,
+      email: true,
+      role: true,
+      institution: true,
+      totalXp: true,
+      currentStreak: true,
+      longestStreak: true,
+      badges: true,
+      lastActiveDate: true,
+    },
+  })
+
+  if (!userData) {
+    return c.json({ success: false, message: 'User not found' }, 404)
+  }
+
   const progressData: StudentProgressData = {
+    user: {
+      ...userData,
+      badges: userData.badges as any[],
+      lastActiveDate: userData.lastActiveDate?.toISOString(),
+    },
     metrics: {
       totalAttempts,
       totalCompleted,

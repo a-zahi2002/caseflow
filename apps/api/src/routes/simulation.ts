@@ -17,6 +17,7 @@ simulationRouter.use('*', authMiddleware)
 interface ClientMessage {
   type: 'message' | 'end_simulation'
   content?: string
+  step?: 'history' | 'examination' | 'investigation' | 'diagnosis' | 'management'
 }
 
 // WebSocket message types — server sends these
@@ -118,6 +119,7 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
   // Build patient prompt options from case data
   const persona = attempt.case.patientPersona as any as PatientPromptOptions['persona']
 
+  // Initial prompt options
   const promptOptions: PatientPromptOptions = {
     persona,
     caseTitle: attempt.case.title,
@@ -125,6 +127,7 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
     heartsRemaining: (attempt as any).heartsRemaining,
     timeElapsed: (attempt as any).timeElapsed,
     timeLimit: (attempt.case as any).timeLimit ?? undefined,
+    currentStep: 'history', // Default
   }
 
   return upgradeWebSocket(c, {
@@ -138,6 +141,7 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
             include: {
               case: { include: { steps: { orderBy: { order: 'asc' } } } },
               messages: { orderBy: { createdAt: 'asc' } },
+              user: true,
             },
           })
 
@@ -170,12 +174,35 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
           else if (overallScore >= 80) xpAwarded += XP_AWARDS.SCORE_BONUS_80_PLUS
           if (overallScore === 100) xpAwarded += XP_AWARDS.PERFECT_SCORE
 
+          // Streak logic
+          const lastActive = completedAttempt.user.lastActiveDate
+          let newStreak = completedAttempt.user.currentStreak
+          const now = new Date()
+          
+          if (!lastActive) {
+            newStreak = 1
+          } else {
+            const lastActiveDate = new Date(lastActive).toDateString()
+            const todayDate = now.toDateString()
+            const yesterday = new Date(now)
+            yesterday.setDate(yesterday.getDate() - 1)
+            const yesterdayDate = yesterday.toDateString()
+            
+            if (lastActiveDate === yesterdayDate) {
+              newStreak += 1
+            } else if (lastActiveDate !== todayDate) {
+              newStreak = 1
+            }
+          }
+
+          const newLongestStreak = Math.max(newStreak, completedAttempt.user.longestStreak)
+
           await prisma.$transaction([
             prisma.attempt.update({
               where: { id: attemptId },
               data: { 
                 status: 'completed', 
-                completedAt: new Date(),
+                completedAt: now,
                 score: overallScore,
                 evalResult: evalResult as any
               },
@@ -184,7 +211,9 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
               where: { id: completedAttempt.userId },
               data: { 
                 totalXp: { increment: xpAwarded },
-                lastActiveDate: new Date()
+                currentStreak: newStreak,
+                longestStreak: newLongestStreak,
+                lastActiveDate: now
               }
             })
           ])
@@ -195,6 +224,10 @@ simulationRouter.get('/:attemptId/ws', authMiddleware, async (c) => {
         }
 
         if (data.type === 'message' && data.content) {
+          if (data.step) {
+            promptOptions.currentStep = data.step
+          }
+
           await prisma.simMessage.create({
             data: {
               attemptId,

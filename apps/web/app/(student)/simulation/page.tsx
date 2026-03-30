@@ -79,7 +79,7 @@ export default function SimulationDashboard() {
                 <div key={c.id} className="group bg-white border border-border-default rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:border-brand/40 hover:shadow-xl">
                   <div className="flex items-center gap-5">
                     <div className="w-14 h-14 bg-surface-subtle rounded-xl flex items-center justify-center text-2xl border border-slate-100 group-hover:bg-brand/5 group-hover:scale-105 transition-all shadow-inner">
-                      {['🫀', '🦷', '🧠', '🫁', '🦴'][Math.floor(Math.random() * 5)]}
+                      {['🫀', '🦷', '🧠', '🫁', '🦴'][c.id.charCodeAt(0) % 5]}
                     </div>
                     <div>
                       <h3 className="text-base font-bold text-text-primary mb-1 group-hover:text-brand transition-colors">{c.title}</h3>

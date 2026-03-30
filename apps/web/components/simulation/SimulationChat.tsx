@@ -37,20 +37,27 @@ const QUICK_ACTIONS = {
 export function SimulationChat({ 
   caseId, attemptId, currentStep, patientName, patientEmoji 
 }: SimulationChatProps) {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'patient', content: `Hello doctor. My name is ${patientName}. I'm having some chest pain...`, timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [wsReady, setWsReady] = useState(false)
   const [cycleIndex, setCycleIndex] = useState(0)
+  const [localStep, setLocalStep] = useState<SimulationChatProps['currentStep']>(currentStep)
   
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // Initialize with first message on mount to avoid hydration mismatch with local time
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    setMessages([{ 
+      role: 'patient', 
+      content: `Hello doctor. My name is ${patientName}. I'm having some chest pain...`, 
+      timestamp 
+    }])
+    
     const timer = setTimeout(() => setWsReady(true), 800)
     return () => clearTimeout(timer)
-  }, [])
+  }, [patientName])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -65,7 +72,7 @@ export function SimulationChat({
     setInput('')
     setIsTyping(true)
 
-    const delay = Math.floor(Math.random() * 500) + 1500
+    const delay = Math.floor(Math.random() * 200) + 400
     setTimeout(() => {
       const reply = MOCK_RESPONSES[cycleIndex % MOCK_RESPONSES.length]!
       setMessages((prev) => [...prev, { 
@@ -85,23 +92,43 @@ export function SimulationChat({
     }
   }
 
-  const actions = QUICK_ACTIONS[currentStep] || []
+  const actions = QUICK_ACTIONS[localStep] || []
 
   return (
     <div className="flex flex-col h-full bg-white border border-border-default rounded-xl overflow-hidden shadow-card">
       {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b border-border-default">
-        <div className="flex items-center gap-2">
-          <div className={cn(
-            "w-2 h-2 rounded-full",
-            wsReady ? "bg-brand animate-pulse-brand" : "bg-text-tertiary"
-          )} />
-          <span className="text-[13px] font-bold text-text-primary uppercase tracking-tight">AI Patient Simulation</span>
-          <span className="text-[11px] font-mono text-text-tertiary uppercase tracking-widest">— meditron-7b</span>
+      <header className="flex flex-col bg-surface-subtle border-b border-border-default">
+        <div className="flex items-center justify-between p-4 border-b border-border-default bg-white">
+          <div className="flex items-center gap-2">
+            <div className={cn(
+              "w-2 h-2 rounded-full",
+              wsReady ? "bg-brand animate-pulse-brand" : "bg-text-tertiary"
+            )} />
+            <span className="text-[13px] font-bold text-text-primary uppercase tracking-tight">AI Patient Simulation</span>
+            <span className="text-[11px] font-mono text-text-tertiary uppercase tracking-widest">— meditron-7b</span>
+          </div>
+          <span className="text-[11px] font-mono font-bold text-text-secondary uppercase tracking-widest px-2.5 py-1 bg-surface-subtle border border-border-default rounded-md">
+            Active Encounter
+          </span>
         </div>
-        <span className="text-[11px] font-mono font-bold text-text-secondary uppercase tracking-widest px-2.5 py-1 bg-surface-subtle border border-border-default rounded-md">
-          Step: {currentStep}
-        </span>
+        
+        {/* Step Selector Tab Bar */}
+        <div className="px-4 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth">
+          {(['history', 'examination', 'investigation', 'diagnosis', 'management'] as const).map((step) => (
+            <button
+              key={step}
+              onClick={() => setLocalStep(step)}
+              className={cn(
+                "px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap rounded-md transition-all",
+                localStep === step 
+                  ? "bg-brand text-white shadow-sm"
+                  : "text-text-tertiary hover:bg-white hover:text-text-secondary"
+              )}
+            >
+              {step}
+            </button>
+          ))}
+        </div>
       </header>
 
       {/* Messages */}

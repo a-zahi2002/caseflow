@@ -17,6 +17,17 @@ export interface ScoreTrendPoint {
 }
 
 export interface StudentProgressData {
+  user: {
+    name: string
+    email: string
+    role: string
+    institution: string | null
+    totalXp: number
+    currentStreak: number
+    longestStreak: number
+    lastActiveDate?: string | undefined
+    badges: any[]
+  }
   metrics: StudentProgressMetrics
   recentAttempts: {
     id: string

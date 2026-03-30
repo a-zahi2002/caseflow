@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@caseflow/ai": "*",
-    "@caseflow/api": "0.1.0",
     "@caseflow/db": "*",
     "@caseflow/types": "*",
     "@hono/node-server": "^1.12.0",

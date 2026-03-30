@@ -57,14 +57,27 @@ export class SimulationClient {
           break
       }
     }
+
+    this.ws.onerror = (event) => {
+      console.error('WebSocket error:', event)
+      this.options.onError('Connection error. Please check your internet or retry.')
+    }
+
+    this.ws.onclose = (event) => {
+      console.log('WebSocket closed:', event.code, event.reason)
+      if (!event.wasClean) {
+        this.options.onError('Connection lost. Attempting to reconnect...')
+        // Optional: Implement auto-reconnect here
+      }
+    }
   }
 
-  sendMessage(content: string): void {
+  sendMessage(content: string, step?: string): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
       this.options.onError('Connection lost. Please refresh.')
       return
     }
-    this.ws.send(JSON.stringify({ type: 'message', content }))
+    this.ws.send(JSON.stringify({ type: 'message', content, step }))
   }
 
   endSimulation(): void {
