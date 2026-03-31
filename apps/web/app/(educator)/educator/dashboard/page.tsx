@@ -1,27 +1,70 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { apiClient } from '@/lib/api-client'
+import { Loader2, TrendingUp, Users, CheckCircle, Database } from 'lucide-react'
+import type { EducatorAnalytics } from '@caseflow/types'
 
 export default function EducatorDashboard() {
+  const [analytics, setAnalytics] = useState<EducatorAnalytics | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadAnalytics() {
+      try {
+        const res = await apiClient.get<EducatorAnalytics>('/analytics/educator')
+        if (res.success) {
+          setAnalytics(res.data)
+        }
+      } catch (err) {
+        console.error('Failed to load educator analytics')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadAnalytics()
+  }, [])
+
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      <p className="text-sm font-black text-on-surface-variant uppercase tracking-widest animate-pulse">Syncing Clinical Performance Registry...</p>
+    </div>
+  )
+
+  if (!analytics) return (
+     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
+       <div className="w-16 h-16 bg-error-container/30 rounded-2xl flex items-center justify-center text-error border border-error/10">
+         <span className="material-symbols-outlined text-3xl">error</span>
+       </div>
+       <h1 className="text-xl font-heading font-black">Data Fetch Failure</h1>
+       <p className="text-on-surface-variant max-w-sm">We couldn't synchronize with the analytics core. Check your authentication status and retry.</p>
+       <button onClick={() => window.location.reload()} className="px-6 py-2 bg-primary text-on-primary rounded-xl text-[10px] font-black uppercase tracking-widest">Retry Pull</button>
+    </div>
+  )
+
   const kpis = [
-    { label: 'Diagnostic Accuracy', value: '84%', trend: '+3.2%', icon: 'biotech', color: 'primary' },
-    { label: 'Student Engagement', value: '1,240', suffix: 'HRS', icon: 'person_play', color: 'secondary' },
-    { label: 'Completion Rate', value: '78%', trend: '-1.5%', icon: 'task_alt', color: 'tertiary' },
+    { label: 'Diagnostic Accuracy', value: `${analytics.averageScore}%`, icon: 'biotech', color: 'primary' },
+    { label: 'Total Consultations', value: analytics.totalAttempts.toLocaleString(), suffix: 'PTS', icon: 'person_play', color: 'secondary' },
+    { label: 'Completion Rate', value: `${analytics.completionRate}%`, icon: 'task_alt', color: 'tertiary' },
   ]
 
-  const chartData = [
-    { label: 'Year 1 Residents', value: 92, height: '90%' },
-    { label: 'Pediatrics', value: 78, height: '85%' },
-    { label: 'Nursing Y2', value: 65, height: '80%' },
-    { label: 'Emergency Med', value: 88, height: '95%' },
-  ]
+  const chartData = analytics.caseStats.slice(0, 5).map(s => ({
+    label: s.title,
+    value: s.averageScore,
+    height: `${s.averageScore}%`
+  }))
 
-  const activities = [
-    { name: 'John Doe', action: 'completed', target: 'Advanced Triage', id: 'TR-402', time: '2m ago', icon: 'assignment_turned_in', type: 'success' },
-    { name: 'Year 2 Nursing', action: 'achieved', target: '95% accuracy in Sepsis Drill', label: 'MILESTONE', time: '14m ago', icon: 'military_tech', type: 'milestone' },
-    { name: 'Dr. Sarah Miller', action: 'flagged', target: 'Critical Review for Pediatric Cohort', label: 'ATTENTION', time: '1h ago', icon: 'error_outline', type: 'warning' },
-    { name: '12 New Students', action: 'onboarded', target: 'to Oncology Module', time: '3h ago', icon: 'person_add', type: 'info' },
-  ]
+  const activities = analytics.caseStats.slice(0, 4).map(s => ({
+    name: s.title,
+    action: 'viewing',
+    target: 'performance metrics',
+    id: s.id.slice(0, 6).toUpperCase(),
+    time: 'Last synced',
+    icon: 'clinical_notes',
+    type: 'info'
+  }))
 
   return (
     <div className="space-y-10">
@@ -52,11 +95,6 @@ export default function EducatorDashboard() {
             <div className="flex items-baseline gap-2">
               <span className={`text-4xl font-heading font-black text-${kpi.color === 'primary' ? 'primary' : 'on-surface'}`}>{kpi.value}</span>
               {kpi.suffix && <span className="text-[10px] font-mono font-black text-on-surface-variant opacity-60 uppercase">{kpi.suffix}</span>}
-              {kpi.trend && (
-                <span className={`text-[10px] font-mono font-black ${kpi.trend.startsWith('+') ? 'text-primary' : 'text-error'} flex items-center`}>
-                  <span className="material-symbols-outlined text-[12px]">{kpi.trend.startsWith('+') ? 'arrow_upward' : 'arrow_downward'}</span> {kpi.trend}
-                </span>
-              )}
             </div>
             <div className="mt-4 w-full bg-surface-container h-1.5 rounded-full overflow-hidden shadow-inner">
               <div className={`bg-${kpi.color} h-full rounded-full`} style={{ width: kpi.value.includes('%') ? kpi.value : '70%' }}></div>
@@ -133,12 +171,6 @@ export default function EducatorDashboard() {
                       {a.name} <span className="font-sans font-medium text-on-surface-variant">{a.action}</span> {a.target}
                     </p>
                     <div className="flex items-center gap-2 mt-1.5">
-                      {a.label && (
-                        <span className={cn(
-                          "text-[9px] font-mono font-black px-1.5 py-0.5 rounded uppercase tracking-tighter shadow-sm",
-                          a.type === 'milestone' ? "bg-tertiary-fixed-dim/20 text-tertiary" : "bg-error-container/30 text-error"
-                        )}>{a.label}</span>
-                      )}
                       {a.id && <span className="text-[9px] font-mono font-black bg-surface-container-low px-1.5 py-0.5 rounded text-primary uppercase shadow-sm">{a.id}</span>}
                       <span className="text-[9px] font-mono font-black text-outline uppercase ml-auto">{a.time}</span>
                     </div>
@@ -158,12 +190,15 @@ export default function EducatorDashboard() {
             <span className="material-symbols-outlined text-[160px]" style={{ fontVariationSettings: "'FILL' 1" }}>medical_services</span>
           </div>
           <div className="relative z-10">
-            <h3 className="text-2xl font-heading font-black mb-2 tracking-tight">Cohort Success Rate</h3>
-            <p className="text-sm text-primary-fixed/80 max-w-sm font-sans font-medium">Year 1 Residents are currently outpacing national benchmarks by 12.4% in diagnostic speed while maintaining high safety standards.</p>
+            <h3 className="text-2xl font-heading font-black mb-2 tracking-tight">Clinical Impact Registry</h3>
+            <p className="text-sm text-primary-fixed/80 max-w-sm font-sans font-medium">
+              You are currently managing {analytics.totalCases} clinical scenarios with {analytics.totalAttempts} validated student attempts. 
+              Your authored cases maintain an average diagnostic success rate of {analytics.averageScore}%.
+            </p>
           </div>
           <div className="flex items-center gap-4 relative z-10 mt-10">
-            <button className="px-8 py-3 bg-surface text-primary text-xs font-heading font-black rounded-full hover:shadow-lg active:scale-95 transition-all uppercase tracking-tighter">Cohort Deep-dive</button>
-            <span className="text-[10px] font-mono font-black text-on-primary-fixed opacity-70 uppercase">Updated 4m ago</span>
+            <button className="px-8 py-3 bg-surface text-primary text-xs font-heading font-black rounded-full hover:shadow-lg active:scale-95 transition-all uppercase tracking-tighter">Engagement Audit</button>
+            <span className="text-[10px] font-mono font-black text-on-primary-fixed opacity-70 uppercase">Real-time Feed</span>
           </div>
         </div>
         
@@ -171,10 +206,10 @@ export default function EducatorDashboard() {
           <div className="w-16 h-16 rounded-2xl bg-secondary-container/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <span className="material-symbols-outlined text-secondary text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>clinical_notes</span>
           </div>
-          <p className="text-[10px] font-mono font-black text-on-surface-variant uppercase tracking-[0.2em] mb-1">Average Case Time</p>
-          <h4 className="text-4xl font-heading font-black tracking-tighter">18:42</h4>
+          <p className="text-[10px] font-mono font-black text-on-surface-variant uppercase tracking-[0.2em] mb-1">Authored Cases</p>
+          <h4 className="text-4xl font-heading font-black tracking-tighter">{analytics.totalCases}</h4>
           <p className="text-[10px] font-mono font-black text-primary mt-2 uppercase tracking-tight flex items-center gap-1">
-            <span className="material-symbols-outlined text-[14px]">trending_down</span> 2m 14s (Improvement)
+            <span className="material-symbols-outlined text-[14px]">fact_check</span> Active Repository
           </p>
         </div>
 
@@ -182,9 +217,9 @@ export default function EducatorDashboard() {
           <div className="w-16 h-16 rounded-2xl bg-primary-container/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <span className="material-symbols-outlined text-primary text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>groups</span>
           </div>
-          <p className="text-[10px] font-mono font-black text-on-surface-variant uppercase tracking-[0.2em] mb-1">Active Mentors</p>
-          <h4 className="text-4xl font-heading font-black tracking-tighter">24</h4>
-          <p className="text-[10px] font-mono font-black text-on-surface-variant mt-2 uppercase tracking-tight">Across 6 Departments</p>
+          <p className="text-[10px] font-mono font-black text-on-surface-variant uppercase tracking-[0.2em] mb-1">Student Attempts</p>
+          <h4 className="text-4xl font-heading font-black tracking-tighter">{analytics.totalAttempts}</h4>
+          <p className="text-[10px] font-mono font-black text-on-surface-variant mt-2 uppercase tracking-tight">Validated Data Points</p>
         </div>
       </section>
 

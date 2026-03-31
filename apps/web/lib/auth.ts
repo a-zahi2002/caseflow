@@ -37,13 +37,7 @@ export function getDashboardPath(role: User['role']): string {
   }
 }
 
-export async function getCurrentUser() {
-  // Simulate fetching a student session content
-  return {
-    id: 'user-004',
-    name: 'Ashan Karunaratne',
-    email: 'ashan@example.com',
-    role: 'student' as const
-  }
+export async function getCurrentUser(): Promise<User | null> {
+  return getUser()
 }
 

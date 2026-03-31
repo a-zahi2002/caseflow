@@ -214,29 +214,41 @@ export default function StudentDashboard() {
                 <button className="px-3 py-1 text-xs font-bold rounded-full text-outline hover:bg-surface-container-high transition-colors">Weekly</button>
               </div>
             </div>
-            {/* Visual Mockup of Chart - Using pure Tailwind to match Stitch design */}
+            {/* Performance Chart - Dynamic Data */}
             <div className="relative h-48 w-full flex items-end justify-between gap-4 px-2">
               <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
                 <div className="border-t border-outline-variant/10 w-full"></div>
                 <div className="border-t border-outline-variant/10 w-full"></div>
                 <div className="border-t border-outline-variant/10 w-full"></div>
               </div>
-              {[64, 82, 95, 78, 88, 94].map((height, i) => (
-                <div key={i} className="flex-1 bg-primary/10 h-full rounded-t-sm relative group">
-                  <div 
-                    className="absolute bottom-0 w-full bg-primary transition-all group-hover:opacity-80" 
-                    style={{ height: `${height}%` }}
-                  ></div>
-                </div>
-              ))}
+              
+              {progress.trend.length > 0 ? (
+                progress.trend.slice(-6).map((point, i) => (
+                  <div key={i} className="flex-1 bg-primary/10 h-full rounded-t-sm relative group">
+                    <div 
+                      className="absolute bottom-0 w-full bg-primary transition-all group-hover:opacity-80" 
+                      style={{ height: `${point.score}%` }}
+                    >
+                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-surface p-1 rounded border border-outline-variant/30 text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-sm">
+                        {Math.round(point.score)}% - {point.caseTitle}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                [1, 2, 3, 4, 5, 6].map((_, i) => (
+                  <div key={i} className="flex-1 bg-surface-container-high/30 h-full rounded-t-sm border-b border-outline-variant/10"></div>
+                ))
+              )}
             </div>
             <div className="flex justify-between mt-4 text-[10px] font-mono font-bold text-outline uppercase tracking-wider px-2">
-              <span>WK 12</span>
-              <span>WK 13</span>
-              <span>WK 14</span>
-              <span>WK 15</span>
-              <span>WK 16</span>
-              <span>CURR</span>
+              {progress.trend.length > 0 ? (
+                progress.trend.slice(-6).map((p, i) => (
+                  <span key={i}>{new Date(p.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                ))
+              ) : (
+                <span>NO DATA AVAILABLE</span>
+              )}
             </div>
           </div>
         </div>
