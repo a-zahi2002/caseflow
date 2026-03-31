@@ -96,8 +96,32 @@ export default function StudentDashboard() {
 
   return (
     <div className="p-8 space-y-10">
+      {/* High-fidelity Dashboard Banner */}
+      <section className="relative h-48 md:h-64 w-full rounded-[2.5rem] overflow-hidden shadow-2xl shadow-primary/5 border border-outline-variant/10 group bg-surface-container-high">
+        <img 
+          src="/dash-banner.png" 
+          alt="Clinical Dashboard Banner"
+          className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay group-hover:scale-105 transition-transform duration-[2s] ease-out"
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-surface/90 via-surface/40 to-transparent"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(0,104,95,0.1),transparent)]"></div>
+        
+        <div className="relative z-10 h-full flex flex-col justify-end p-8 md:p-12">
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 bg-primary/10 rounded-full mb-4 border border-primary/20 backdrop-blur-md">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(0,104,95,0.6)]"></span>
+            <span className="text-[10px] font-mono font-black text-primary uppercase tracking-widest">Active Clinical Session</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-heading font-black text-on-surface tracking-tighter leading-none mb-2">
+            Clinical <span className="text-primary italic">Intelligence</span> Hub
+          </h1>
+          <p className="text-base md:text-lg font-sans font-medium text-on-surface-variant max-w-lg opacity-80">
+            Augmenting medical expertise through high-fidelity AI-driven patient encounters.
+          </p>
+        </div>
+      </section>
+
       {/* Welcome Header */}
-      <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <section className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4 md:px-0">
         <div>
           <h2 className="text-3xl font-heading font-bold tracking-tight text-on-surface mb-2">
             Welcome back, {firstName}

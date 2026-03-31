@@ -49,10 +49,16 @@ export default function SimulationStartPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-20 min-h-[70vh] animate-slide-up bg-surface">
-      <div className="relative mb-8">
-        <div className="w-24 h-24 bg-primary-container border border-primary/20 rounded-3xl flex items-center justify-center animate-pulse shadow-sm">
-           <span className="material-symbols-outlined text-primary text-5xl">biotech</span>
+    <div className="relative flex flex-col items-center justify-center p-20 min-h-[70vh] overflow-hidden bg-surface">
+      {/* Immersive background elements */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+        <img src="/dash-banner.png" className="w-full h-full object-cover scale-150 rotate-12" alt="" />
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-surface/80 to-surface"></div>
+
+      <div className="relative mb-8 z-10">
+        <div className="w-32 h-32 bg-primary-container/40 backdrop-blur-xl border border-primary/10 rounded-[2.5rem] flex items-center justify-center animate-pulse shadow-2xl shadow-primary/10">
+           <span className="material-symbols-outlined text-primary text-6xl opacity-80" style={{ fontVariationSettings: "'FILL' 1" }}>clinical_notes</span>
         </div>
         <div className="absolute -top-3 -right-3">
           <div className="w-8 h-8 bg-surface border border-outline-variant/30 rounded-full flex items-center justify-center shadow-md">

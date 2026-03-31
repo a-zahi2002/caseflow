@@ -26,69 +26,94 @@ function CaseCard({ caseItem }: { caseItem: Case }) {
     advanced: 500
   }[caseItem.difficulty]
 
-  const specialtyInfo: Record<string, { bg: string; text: string; icon: string }> = {
-    Cardiology: { bg: 'bg-red-100', text: 'text-red-700', icon: 'favorite' },
-    Neurology: { bg: 'bg-purple-100', text: 'text-purple-700', icon: 'psychology' },
-    Respiratory: { bg: 'bg-blue-100', text: 'text-blue-700', icon: 'airway' },
-    Emergency: { bg: 'bg-orange-100', text: 'text-orange-700', icon: 'emergency' },
-    Diagnostic: { bg: 'bg-teal-100', text: 'text-teal-700', icon: 'biotech' },
+  const specialtyInfo: Record<string, { bg: string; text: string; icon: string; thumb: string }> = {
+    Cardiology: { bg: 'bg-red-50', text: 'text-red-700', icon: 'favorite', thumb: '/case-heart.png' },
+    Neurology: { bg: 'bg-purple-50', text: 'text-purple-700', icon: 'psychology', thumb: '/case-brain.png' },
+    Respiratory: { bg: 'bg-blue-50', text: 'text-blue-700', icon: 'airway', thumb: '/case-lungs.png' },
+    Emergency: { bg: 'bg-orange-50', text: 'text-orange-700', icon: 'emergency', thumb: '/case-diagnostic.png' },
+    Diagnostic: { bg: 'bg-teal-50', text: 'text-teal-700', icon: 'biotech', thumb: '/case-diagnostic.png' },
+    "Chronic Care": { bg: 'bg-indigo-50', text: 'text-indigo-700', icon: 'history', thumb: '/case-diagnostic.png' },
   }
 
-  const { bg, text, icon } = specialtyInfo[caseItem.specialty] || { bg: 'bg-surface-variant', text: 'text-on-surface-variant', icon: 'clinical_notes' }
+  const { bg, text, icon, thumb } = specialtyInfo[caseItem.specialty] || { 
+    bg: 'bg-surface-variant', 
+    text: 'text-on-surface-variant', 
+    icon: 'clinical_notes', 
+    thumb: '/case-diagnostic.png' 
+  }
 
   return (
-    <div className="group bg-surface-container-lowest rounded-xl p-1 relative overflow-hidden transition-all hover:translate-y-[-4px] hover:shadow-xl">
-      <div className="bg-surface-container-low rounded-lg p-6 flex flex-col h-full">
-        <div className="flex justify-between items-start mb-4">
-          <span className={cn("px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider", bg, text)}>
-            {caseItem.specialty}
-          </span>
-          <span className="text-[10px] font-mono text-outline-variant px-2 py-1 border border-outline-variant/20 rounded font-bold">
-            ID: #{caseItem.id.slice(0, 4).toUpperCase()}
-          </span>
+    <div className="group bg-surface-container-lowest rounded-3xl p-1 relative overflow-hidden transition-all duration-500 hover:translate-y-[-8px] hover:shadow-[0_20px_50px_rgba(0,104,95,0.12)] border border-outline-variant/10">
+      <div className="bg-surface-container-low rounded-[1.4rem] overflow-hidden flex flex-col h-full">
+        {/* Case Thumbnail */}
+        <div className={cn("relative h-40 overflow-hidden", bg)}>
+          <img 
+            src={thumb} 
+            alt={caseItem.specialty}
+            className="absolute inset-0 w-full h-full object-contain p-6 mix-blend-multiply opacity-80 group-hover:scale-110 transition-transform duration-700"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent"></div>
+          <div className="absolute top-4 left-4">
+             <span className={cn("px-3 py-1.5 rounded-xl text-[10px] font-mono font-black uppercase tracking-[0.15em] shadow-sm backdrop-blur-md", bg, text)}>
+               {caseItem.specialty}
+             </span>
+          </div>
         </div>
-        
-        <h3 className="text-xl font-heading font-bold text-on-surface mb-2 group-hover:text-primary transition-colors">
-          {caseItem.title}
-        </h3>
-        
-        <p className="text-sm text-on-surface-variant font-sans mb-6 line-clamp-2">
-          {caseItem.description}
-        </p>
 
-        <div className="mt-auto flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <span className={cn(
-                "material-symbols-outlined text-lg",
-                caseItem.difficulty === 'advanced' ? "text-error" : caseItem.difficulty === 'intermediate' ? "text-secondary" : "text-primary"
-              )}>
-                signal_cellular_alt{caseItem.difficulty === 'intermediate' ? '_2_bar' : caseItem.difficulty === 'beginner' ? '_1_bar' : ''}
-              </span>
-              <span className={cn(
-                "text-xs font-heading font-bold uppercase tracking-wider",
-                caseItem.difficulty === 'advanced' ? "text-error" : caseItem.difficulty === 'intermediate' ? "text-secondary" : "text-primary"
-              )}>
-                {caseItem.difficulty}
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5 text-outline">
-              <span className="material-symbols-outlined text-lg">schedule</span>
-              <span className="text-xs font-mono font-bold uppercase tracking-tight">25 MIN</span>
+        <div className="p-6 flex flex-col h-full flex-1">
+          <div className="flex justify-between items-start mb-3">
+             <span className="text-[10px] font-mono text-outline-variant font-black">
+              ID: #{caseItem.id.slice(0, 4).toUpperCase()}
+            </span>
+            <div className="flex items-center gap-1">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className={cn("w-1 h-1 rounded-full", i < (caseItem.rating / 20) ? "bg-secondary" : "bg-outline-variant/30")} />
+              ))}
             </div>
           </div>
+        
+          <h3 className="text-xl font-heading font-bold text-on-surface mb-2 group-hover:text-primary transition-colors">
+            {caseItem.title}
+          </h3>
+          
+          <p className="text-sm text-on-surface-variant font-sans mb-6 line-clamp-2">
+            {caseItem.description}
+          </p>
 
-          <div className="flex items-center justify-between pt-4 border-t border-outline-variant/10">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono text-outline-variant uppercase font-bold">Potential Reward</span>
-              <span className="text-sm font-mono font-bold text-secondary">+{xpReward} XP</span>
+          <div className="mt-auto space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className={cn(
+                  "material-symbols-outlined text-lg",
+                  caseItem.difficulty === 'advanced' ? "text-error" : caseItem.difficulty === 'intermediate' ? "text-secondary" : "text-primary"
+                )}>
+                  signal_cellular_alt{caseItem.difficulty === 'intermediate' ? '_2_bar' : caseItem.difficulty === 'beginner' ? '_1_bar' : ''}
+                </span>
+                <span className={cn(
+                  "text-xs font-heading font-bold uppercase tracking-wider",
+                  caseItem.difficulty === 'advanced' ? "text-error" : caseItem.difficulty === 'intermediate' ? "text-secondary" : "text-primary"
+                )}>
+                  {caseItem.difficulty}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 text-outline">
+                <span className="material-symbols-outlined text-lg">schedule</span>
+                <span className="text-xs font-mono font-bold uppercase tracking-tight">25 MIN</span>
+              </div>
             </div>
-            <Link 
-              href={`/simulation/start/${caseItem.id}`}
-              className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary transition-transform group-hover:scale-110 active:scale-95"
-            >
-              <span className="material-symbols-outlined">play_arrow</span>
-            </Link>
+
+            <div className="flex items-center justify-between pt-4 border-t border-outline-variant/10">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono text-outline-variant uppercase font-black">REWARD</span>
+                <span className="text-sm font-mono font-black text-secondary">+{xpReward} XP</span>
+              </div>
+              <Link 
+                href={`/simulation/start/${caseItem.id}`}
+                className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-on-primary transition-all group-hover:scale-110 active:scale-95 shadow-lg shadow-primary/20 hover:shadow-primary/40"
+              >
+                <span className="material-symbols-outlined text-2xl">play_arrow</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

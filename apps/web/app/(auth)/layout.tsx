@@ -11,8 +11,18 @@ export default function AuthLayout({
     <div className="min-h-screen grid lg:grid-cols-2 bg-background selection:bg-primary-fixed selection:text-on-primary-fixed">
       {/* Left Side: Branding & Experience */}
       <div className="hidden lg:flex relative bg-primary-container flex-col p-16 overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute top-0 left-0 w-full h-full opacity-60">
+        {/* High-fidelity Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/auth-bg.png" 
+            alt="Clinical Training environment"
+            className="w-full h-full object-cover opacity-50 contrast-[1.05] saturate-[1.1]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-primary-container/80 via-primary-container/40 to-transparent"></div>
+        </div>
+
+        {/* Animated Background Elements (Softened) */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-30 z-0 pointer-events-none">
           <div className="absolute top-[-10%] right-[-10%] w-[60%] aspect-square bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
           <div className="absolute bottom-[-20%] left-[-20%] w-[80%] aspect-square bg-secondary/10 rounded-full blur-[160px] animate-bounce-subtle"></div>
         </div>
