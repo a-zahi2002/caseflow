@@ -65,7 +65,7 @@ function sanitizeUser(user: {
 
 // POST /auth/register
 authRouter.post('/register', async (c) => {
-  const body = await c.req.json()
+  const body = await c.req.json().catch(() => ({}))
   const parsed = registerSchema.safeParse(body)
 
   if (!parsed.success) {
@@ -93,7 +93,7 @@ authRouter.post('/register', async (c) => {
 
 // POST /auth/login
 authRouter.post('/login', async (c) => {
-  const body = await c.req.json()
+  const body = await c.req.json().catch(() => ({}))
   const parsed = loginSchema.safeParse(body)
 
   if (!parsed.success) {

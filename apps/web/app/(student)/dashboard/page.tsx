@@ -95,136 +95,200 @@ export default function StudentDashboard() {
   const metrics = progress.metrics
 
   return (
-    <div className="max-w-[1000px] mx-auto p-8 flex flex-col gap-10">
-      {/* SECTION 1: Greeting */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div className="p-8 space-y-10">
+      {/* Welcome Header */}
+      <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-text-primary mb-1 tracking-tight">
-            {greeting}, {firstName} 👋
-          </h1>
-          <p className="text-[13px] font-bold font-mono text-text-secondary uppercase tracking-widest flex items-center gap-2">
-            <span className="px-2 py-0.5 bg-slate-100 rounded border border-slate-200">{user.role}</span>
-            <span>{user.institution || 'Medical Institute'}</span>
+          <h2 className="text-3xl font-heading font-bold tracking-tight text-on-surface mb-2">
+            Welcome back, {firstName}
+          </h2>
+          <p className="text-on-surface-variant max-w-xl">
+            You've completed {Math.round(metrics.totalCompleted / (metrics.totalCompleted + 3) * 100) || 0}% of your targets. 
+            Your diagnostic accuracy is {Math.round(metrics.overallAvgScore)}% this month.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-           <div className="px-4 py-2 bg-red-50 border border-red-100 rounded-xl flex items-center gap-2 shadow-sm">
-              <Flame className="w-4 h-4 text-red-500 fill-current" />
-              <span className="text-sm font-bold text-red-700">{user.currentStreak} Day Streak</span>
-           </div>
+        <div className="flex gap-3">
+          <div className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 min-w-[140px]">
+            <p className="font-mono text-[10px] uppercase text-outline mb-1 font-bold tracking-widest">Rank</p>
+            <p className="text-xl font-bold text-primary">Chief Fellow</p>
+          </div>
+          <div className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 min-w-[140px]">
+            <p className="font-mono text-[10px] uppercase text-outline mb-1 font-bold tracking-widest">Accuracy</p>
+            <p className="text-xl font-bold text-secondary">{Math.round(metrics.overallAvgScore)}%</p>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* SECTION 2: Stats HUD */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard 
-          label="Cases Completed" 
-          value={metrics.totalCompleted} 
-          accent="brand" 
-          icon={<Award className="w-5 h-5" />}
-          delta={metrics.totalCompleted > 0 ? "Building clinical experience" : "Start your clinical journey"} 
-        />
-        <StatCard 
-          label="Overall Score" 
-          value={Math.round(metrics.overallAvgScore)} 
-          suffix="%" 
-          accent="reward" 
-          icon={<TrendingUp className="w-5 h-5" />}
-          delta={metrics.overallAvgScore >= 75 ? "Excellent proficiency" : "Keep practicing"} 
-        />
-        <StatCard 
-          label="Total Attempts" 
-          value={metrics.totalAttempts}
-          accent="danger" 
-          icon={<Flame className="w-5 h-5" />}
-          delta="Keep pushing your limits"
-        />
-        <StatCard 
-          label="Learning Goal" 
-          value="75" 
-          suffix="%" 
-          accent="purple" 
-          icon={<Target className="w-5 h-5" />}
-          delta="Target medical proficiency" 
-        />
-      </div>
+      {/* Main Layout Grid: Bento Style */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Active Case Cards (Left Column) */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-heading font-bold">Active Case Files</h3>
+            <Link href="/cases" className="text-primary text-sm font-semibold hover:underline">
+              View All Patients
+            </Link>
+          </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8">
-        <div className="space-y-8">
-           {/* SECTION 3: Progress Tracker */}
-           <div className="bg-white border border-border-default rounded-3xl p-8 shadow-sm">
-             <div className="flex items-center justify-between mb-8">
-                <h2 className="text-lg font-bold text-text-primary tracking-tight">Active Progress</h2>
-                <Link href="/progress" className="text-xs font-bold text-brand uppercase tracking-widest hover:underline">Full Analytics →</Link>
-             </div>
-             <XpBar 
-               totalXp={user?.totalXp ?? 0} 
-               institutionRank={0}
-               institutionTotal={500}
-             />
-           </div>
-
-           {/* SECTION 4: Recent Activity */}
-           {progress?.recentAttempts && progress.recentAttempts.length > 0 ? (
-             <div className="space-y-4">
-                <h2 className="text-xs font-bold font-mono text-text-tertiary uppercase tracking-[0.2em]">Recent Encounters</h2>
-                <div className="grid gap-3">
-                  {progress.recentAttempts.slice(0, 3).map((a) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {progress.recentAttempts.length > 0 ? (
+              progress.recentAttempts.slice(0, 2).map((attempt) => (
+                <div key={attempt.id} className="bg-surface-container-lowest p-6 rounded-xl shadow-sm border-l-4 border-primary hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <span className="font-mono text-[10px] text-outline px-2 py-0.5 border border-outline-variant/30 rounded uppercase font-bold">ID: {attempt.id.slice(0, 8)}</span>
+                      <h4 className="text-lg font-bold mt-2">{attempt.caseTitle}</h4>
+                    </div>
+                    <span className={cn(
+                      "px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
+                      attempt.status === 'completed' ? "bg-tertiary-container text-on-tertiary-container" : "bg-secondary-fixed text-on-secondary-fixed"
+                    )}>
+                      {attempt.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-on-surface-variant mb-6 leading-relaxed">
+                    {attempt.specialty} case simulation. Progress tracked and synced with clinical pulse analytics.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex -space-x-2">
+                      <div className="w-6 h-6 rounded-full bg-surface-container-high border-2 border-surface"></div>
+                      <div className="w-6 h-6 rounded-full bg-surface-container-highest border-2 border-surface"></div>
+                    </div>
                     <Link 
-                      key={a.id} 
-                      href={a.status === 'completed' ? `/attempts/${a.id}/result` : `/simulation/run/${a.id}`}
-                      className="group bg-white border border-border-default rounded-2xl p-4 flex items-center justify-between transition-all hover:border-brand/40 hover:shadow-md"
+                      href={attempt.status === 'completed' ? `/attempts/${attempt.id}/result` : `/simulation/run/${attempt.id}`}
+                      className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-bold active:scale-95 transition-transform flex items-center gap-2"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-lg border border-slate-100 group-hover:bg-brand/5 transition-colors">
-                          {a.status === 'completed' ? '✅' : '⏳'}
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-bold text-text-primary group-hover:text-brand transition-colors">{a.caseTitle}</h4>
-                          <span className="text-[10px] font-bold text-text-tertiary uppercase tracking-tight">{a.specialty} · {new Date(a.date).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                         <div className="text-sm font-bold text-text-primary">{a.score ?? '--'}%</div>
-                         <div className="text-[10px] font-bold text-text-tertiary uppercase tracking-tighter">{a.status}</div>
-                      </div>
+                      {attempt.status === 'completed' ? 'Review' : 'Resume'} 
+                      <span className="material-symbols-outlined text-sm">
+                        {attempt.status === 'completed' ? 'visibility' : 'play_arrow'}
+                      </span>
                     </Link>
-                  ))}
+                  </div>
                 </div>
-             </div>
-           ) : (
-             <div className="bg-white border border-dashed border-border-default rounded-3xl p-16 text-center flex flex-col items-center gap-4">
-                <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-3xl shadow-inner mb-2">
-                  🎯
-                </div>
-                <div className="max-w-xs space-y-2">
-                  <h3 className="text-xl font-bold text-text-primary tracking-tight">Ready to begin?</h3>
-                  <p className="text-sm text-text-secondary leading-relaxed">Explore standardized medical cases and start building your diagnostic expertise today.</p>
-                </div>
-                <Link 
-                  href="/cases"
-                  className="mt-4 px-8 py-3 bg-brand text-white text-[13px] font-bold rounded-xl hover:bg-brand-hover transition-all shadow-xl shadow-brand/20 active:translate-y-0.5"
-                >
-                  Browse Case Library
+              ))
+            ) : (
+              <div className="md:col-span-2 bg-surface-container-lowest p-12 rounded-xl border border-dashed border-outline-variant flex flex-col items-center justify-center text-center">
+                <span className="material-symbols-outlined text-4xl text-outline mb-4">clinical_notes</span>
+                <h4 className="text-lg font-bold mb-2">No Active Cases</h4>
+                <p className="text-sm text-outline max-w-xs mb-6">Start your first clinical simulation to begin building your professional profile.</p>
+                <Link href="/cases" className="bg-primary text-on-primary px-6 py-2 rounded-lg font-bold text-sm">
+                  Browse Catalog
                 </Link>
               </div>
-           )}
+            )}
+          </div>
+
+          {/* Performance Analytics */}
+          <div className="bg-surface-container-low p-8 rounded-xl">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h3 className="text-xl font-heading font-bold">Diagnostic Performance</h3>
+                <p className="text-sm text-outline">Simulation success metrics over last 30 days</p>
+              </div>
+              <div className="flex gap-2">
+                <button className="px-3 py-1 text-xs font-bold rounded-full bg-white border border-outline-variant/30 shadow-sm text-on-surface">Monthly</button>
+                <button className="px-3 py-1 text-xs font-bold rounded-full text-outline hover:bg-surface-container-high transition-colors">Weekly</button>
+              </div>
+            </div>
+            {/* Visual Mockup of Chart - Using pure Tailwind to match Stitch design */}
+            <div className="relative h-48 w-full flex items-end justify-between gap-4 px-2">
+              <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                <div className="border-t border-outline-variant/10 w-full"></div>
+                <div className="border-t border-outline-variant/10 w-full"></div>
+                <div className="border-t border-outline-variant/10 w-full"></div>
+              </div>
+              {[64, 82, 95, 78, 88, 94].map((height, i) => (
+                <div key={i} className="flex-1 bg-primary/10 h-full rounded-t-sm relative group">
+                  <div 
+                    className="absolute bottom-0 w-full bg-primary transition-all group-hover:opacity-80" 
+                    style={{ height: `${height}%` }}
+                  ></div>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between mt-4 text-[10px] font-mono font-bold text-outline uppercase tracking-wider px-2">
+              <span>WK 12</span>
+              <span>WK 13</span>
+              <span>WK 14</span>
+              <span>WK 15</span>
+              <span>WK 16</span>
+              <span>CURR</span>
+            </div>
+          </div>
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-           <BadgeGrid userBadges={user?.badges || []} />
-           <StreakTracker 
-             streak={{ 
-               currentStreak: user.currentStreak, 
-               longestStreak: user.longestStreak, 
-               last7Days: [], // This could be calculated from attempts if needed
-               lastActiveDate: user.lastActiveDate ? new Date(user.lastActiveDate) : new Date(), 
-               completedToday: user.lastActiveDate ? new Date(user.lastActiveDate).toDateString() === new Date().toDateString() : false
-             }} 
-           />
+        {/* Right Column: Rewards & History */}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Daily Challenges Widget */}
+          <div className="bg-gradient-to-br from-secondary to-secondary-container p-6 rounded-xl text-white shadow-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>bolt</span>
+              <h3 className="text-lg font-heading font-bold">Daily Streak</h3>
+            </div>
+            <div className="flex items-baseline gap-1 mb-6">
+              <span className="text-5xl font-black">{user.currentStreak}</span>
+              <span className="text-xl font-medium opacity-80">Days</span>
+            </div>
+            <div className="space-y-4">
+              <div className="bg-black/10 p-3 rounded-lg border border-white/10">
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="font-bold">Next Milestone</span>
+                  <span>{user.totalXp % 1000} / 1000 XP</span>
+                </div>
+                <div className="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-white h-full transition-all duration-1000" 
+                    style={{ width: `${(user.totalXp % 1000) / 10}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <button className="w-full mt-6 bg-white text-secondary py-2 rounded-lg font-bold text-sm hover:bg-secondary-fixed transition-colors active:scale-95">
+              View Achievements
+            </button>
+          </div>
+
+          {/* Recent History */}
+          <div className="bg-surface-container-low p-6 rounded-xl">
+            <h3 className="text-lg font-heading font-bold mb-6">Recent History</h3>
+            <div className="space-y-6">
+              {progress.recentAttempts.slice(0, 3).map((a) => (
+                <div key={a.id} className="flex gap-4">
+                  <div className={cn(
+                    "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
+                    a.status === 'completed' ? "bg-tertiary-fixed text-on-tertiary-fixed" : "bg-secondary-fixed text-on-secondary-fixed"
+                  )}>
+                    <span className="material-symbols-outlined">{a.status === 'completed' ? 'check_circle' : 'pending'}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold truncate">{a.caseTitle}</p>
+                    <p className="text-[10px] font-mono font-bold text-outline uppercase tracking-wider">{a.score ? `${a.score}% Match` : 'In Progress'} • {new Date(a.date).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Link href="/attempts" className="w-full mt-8 py-3 text-sm font-bold text-outline border border-outline-variant/30 rounded-lg hover:bg-surface-container-high transition-colors flex items-center justify-center">
+              Full Activity Log
+            </Link>
+          </div>
         </div>
       </div>
+
+      {/* Kinetic Achievement Toast */}
+      {user.totalXp > 2000 && (
+        <div className="fixed bottom-8 right-8 bg-surface-container-lowest glass p-4 pr-12 rounded-xl shadow-2xl border border-primary/10 flex items-center gap-4 animate-bounce-subtle z-50">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center text-white">
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>military_tech</span>
+          </div>
+          <div>
+            <p className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest">Level Up</p>
+            <p className="text-sm font-bold">Diagnostic Master II</p>
+          </div>
+          <button className="absolute top-2 right-2 text-outline hover:text-on-surface">
+            <span className="material-symbols-outlined text-sm">close</span>
+          </button>
+        </div>
+      )}
     </div>
   )
 }

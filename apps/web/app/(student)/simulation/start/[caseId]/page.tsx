@@ -32,52 +32,54 @@ export default function SimulationStartPage() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center p-20 text-center animate-slide-up">
-        <div className="w-16 h-16 bg-red-50 border border-red-100 rounded-2xl flex items-center justify-center mb-4">
-           <span className="text-2xl">⚠️</span>
+      <div className="flex flex-col items-center justify-center p-20 text-center animate-slide-up bg-surface">
+        <div className="w-16 h-16 bg-error-container/30 border border-error/10 rounded-2xl flex items-center justify-center mb-4">
+           <span className="material-symbols-outlined text-error text-3xl">warning</span>
         </div>
-        <h1 className="text-lg font-bold text-gray-900 mb-2">Simulation Error</h1>
-        <p className="text-sm text-gray-500 mb-6 max-w-sm">{error}</p>
+        <h1 className="text-xl font-heading font-bold text-on-surface mb-2 tracking-tight">Clinical Error 404</h1>
+        <p className="text-sm text-on-surface-variant mb-8 max-w-sm font-sans">{error}</p>
         <button 
           onClick={() => window.location.reload()}
-          className="px-6 py-2 bg-brand text-white text-sm font-bold rounded-xl shadow-lg shadow-brand/20"
+          className="px-8 py-3 bg-primary text-on-primary text-sm font-heading font-bold rounded-xl shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
         >
-          Try Again
+          Retry Connection
         </button>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-20 min-h-[60vh] animate-slide-up">
+    <div className="flex flex-col items-center justify-center p-20 min-h-[70vh] animate-slide-up bg-surface">
       <div className="relative mb-8">
-        <div className="w-20 h-20 bg-brand/5 border border-brand/20 rounded-3xl flex items-center justify-center animate-pulse">
-           <GraduationCap className="w-10 h-10 text-brand" />
+        <div className="w-24 h-24 bg-primary-container border border-primary/20 rounded-3xl flex items-center justify-center animate-pulse shadow-sm">
+           <span className="material-symbols-outlined text-primary text-5xl">biotech</span>
         </div>
-        <div className="absolute -top-1 -right-1">
-          <Loader2 className="w-6 h-6 text-brand animate-spin" />
+        <div className="absolute -top-3 -right-3">
+          <div className="w-8 h-8 bg-surface border border-outline-variant/30 rounded-full flex items-center justify-center shadow-md">
+            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
         </div>
       </div>
       
-      <div className="text-center space-y-3">
-        <h1 className="text-xl font-bold text-gray-900 tracking-tight">Initializing Clinical Encounter</h1>
-        <div className="flex flex-col items-center gap-1.5">
-          <p className="text-sm text-gray-500 font-medium">Preparing the AI patient persona and medical records...</p>
-          <div className="flex items-center gap-2 mt-2">
-            <span className="w-1.5 h-1.5 bg-brand rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-            <span className="w-1.5 h-1.5 bg-brand rounded-full animate-bounce" style={{ animationDelay: '200ms' }} />
-            <span className="w-1.5 h-1.5 bg-brand rounded-full animate-bounce" style={{ animationDelay: '400ms' }} />
+      <div className="text-center space-y-4">
+        <h1 className="text-3xl font-heading font-extrabold text-on-surface tracking-tight">Clinical Sim | Encounter</h1>
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-sm text-on-surface-variant font-sans font-medium tracking-wide">Synthesizing patient persona & clinical records...</p>
+          <div className="flex items-center gap-1.5 mt-3">
+            <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce shadow-[0_0_8px_rgba(0,104,95,0.4)]" />
+            <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:200ms] shadow-[0_0_8px_rgba(0,104,95,0.4)]" />
+            <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:400ms] shadow-[0_0_8px_rgba(0,104,95,0.4)]" />
           </div>
         </div>
       </div>
 
-      <div className="mt-12 p-4 bg-surface-subtle border border-border-default rounded-2xl max-w-md w-full">
-        <div className="flex items-center gap-3 text-left">
-          <div className="w-2 h-10 bg-brand rounded-full" />
+      <div className="mt-16 p-6 bg-surface-container-low border border-outline-variant/20 rounded-3xl max-w-sm w-full shadow-sm">
+        <div className="flex items-center gap-4 text-left">
+          <div className="w-1.5 h-12 bg-primary rounded-full shadow-sm" />
           <div>
-            <span className="text-[10px] font-bold font-mono text-text-tertiary uppercase tracking-widest block">Pro Tip</span>
-            <p className="text-xs text-text-primary font-medium leading-relaxed">
-              Introduce yourself to the patient and ask open-ended questions to gather more accurate history findings.
+            <span className="text-[10px] font-bold font-mono text-outline-variant uppercase tracking-[0.2em] block mb-1">Consultation Tip</span>
+            <p className="text-xs text-on-surface-variant font-sans font-medium leading-relaxed italic opacity-80">
+              Maintain professional decorum. Use open-ended inquiry to facilitate exhaustive clinical history findings.
             </p>
           </div>
         </div>
@@ -85,3 +87,4 @@ export default function SimulationStartPage() {
     </div>
   )
 }
+

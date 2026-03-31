@@ -157,218 +157,236 @@ export default function SimulationPage() {
   const displayEmoji = persona?.emoji || (isFemale ? '👩🏽‍🦳' : '🧑🏽‍🦳')
 
   return (
-    <div className="flex flex-col h-screen bg-slate-50 overflow-hidden">
-      {/* Simulation Header */}
-      <header className="bg-white border-b border-border-default px-6 py-3 flex items-center justify-between z-20 shadow-sm shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-brand/5 flex items-center justify-center border border-brand/20">
-             <GraduationCap className="w-5 h-5 text-brand" />
-          </div>
-          <div>
-            <h1 className="text-sm font-bold text-text-primary leading-tight">
-              {attempt?.case?.title || 'Clinical Encounter'}
-            </h1>
-            <div className="flex items-center gap-2 mt-0.5">
-               <span className="text-[10px] uppercase font-bold text-brand tracking-widest bg-brand-light px-2 py-0.5 rounded border border-border-brand">Simulation Active</span>
-               <span className="text-[10px] font-mono text-text-tertiary">• Attempt ID: {attemptId.slice(0, 8)}</span>
-            </div>
-          </div>
+    <div className="p-8 flex-1 bg-surface h-[calc(100vh-64px)] overflow-hidden flex flex-col">
+      {/* Breadcrumbs / Context */}
+      <div className="mb-8 flex justify-between items-end shrink-0">
+        <div>
+          <h1 className="font-heading text-3xl font-extrabold text-on-surface tracking-tight mb-1">
+            {attempt?.case?.title || 'Clinical Encounter'}: Case #{attemptId.slice(0, 4).toUpperCase()}
+          </h1>
+          <p className="text-on-surface-variant font-sans">
+            Simulation Stage: <span className="text-primary font-bold uppercase tracking-wider">{currentStep}</span>
+          </p>
         </div>
-        
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-6">
+        <div className="flex gap-3">
+          <div className="flex items-center gap-6 mr-4 bg-surface-container-low px-4 py-2 rounded-xl border border-outline-variant/30">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-text-tertiary" />
-              <span className="text-sm font-bold font-mono text-text-primary">{Math.floor(simState.timeElapsed / 60)}:{(simState.timeElapsed % 60).toString().padStart(2, '0')}</span>
+              <span className="material-symbols-outlined text-outline">schedule</span>
+              <span className="text-sm font-bold font-mono text-on-surface">{Math.floor(simState.timeElapsed / 60)}:{(simState.timeElapsed % 60).toString().padStart(2, '0')}</span>
             </div>
-            
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-100 rounded-lg">
+            <div className="flex items-center gap-1.5">
               {hearts.map((alive, i) => (
-                <Heart key={i} className={cn("w-4 h-4 transition-all", alive ? "text-red-500 fill-current" : "text-slate-200")} />
+                <span key={i} className={cn(
+                  "material-symbols-outlined text-lg transition-all",
+                  alive ? "text-error" : "text-outline-variant/30"
+                )} style={{ fontVariationSettings: alive ? "'FILL' 1" : "'FILL' 0" }}>
+                  favorite
+                </span>
               ))}
             </div>
           </div>
-
-          <div className="h-6 w-px bg-border-default" />
-
-          <button
+          <button 
             onClick={endSimulation}
             disabled={isEnded}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 transition-all shadow-sm active:translate-y-0.5 disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-error to-[#d32f2f] text-white rounded-lg text-sm font-heading font-bold shadow-md hover:shadow-lg active:scale-95 transition-all disabled:opacity-50"
           >
-            <XCircle className="w-4 h-4" />
-            Finish & Evaluate
+            <span className="material-symbols-outlined text-sm">cancel</span> 
+            End & Evaluate
           </button>
         </div>
-      </header>
+      </div>
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* LEFT SIDEBAR: Patient & Progress */}
-        <aside className="w-[300px] bg-white border-r border-border-default overflow-y-auto hidden lg:flex flex-col p-6 gap-6 z-10 shadow-sm shadow-black/5">
-          {/* Patient Info */}
-          <div className="bg-surface-subtle border border-border-default rounded-2xl p-5 flex flex-col items-center text-center shadow-inner">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center text-[40px] border-2 border-brand-light bg-white mb-4 shadow-sm">
-              {displayEmoji}
+      {/* Bento Grid Layout */}
+      <div className="grid grid-cols-12 gap-6 flex-1 min-h-0 overflow-hidden">
+        {/* Left Column: Vitals & Visualizer */}
+        <div className="col-span-12 lg:col-span-7 flex flex-col gap-6 overflow-y-auto pr-2 no-scrollbar">
+          {/* Vitals Monitor */}
+          <div className="bg-surface-container-lowest rounded-xl p-6 shadow-sm relative overflow-hidden border border-outline-variant/20">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-heading font-bold text-on-surface flex items-center gap-2 text-sm uppercase tracking-widest">
+                <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(0,104,95,0.5)]"></span>
+                Real-Time Vitals
+              </h3>
+              <span className="font-mono text-[10px] text-outline font-bold tracking-widest bg-surface-container-low px-2 py-1 rounded">SIM_FEED_v2.4</span>
             </div>
-            <h2 className="text-base font-bold text-text-primary leading-tight">
-              {displayName}
-            </h2>
-            <span className="text-[11px] font-bold font-mono text-text-tertiary uppercase tracking-widest mt-1.5">
-              {attempt?.case?.patientPersona?.age || 45} {attempt?.case?.patientPersona?.sex || 'Male'} · {attempt?.case?.patientPersona?.presentingComplaint || 'Chest Pain'}
-            </span>
-          </div>
-
-          {/* Scenario Progress */}
-          <div className="space-y-4">
-            <span className="text-[10px] font-bold font-mono text-text-tertiary uppercase tracking-[0.08em] block">
-              Simulation Progress
-            </span>
-            <div className="flex flex-col gap-2">
-              {['history', 'examination', 'investigation', 'diagnosis', 'management'].map((step, index) => {
-                const isActive = currentStep === step
-                return (
-                  <button 
-                    key={step} 
-                    onClick={() => setCurrentStep(step as SimStep)}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-xl border transition-all text-left",
-                      isActive ? "bg-brand-light border-border-brand text-brand-text" : "bg-transparent border-transparent text-text-tertiary hover:bg-surface-subtle"
-                    )}
-                  >
-                    <div className={cn(
-                      "w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold font-mono",
-                      isActive ? "bg-brand text-white shadow-sm" : "bg-white border border-border-default text-text-tertiary"
-                    )}>
-                      {index + 1}
-                    </div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider">{step}</span>
-                    {isActive && <span className="ml-auto w-1.5 h-1.5 bg-brand rounded-full animate-pulse" />}
-                  </button>
-                )
-              })}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="p-3 rounded-lg bg-surface-container-low border-l-4 border-primary shadow-sm group hover:scale-[1.02] transition-transform">
+                <p className="font-heading text-[9px] font-black text-primary uppercase tracking-[0.2em] mb-1">Heart Rate</p>
+                <div className="flex items-baseline gap-1">
+                  <span className="font-mono text-3xl font-bold text-on-surface">94</span>
+                  <span className="font-mono text-[10px] text-outline">BPM</span>
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-surface-container-low border-l-4 border-tertiary shadow-sm group hover:scale-[1.02] transition-transform">
+                <p className="font-heading text-[9px] font-black text-tertiary uppercase tracking-[0.2em] mb-1">SpO2</p>
+                <div className="flex items-baseline gap-1">
+                  <span className="font-mono text-3xl font-bold text-on-surface">98</span>
+                  <span className="font-mono text-[10px] text-outline">%</span>
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-error-container/30 border-l-4 border-error shadow-sm group hover:scale-[1.02] transition-transform">
+                <p className="font-heading text-[9px] font-black text-error uppercase tracking-[0.2em] mb-1">BP</p>
+                <div className="flex items-baseline gap-0.5">
+                  <span className="font-mono text-2xl font-bold text-on-error-container">145/92</span>
+                  <span className="font-mono text-[9px] text-on-error-container/60 uppercase">mmHg</span>
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-surface-container-low border-l-4 border-secondary shadow-sm group hover:scale-[1.02] transition-transform">
+                <p className="font-heading text-[9px] font-black text-secondary uppercase tracking-[0.2em] mb-1">Temp</p>
+                <div className="flex items-baseline gap-1">
+                  <span className="font-mono text-3xl font-bold text-on-surface">38.4</span>
+                  <span className="font-mono text-[10px] text-outline">°C</span>
+                </div>
+              </div>
+            </div>
+            {/* Waveform Visualization */}
+            <div className="mt-6 h-16 w-full bg-[#0a0f0e] rounded-lg relative overflow-hidden ring-1 ring-white/5 shadow-inner">
+              <svg className="absolute inset-0 w-full h-full opacity-40" preserveAspectRatio="none">
+                <path d="M0 32 Q 15 10, 30 32 T 60 32 T 90 32 T 120 32 T 150 32 T 180 32 T 210 32 T 240 32 T 270 32 T 300 32" fill="none" stroke="#008378" strokeWidth="1.5" vectorEffect="non-scaling-stroke"></path>
+              </svg>
+              <div className="absolute inset-0 flex items-center px-4 justify-between">
+                <span className="font-mono text-[9px] text-primary-fixed uppercase font-bold tracking-widest opacity-80">ECG Lead II</span>
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary-fixed shadow-[0_0_8px_rgba(107,216,203,1)]"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary-fixed/20"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary-fixed/20"></div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="mt-auto bg-reward-light border border-reward/20 rounded-xl p-4">
-             <div className="flex items-center gap-2 text-reward-text font-bold text-[12px] uppercase font-mono">
-               <span>⚡</span>
-               <span>Goal: Diagnostic Accuracy</span>
-             </div>
+          {/* Patient Visualizer & Info */}
+          <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm flex flex-col md:flex-row min-h-[300px] border border-outline-variant/20">
+            <div className="w-full md:w-1/2 relative bg-surface-container-high">
+              <div className="w-full h-full flex items-center justify-center text-6xl">
+                {displayEmoji}
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-surface-dim/40 to-transparent"></div>
+              <div className="absolute bottom-4 left-4">
+                <span className="px-2 py-1 rounded bg-surface/80 text-on-surface font-mono text-[10px] uppercase tracking-widest font-bold shadow-sm backdrop-blur-sm ring-1 ring-outline-variant/20">
+                  Patient Profile: {displayName}
+                </span>
+              </div>
+            </div>
+            <div className="w-full md:w-1/2 p-6 flex flex-col justify-center">
+              <h4 className="font-heading font-bold text-lg mb-4 text-on-surface">Briefing Details</h4>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-1.5 border-b border-outline-variant/10">
+                  <span className="text-xs text-outline font-sans font-bold uppercase tracking-wider">Demographics</span>
+                  <span className="text-sm font-mono font-bold">{attempt?.case?.patientPersona?.age || 45}y / {attempt?.case?.patientPersona?.sex || 'M'}</span>
+                </div>
+                <div className="flex justify-between items-center py-1.5 border-b border-outline-variant/10">
+                  <span className="text-xs text-outline font-sans font-bold uppercase tracking-wider">Complaint</span>
+                  <span className="text-sm font-mono font-bold text-primary">{attempt?.case?.patientPersona?.presentingComplaint || 'Chest Pain'}</span>
+                </div>
+                <div className="flex justify-between items-center py-1.5 border-b border-outline-variant/10">
+                  <span className="text-xs text-outline font-sans font-bold uppercase tracking-wider">Risk Level</span>
+                  <span className="text-sm font-mono font-bold text-error">Moderate Shock Risk</span>
+                </div>
+              </div>
+              <p className="text-[13px] text-on-surface-variant font-sans mt-6 italic bg-surface-container-low p-3 rounded-lg ring-1 ring-outline-variant/10">
+                "{messages[1]?.content || 'Initializing patient encounter...'}"
+              </p>
+            </div>
           </div>
-        </aside>
+        </div>
 
-        {/* MAIN AREA: Chat */}
-        <div className="flex-1 flex flex-col bg-slate-50 relative">
-          <div className="flex-1 overflow-y-auto px-6 py-8">
-            <div className="max-w-3xl mx-auto space-y-6">
-              {messages.length === 0 && !attempt && (
-                <div className="flex flex-col items-center justify-center p-20 animate-pulse">
-                  <Loader2 className="w-8 h-8 text-brand animate-spin mb-4" />
-                  <p className="text-sm text-text-tertiary font-bold uppercase tracking-widest">Entering Clinical Briefing...</p>
-                </div>
-              )}
-              
-              {messages.length === 0 && attempt && (
-                <div className="bg-white border border-border-default rounded-3xl p-10 text-center space-y-4 max-w-sm mx-auto shadow-sm animate-slide-up">
-                  <div className="w-20 h-20 bg-brand-light rounded-full flex items-center justify-center mx-auto mb-2">
-                     <MessageCircle className="w-10 h-10 text-brand" />
-                  </div>
-                  <h3 className="font-bold text-text-primary text-xl">Consultation Phase</h3>
-                  <p className="text-sm text-text-secondary">The patient is ready. Begin by introducing yourself and asking about their presenting complaint.</p>
-                </div>
-              )}
-              
+        {/* Right Column: Chat Interface & History */}
+        <div className="col-span-12 lg:col-span-5 flex flex-col gap-6 h-full overflow-hidden min-h-0">
+          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 flex flex-col flex-1 min-h-0">
+            {/* Chat Tabs */}
+            <div className="flex border-b border-outline-variant/10">
+              <button className="flex-1 px-4 py-3 text-xs font-heading font-bold uppercase tracking-[0.15em] text-primary border-b-2 border-primary bg-primary/5">
+                Dialogue
+              </button>
+              <button className="flex-1 px-4 py-3 text-xs font-heading font-bold uppercase tracking-[0.15em] text-outline hover:text-primary transition-colors">
+                History
+              </button>
+            </div>
+
+            {/* Messages Area */}
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 no-scrollbar">
               {messages.map((msg, i) => (
                 <div
                   key={i}
                   className={cn(
-                    "flex items-start gap-3.5 group",
-                    msg.role === 'student' ? 'flex-row-reverse animate-slide-up' : 'flex-row'
+                    "flex items-start gap-3 group",
+                    msg.role === 'student' ? 'flex-row-reverse animate-slide-up' : 'flex-row animate-slide-up'
                   )}
                 >
                   <div className={cn(
-                    "w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 mt-0.5 shadow-sm transition-transform group-hover:scale-105",
-                    msg.role === 'student' ? "bg-brand text-white border-brand" : "bg-white border-border-default text-text-tertiary text-xl"
+                    "w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 text-sm transition-transform group-hover:scale-110",
+                    msg.role === 'student' ? "bg-primary text-on-primary border-primary shadow-sm" : "bg-white border-outline-variant/30 text-outline shadow-sm"
                   )}>
-                     {msg.role === 'student' ? <User size={16} /> : displayEmoji}
+                     {msg.role === 'student' ? <span className="material-symbols-outlined text-sm">person</span> : displayEmoji}
                   </div>
                   <div
                     className={cn(
-                      "max-w-[85%] sm:max-w-lg px-5 py-4 rounded-2xl text-[14px] leading-[1.6] shadow-sm border transition-all hover:shadow-md",
+                      "max-w-[85%] px-4 py-3 rounded-xl text-sm leading-relaxed shadow-sm ring-1",
                       msg.role === 'student'
-                        ? 'bg-brand text-white border-brand rounded-tr-sm font-medium'
-                        : 'bg-white border-border-default text-text-primary rounded-tl-sm'
+                        ? 'bg-primary text-on-primary border-primary ring-white/10 rounded-tr-sm font-medium'
+                        : 'bg-white border-outline-variant/10 text-on-surface ring-black/5 rounded-tl-sm'
                     )}
                   >
                     {msg.content}
-                    {msg.streaming && (
-                      <span className="inline-block w-1.5 h-4 bg-brand/40 ml-1 animate-pulse" />
-                    )}
                   </div>
                 </div>
               ))}
-              
               {isPatientTyping && messages[messages.length - 1]?.role !== 'patient' && (
-                <div className="flex justify-start items-start gap-3.5 animate-slide-up">
-                   <div className="w-9 h-9 rounded-xl bg-white border border-border-default text-xl flex items-center justify-center shrink-0 shadow-sm">
+                <div className="flex justify-start items-start gap-3 animate-slide-up">
+                   <div className="w-8 h-8 rounded-lg bg-white border border-outline-variant/30 text-sm flex items-center justify-center shrink-0 shadow-sm">
                       {displayEmoji}
                    </div>
-                   <div className="bg-white border border-border-default rounded-2xl rounded-tl-sm px-5 py-4 shadow-sm">
+                   <div className="bg-white border border-outline-variant/10 rounded-xl rounded-tl-sm px-4 py-3 shadow-sm ring-1 ring-black/5">
                     <div className="flex gap-2">
-                      <span className="w-2 h-2 bg-brand/30 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 bg-brand/30 rounded-full animate-bounce" style={{ animationDelay: '200ms' }} />
-                      <span className="w-2 h-2 bg-brand/30 rounded-full animate-bounce" style={{ animationDelay: '400ms' }} />
+                      <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce" />
+                      <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:200ms]" />
+                      <span className="w-1.5 h-1.5 bg-primary/40 rounded-full animate-bounce [animation-delay:400ms]" />
                     </div>
                   </div>
                 </div>
               )}
-              {error && (
-                <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-center text-red-600 text-[10px] font-bold font-mono uppercase tracking-[0.2em] shadow-sm animate-shake">
-                  {error}
-                </div>
-              )}
               <div ref={messagesEndRef} />
             </div>
-          </div>
 
-          {/* Input Section */}
-          <div className="bg-white border-t border-border-default p-6 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.05)] shrink-0 z-20">
-            <div className="max-w-3xl mx-auto">
-              {/* Quick Actions */}
-              <div className="flex items-center gap-2 flex-wrap mb-4">
+            {/* Console Input Area */}
+            <div className="p-6 bg-surface-container-low border-t border-outline-variant/20">
+              <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
                 {QUICK_ACTIONS[currentStep].map((action) => (
                   <button
                     key={action}
                     onClick={() => sendMessage(action)}
-                    disabled={isPatientTyping || isEnded || !attempt}
-                    className="px-3 py-1.5 bg-surface-subtle border border-border-default rounded-full text-[11px] font-bold text-text-secondary hover:border-brand hover:text-brand transition-all disabled:opacity-40 shadow-sm"
+                    disabled={isPatientTyping || isEnded}
+                    className="whitespace-nowrap px-3 py-1.5 bg-white border border-outline-variant/30 rounded-lg text-[10px] font-bold text-outline hover:border-primary hover:text-primary transition-all disabled:opacity-40 shadow-sm"
                   >
                     {action}
                   </button>
                 ))}
               </div>
-
               <div className="relative group">
                 <textarea
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   disabled={isPatientTyping || isEnded || !attempt}
-                  placeholder={attempt ? "Ask the patient a professional question..." : "Loading clinical encounter..."}
+                  placeholder="Inquire clinical details..."
                   rows={2}
-                  className="w-full pl-6 pr-16 py-4 bg-slate-50 border border-border-default rounded-2xl text-[14px] font-medium resize-none focus:outline-none focus:ring-4 focus:ring-brand/5 focus:border-brand transition-all disabled:opacity-50 disabled:bg-slate-100 shadow-inner"
+                  className="w-full pl-5 pr-14 py-4 bg-surface-container-lowest border border-outline-variant/40 rounded-xl text-sm font-sans resize-none focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all disabled:opacity-50 shadow-inner placeholder:text-outline-variant/60"
                 />
                 <button
                   onClick={() => sendMessage()}
                   disabled={!input.trim() || isPatientTyping || isEnded || !attempt}
-                  className="absolute right-4 bottom-4 p-3 bg-brand text-white rounded-xl hover:bg-brand-hover disabled:opacity-50 shadow-lg shadow-brand/20 active:translate-y-0.5 transition-all"
+                  className="absolute right-3 bottom-3 p-2.5 bg-primary text-on-primary rounded-lg hover:brightness-110 disabled:opacity-50 shadow-lg shadow-primary/20 active:scale-95 transition-all"
                 >
-                  <Send className="w-5 h-5" />
+                  <span className="material-symbols-outlined">send</span>
                 </button>
               </div>
-              <div className="mt-3 flex items-center justify-between px-2">
-                 <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-widest font-mono italic opacity-60">System Ready: {attempt?.case?.specialty || 'General'}</p>
-                 <p className="text-[10px] font-bold text-text-tertiary uppercase tracking-widest font-mono opacity-60">Press Enter ↵</p>
+              <div className="mt-3 flex items-center justify-between px-1">
+                 <p className="text-[10px] font-mono font-bold text-outline/60 uppercase tracking-widest italic flex items-center gap-1.5">
+                   <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
+                   System Status: Nominal
+                 </p>
+                 <span className="text-[10px] font-mono font-bold text-outline/60 uppercase tracking-widest">Type command ↵</span>
               </div>
             </div>
           </div>

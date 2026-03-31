@@ -66,8 +66,10 @@ export class SimulationClient {
     this.ws.onclose = (event) => {
       console.log('WebSocket closed:', event.code, event.reason)
       if (!event.wasClean) {
-        this.options.onError('Connection lost. Attempting to reconnect...')
-        // Optional: Implement auto-reconnect here
+        this.options.onError('Connection lost. Reconnecting in 2 seconds...')
+        setTimeout(() => {
+          this.connect()
+        }, 2000)
       }
     }
   }

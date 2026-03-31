@@ -6,7 +6,8 @@ import Link from 'next/link'
 import { apiClient } from '@/lib/api-client'
 import { saveAuth, getDashboardPath, getUser } from '@/lib/auth'
 import type { AuthResponse } from '@caseflow/types'
-import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, Shield } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, Shield, Activity, User as UserIcon } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -43,7 +44,7 @@ export default function LoginPage() {
       saveAuth(res.data.token, res.data.user)
       router.push(getDashboardPath(res.data.user.role))
     } catch {
-      setError('Something went wrong. Please try again.')
+      setError('Internal server error during authentication. Please retry.')
     } finally {
       setLoading(false)
     }
@@ -51,16 +52,24 @@ export default function LoginPage() {
 
   return (
     <div className="w-full">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Welcome back</h1>
-        <p className="text-gray-500 mt-2">Enter your credentials to access your clinical dashboard.</p>
-      </div>
+      <header className="mb-12">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 rounded-lg border border-primary/10 mb-6 group cursor-default">
+           <Activity size={12} className="text-primary animate-pulse" />
+           <span className="text-[10px] font-mono font-black text-primary uppercase tracking-widest leading-none">Security Portal</span>
+        </div>
+        <h1 className="text-4xl font-heading font-black text-on-surface tracking-tighter leading-tight mb-2 italic">
+          Clinical Access
+        </h1>
+        <p className="text-on-surface-variant font-sans font-medium text-lg opacity-70 leading-relaxed">
+          Unlock your medical training dashboard and resume your case progress.
+        </p>
+      </header>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5 ml-1">
-            <Mail className="w-4 h-4 text-gray-400" />
-            Email Address
+          <label className="text-[10px] font-mono font-black text-outline uppercase tracking-widest px-1 ml-1 flex items-center gap-1.5 opacity-60">
+            <Mail className="w-3 h-3" />
+            Registry Email
           </label>
           <div className="relative group">
             <input
@@ -68,23 +77,24 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand group-hover:border-gray-300"
-              placeholder="name@institution.edu"
+              className="w-full px-5 py-4 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl text-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary group-hover:border-outline-variant outline-none"
+              placeholder="name@university.edu"
             />
+            <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-transparent group-focus-within:ring-primary/20 pointer-events-none transition-all" />
           </div>
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between ml-1">
-            <label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
-              <Lock className="w-4 h-4 text-gray-400" />
-              Password
+          <div className="flex items-center justify-between px-1 ml-1 mb-1">
+            <label className="text-[10px] font-mono font-black text-outline uppercase tracking-widest flex items-center gap-1.5 opacity-60">
+              <Lock className="w-3 h-3" />
+              Access Key
             </label>
             <Link 
               href="/forgot-password" 
-              className="text-xs font-semibold text-brand hover:text-brand-hover transition-colors"
+              className="text-[10px] font-mono font-black text-primary hover:text-secondary-fixed transition-colors uppercase tracking-widest"
             >
-              Forgot password?
+              Recover Pin?
             </Link>
           </div>
           <div className="relative group">
@@ -93,35 +103,39 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand group-hover:border-gray-300"
+              className="w-full px-5 py-4 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl text-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary group-hover:border-outline-variant outline-none"
               placeholder="••••••••"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-outline hover:text-primary transition-colors focus:ring-2 focus:ring-primary/30 rounded-lg outline-none"
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
+            <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-transparent group-focus-within:ring-primary/20 pointer-events-none transition-all" />
           </div>
         </div>
 
-        <div className="flex items-center ml-1">
-          <label className="flex items-center gap-2 cursor-pointer group">
-            <input 
-              type="checkbox" 
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand accent-brand transition-all"
-            />
-            <span className="text-xs font-medium text-gray-500 group-hover:text-gray-700 transition-colors">Keep me signed in</span>
+        <div className="flex items-center justify-between px-1">
+          <label className="flex items-center gap-3 cursor-pointer group select-none">
+            <div className="relative flex items-center h-5">
+              <input 
+                type="checkbox" 
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="peer h-5 w-5 bg-surface-container-low border border-outline-variant/50 rounded-lg text-primary focus:ring-primary focus:ring-offset-0 transition-all checked:bg-primary"
+              />
+              <span className="material-symbols-outlined absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white scale-0 peer-checked:scale-75 transition-transform pointer-events-none text-[20px]">check</span>
+            </div>
+            <span className="text-xs font-bold text-on-surface-variant group-hover:text-on-surface transition-colors">Remember identity</span>
           </label>
         </div>
 
         {error && (
-          <div className="bg-red-50/50 backdrop-blur-sm border border-red-100 rounded-xl px-4 py-3 animate-shake">
-            <p className="text-sm text-red-600 font-medium flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+          <div className="bg-rose-50 border border-rose-100/50 rounded-2xl px-5 py-4 animate-shake shadow-sm shadow-rose-200/20">
+            <p className="text-xs text-rose-600 font-bold flex items-center gap-3">
+              <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
               {error}
             </p>
           </div>
@@ -130,47 +144,48 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3.5 px-4 bg-brand text-white text-sm font-bold rounded-xl shadow-lg shadow-brand/20 hover:bg-brand-hover hover:shadow-xl hover:shadow-brand/25 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100 transition-all duration-200 flex items-center justify-center gap-2"
+          className="w-full py-5 px-6 bg-primary text-on-primary text-sm font-heading font-black rounded-2xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-4 group"
         >
           {loading ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Signing in...
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span className="tracking-widest uppercase text-xs">Verifying...</span>
             </>
           ) : (
             <>
-              Sign in to Dashboard
-              <ArrowRight className="w-4 h-4" />
+              <span className="tracking-widest uppercase text-xs">Enter Dashboard</span>
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5" />
             </>
           )}
         </button>
       </form>
 
-      <div className="mt-8">
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-100"></div>
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-[var(--surface-page)] px-4 text-gray-400 font-medium">Or continue with</span>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          <button className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 shadow-sm">
-            <Shield className="w-5 h-5 text-brand" />
-            Connect via Institution SSO
+      <div className="mt-12 pt-12 border-t border-outline-variant/20">
+        <div className="flex flex-col gap-4">
+          <button className="w-full flex items-center justify-center gap-4 px-6 py-4 border border-outline-variant/30 rounded-2xl text-xs font-heading font-black uppercase tracking-widest text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant/20 hover:border-outline-variant transition-all duration-300 shadow-sm relative overflow-hidden group">
+            <Shield className="w-5 h-5 text-primary" />
+            <span>Institutional SSO</span>
+            <div className="absolute inset-0 bg-primary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+          </button>
+          
+          <button className="w-full flex items-center justify-center gap-4 px-6 py-4 border border-outline-variant/30 rounded-2xl text-xs font-heading font-black uppercase tracking-widest text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant/20 hover:border-outline-variant transition-all duration-300 shadow-sm relative overflow-hidden group">
+            <UserIcon className="w-5 h-5 text-secondary" />
+            <span>Clinician ID Connect</span>
+            <div className="absolute inset-0 bg-secondary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
           </button>
         </div>
       </div>
 
-      <p className="mt-10 text-center text-sm text-gray-500 font-medium">
-        Don't have an account yet?{' '}
-        <Link href="/register" className="text-brand hover:text-brand-hover font-bold decoration-2 underline-offset-4 hover:underline transition-all">
-          Create account
-        </Link>
-      </p>
+      <footer className="mt-12 text-center">
+        <p className="text-sm text-on-surface-variant font-medium opacity-60">
+          First clinical encounter?{' '}
+          <Link href="/register" className="text-primary hover:text-secondary font-black decoration-2 underline-offset-4 hover:underline transition-all">
+            Join the Registry
+          </Link>
+        </p>
+      </footer>
     </div>
   )
 }
+
 

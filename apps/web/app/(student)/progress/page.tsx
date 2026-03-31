@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { getUser } from '@/lib/auth'
 import { apiClient } from '@/lib/api-client'
 import { Loader2 } from 'lucide-react'
-import { User, computeLevel, StudentProgressData } from '@caseflow/types'
+import { User, computeLevel, StudentProgressData, XP_PER_LEVEL } from '@caseflow/types'
 
 const MOCK_PROGRESS = {
   totalXp: 3240,
@@ -112,287 +112,238 @@ export default function ProgressPage() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <Loader2 className="w-10 h-10 text-brand animate-spin" />
-      <p className="text-sm font-bold text-text-tertiary uppercase tracking-widest animate-pulse">Analyzing your progress...</p>
+      <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-sm font-mono font-bold text-outline uppercase tracking-widest animate-pulse">Analyzing your progress...</p>
     </div>
   )
 
   if (!progress) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 text-center">
-       <p className="text-red-500 font-bold uppercase tracking-widest">Failed to load progress data</p>
-       <button onClick={() => window.location.reload()} className="px-4 py-2 bg-brand text-white rounded-lg text-xs font-bold">Retry</button>
+       <span className="material-symbols-outlined text-5xl text-error mb-2">error</span>
+       <p className="text-error font-heading font-bold uppercase tracking-widest">Failed to load progress data</p>
+       <button onClick={() => window.location.reload()} className="px-6 py-2 bg-primary text-on-primary rounded-xl text-sm font-bold shadow-lg shadow-primary/20">Retry</button>
     </div>
   )
 
   const { user, metrics } = progress
-  const totalXp = user.totalXp
-  const maxXp = Math.max(...MOCK_PROGRESS.weeklyXp, 100) // Fallback for now as weeklyXp isn't in API yet
-  
-  const specialtyColors: Record<string, string> = {
-    Cardiology: '#BE123C',
-    Respiratory: 'var(--brand)',
-    Neurology: '#7C3AED',
-    Emergency: '#D97706',
-    GI: '#0891B2',
-  }
-
-  const avatarColors = ['#3730A3', '#6D28D9', '#047857', '#1D4ED8', '#9A3412']
+  const { level, currentLevelXp, nextLevelXp, progressPercent } = computeLevel(user.totalXp)
 
   return (
-    <div className="max-w-[880px] mx-auto p-6 flex flex-col gap-6">
-      
-      {/* SECTION 1: Header */}
-      <div className="flex items-baseline gap-2.5">
-        <h1 className="text-[22px] font-bold text-text-primary tracking-tight">Progress & Analytics</h1>
-        <span className="text-xs font-bold font-mono text-text-tertiary uppercase tracking-widest">Live Sync</span>
-      </div>
-
-      {/* SECTION 2: Stats Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard 
-          label="Total XP" 
-          value={totalXp.toLocaleString()} 
-          accent="brand" 
-          delta={`Level ${computeLevel(totalXp).level}`} 
-        />
-        <StatCard 
-          label="Cases Completed" 
-          value={metrics.totalCompleted} 
-          suffix={`/ ${metrics.totalAttempts} attempted`} 
-          accent="reward" 
-        />
-        <StatCard 
-          label="Avg Score" 
-          value={`${Math.round(metrics.overallAvgScore)}%`} 
-          accent="danger" 
-          delta={metrics.overallAvgScore >= 70 ? "Meeting standards" : "Keep practicing"} 
-        />
-        <StatCard 
-          label="Institution Rank" 
-          value={`--`} 
-          suffix="--" 
-          accent="purple" 
-          delta="Coming soon" 
-        />
-      </div>
-
-      {/* SECTION 3: XpBar */}
-      <XpBar 
-        totalXp={totalXp} 
-        institutionRank={MOCK_PROGRESS.institutionRank}
-        institutionTotal={312}
-      />
-
-      {/* SECTION 4: Charts Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Specialty Performance */}
-        <div className="bg-white border border-border-default rounded-xl p-5 shadow-sm">
-          <span className="text-[11px] font-bold font-mono text-text-tertiary uppercase tracking-[0.08em] block mb-4">
-            Performance by specialty
-          </span>
-          <div className="flex flex-col gap-3">
-            {metrics.specialtyBreakdown.length > 0 ? metrics.specialtyBreakdown.map((item) => (
-              <div key={item.specialty} className="flex items-center gap-3">
-                <span className="text-[11px] font-bold font-mono text-text-secondary w-[90px] shrink-0 truncate">
-                  {item.specialty}
-                </span>
-                <div className="flex-1 h-2.5 bg-surface-subtle rounded-full overflow-hidden">
-                  <div 
-                    className="h-full rounded-full transition-all duration-1000" 
-                    style={{ 
-                      width: `${item.avgScore}%`, 
-                      backgroundColor: specialtyColors[item.specialty] || 'var(--brand)' 
-                    }} 
-                  />
-                </div>
-                <span className="text-[11px] font-bold font-mono text-text-secondary w-8 text-right">
-                  {Math.round(item.avgScore)}%
-                </span>
+    <div className="flex-1 p-6 md:p-10 space-y-10 max-w-7xl mx-auto">
+      {/* Hero Profile Section */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+        <div className="lg:col-span-8 flex flex-col md:flex-row gap-8 items-start md:items-center">
+          <div className="relative">
+            <div className="w-32 h-32 rounded-xl overflow-hidden border-4 border-surface-container-lowest shadow-xl bg-surface-container">
+              <div className="w-full h-full flex items-center justify-center text-5xl font-heading font-black text-primary bg-primary-container">
+                {user.name.charAt(0)}
               </div>
-            )) : (
-              <p className="text-xs text-text-tertiary font-bold uppercase tracking-widest text-center py-4">No data available yet</p>
-            )}
-          </div>
-        </div>
-
-        {/* Weekly XP Column Chart */}
-        <div className="bg-white border border-border-default rounded-xl p-5 shadow-sm">
-          <span className="text-[11px] font-bold font-mono text-text-tertiary uppercase tracking-[0.08em] block mb-4">
-            Weekly XP earned
-          </span>
-          <div className="flex items-end gap-3 h-[140px]">
-            {MOCK_PROGRESS.weeklyXp.map((xp, i) => {
-              const isLatest = i === 3
-              return (
-                <div key={i} className="flex flex-col items-center flex-1 h-full gap-1.5 grayscale-[0.3] hover:grayscale-0 transition-all">
-                  <span className="text-[9px] font-bold font-mono text-text-tertiary">{xp}</span>
-                  <div className="flex-1 w-full flex flex-col justify-end">
-                    <div 
-                      className={cn(
-                        "w-full rounded-t-md border transition-all duration-1000",
-                        isLatest ? "bg-brand border-brand" : "bg-surface-muted border-border-default"
-                      )}
-                      style={{ height: `${(xp / maxXp) * 100}%` }}
-                    />
-                  </div>
-                  <span className={cn(
-                    "text-[10px] font-bold font-mono uppercase",
-                    isLatest ? "text-brand" : "text-text-tertiary"
-                  )}>
-                    W{i + 1}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* SECTION 5: Leaderboard */}
-      <div className="bg-white border border-border-default rounded-xl p-5 shadow-sm">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-[13px] font-bold font-mono text-text-tertiary uppercase tracking-widest">Leaderboard</h2>
-          <span className="text-[11px] font-bold font-mono text-text-tertiary uppercase tracking-tight opacity-70">
-            University of Colombo · March 2026
-          </span>
-        </div>
-
-        {/* Period Tabs */}
-        <div className="flex items-center gap-1.5 mb-6">
-          {['This Week', 'This Month', 'All Time'].map((tab) => (
-            <button
-              key={tab}
-              className={cn(
-                "px-4 py-1.5 rounded-full border text-[11px] font-bold uppercase tracking-tight transition-all",
-                tab === 'This Month' 
-                  ? "bg-brand-light border-brand/30 text-brand-text" 
-                  : "bg-white border-border-default text-text-secondary hover:bg-surface-subtle"
-              )}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* Board Rows */}
-        <div className="flex flex-col">
-          {MOCK_LEADERBOARD.map((userStats) => {
-            const isTop3 = userStats.rank <= 3
-            const rankColors = ['text-[#D97706]', 'text-[#9CA3AF]', 'text-[#A16207]']
-            const avatarBgs = ['bg-[#D97706]', 'bg-[#9CA3AF]', 'bg-[#92400E]']
-            
-            return (
-              <div 
-                key={userStats.userId} 
-                className={cn(
-                  "flex items-center gap-3.5 py-3 transition-colors",
-                  userStats.isCurrentUser ? "bg-brand-light border border-brand/20 rounded-xl px-2.5 mx-[-10px] my-1" : "border-b border-border-default last:border-none"
-                )}
-              >
-                <div className={cn(
-                  "w-8 text-center font-mono font-black text-xl leading-none",
-                  isTop3 ? rankColors[userStats.rank - 1] : userStats.isCurrentUser ? "text-brand" : "text-text-tertiary"
-                )}>
-                  {userStats.rank}
-                </div>
-                
-                <div className={cn(
-                  "w-[34px] h-[34px] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm",
-                  userStats.isCurrentUser ? "bg-gradient-to-br from-brand to-[#0284C7]" : 
-                  isTop3 ? avatarBgs[userStats.rank - 1] : "bg-neutral-600"
-                )}
-                style={!userStats.isCurrentUser && !isTop3 ? { backgroundColor: avatarColors[userStats.rank % avatarColors.length] } : {}}>
-                  {userStats.avatarInitials}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className={cn(
-                      "text-[13px] font-bold truncate",
-                      userStats.isCurrentUser ? "text-brand" : "text-text-primary"
-                    )}>
-                      {userStats.isCurrentUser ? user?.name : userStats.name}
-                    </span>
-                    {userStats.isCurrentUser && <span className="text-[10px] font-bold text-brand uppercase opacity-70">(You)</span>}
-                  </div>
-                  <div className="text-[10px] font-bold font-mono text-text-tertiary uppercase tracking-tight truncate">
-                    {userStats.institution} · {userStats.isCurrentUser ? (user?.currentStreak || 0) : userStats.streak}-day streak
-                  </div>
-                </div>
-
-                <div className="text-right shrink-0">
-                  <div className={cn(
-                    "text-[13px] font-bold font-mono leading-none",
-                    userStats.isCurrentUser ? "text-brand" : "text-reward-text"
-                  )}>
-                    {userStats.isCurrentUser ? totalXp.toLocaleString() : userStats.totalXp.toLocaleString()} <span className="text-[10px] opacity-70">XP</span>
-                  </div>
-                  <div className="text-[10px] font-black font-mono text-text-tertiary uppercase mt-0.5">
-                    Lv. {userStats.isCurrentUser ? computeLevel(totalXp).level : userStats.level}
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* SECTION 6: AI Weak Areas */}
-      <div className="bg-white border border-border-default rounded-xl p-5 shadow-sm">
-        <div className="flex items-baseline gap-2 mb-4">
-          <h2 className="text-[13px] font-bold font-mono text-text-tertiary uppercase tracking-widest">AI-identified weak areas</h2>
-          <span className="text-[10px] font-bold font-mono text-text-tertiary uppercase opacity-50">Based on your last 30 cases</span>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          {MOCK_PROGRESS.weakAreas.map((area, i) => (
-            <div 
-              key={area.specialty}
-              className={cn(
-                "flex items-center gap-4 p-4 rounded-xl border transition-all hover:translate-x-1",
-                i === 0 ? "bg-[#FFF1F2] border-[#FECDD3]" : "bg-[#FFFBEB] border-[#FDE68A]"
-              )}
-            >
-              <span className="text-2xl drop-shadow-sm">{area.emoji}</span>
-              <div className="flex-1 min-w-0">
-                <h3 className={cn(
-                  "text-[13px] font-bold uppercase tracking-tight",
-                  i === 0 ? "text-[#BE123C]" : "text-[#D97706]"
-                )}>
-                  {area.specialty} — {area.issue}
-                </h3>
-                <p className="text-[11px] font-medium text-text-secondary leading-relaxed mt-0.5">
-                  {area.suggestedFocus}
-                </p>
-                <div className="text-[10px] font-bold font-mono text-text-tertiary uppercase mt-1.5 tracking-widest opacity-70">
-                  Affected {area.affectedCases} cases
-                </div>
-              </div>
-              <Link 
-                href={`/cases?specialty=${area.specialty.toLowerCase()}`}
-                className="px-3.5 py-1.5 bg-white border border-border-default rounded-full text-[11px] font-bold text-text-secondary hover:border-brand hover:text-brand hover:bg-brand-light transition-all shadow-sm"
-              >
-                Practice →
-              </Link>
             </div>
-          ))}
+            <div className="absolute -bottom-3 -right-3 bg-secondary text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg ring-2 ring-white">Lvl {level}</div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <h1 className="text-4xl font-heading font-extrabold tracking-tight text-on-surface">{user.name}</h1>
+              <span className="px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant rounded-full text-[10px] font-mono uppercase tracking-widest font-bold">Senior Resident</span>
+            </div>
+            <p className="text-on-surface-variant max-w-xl font-sans leading-relaxed">
+              Specializing in Clinical Diagnostics. Ranked in the top 5% of the clinical cohort for diagnostic accuracy in high-pressure simulations.
+            </p>
+            <div className="flex gap-6 pt-2">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-mono text-outline uppercase tracking-wider font-bold">Success Rate</span>
+                <span className="text-xl font-heading font-bold text-primary">{Math.round(metrics.overallAvgScore)}%</span>
+              </div>
+              <div className="w-px h-8 bg-outline-variant/30 self-center"></div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-mono text-outline uppercase tracking-wider font-bold">Cases Solved</span>
+                <span className="text-xl font-heading font-bold text-primary">{metrics.totalCompleted}</span>
+              </div>
+              <div className="w-px h-8 bg-outline-variant/30 self-center"></div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-mono text-outline uppercase tracking-wider font-bold">Total XP</span>
+                <span className="text-xl font-heading font-bold text-primary">{user.totalXp.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="lg:col-span-4 bg-surface-container-low p-6 rounded-2xl relative overflow-hidden group border border-outline-variant/20">
+          <div className="relative z-10">
+            <h3 className="text-[10px] font-mono text-outline uppercase tracking-widest mb-4 font-bold">Next Milestone</h3>
+            <div className="flex items-baseline gap-2 mb-2">
+              <span className="text-5xl font-heading font-extrabold text-secondary">{nextLevelXp - (XP_PER_LEVEL[level-1] || 0) - currentLevelXp}</span>
+              <span className="text-on-surface-variant text-sm font-sans font-bold">XP to Level {level + 1}</span>
+            </div>
+            <div className="mt-4 w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden shadow-inner">
+              <div 
+                className="bg-secondary h-full rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(133,83,0,0.3)]" 
+                style={{ width: `${progressPercent}%` }}
+              ></div>
+            </div>
+          </div>
+          <span className="material-symbols-outlined absolute -bottom-4 -right-4 text-9xl text-secondary/10 group-hover:scale-110 transition-transform duration-500" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
+        </div>
+      </section>
+
+      {/* Bento Grid Layout for Achievements & Radar */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Skill Radar */}
+        <div className="lg:col-span-1 bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/10 relative">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-xl font-heading font-bold text-on-surface">Clinical Proficiency</h2>
+            <span className="material-symbols-outlined text-outline">insights</span>
+          </div>
+          <div className="aspect-square relative flex items-center justify-center rounded-full border border-outline-variant/20 bg-[radial-gradient(circle,#bcc9c6_1px,transparent_1px)] bg-[size:24px_24px]">
+            {/* Simulated Radar Shape */}
+            <div className="absolute inset-10 bg-primary/10 border-2 border-primary/40 rotate-45" style={{ clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' }}></div>
+            <div className="absolute inset-16 bg-primary/20 border border-primary/50 rotate-12" style={{ clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' }}></div>
+            {/* Monospace Labels */}
+            <span className="absolute top-2 font-mono text-[9px] text-primary uppercase font-black tracking-tighter">Diagnostic (92)</span>
+            <span className="absolute bottom-2 font-mono text-[9px] text-primary uppercase font-black tracking-tighter">Emergency (64)</span>
+            <span className="absolute left-1 top-1/2 -translate-y-1/2 -rotate-90 font-mono text-[9px] text-primary uppercase font-black tracking-tighter">Surgical (78)</span>
+            <span className="absolute right-1 top-1/2 -translate-y-1/2 rotate-90 font-mono text-[9px] text-primary uppercase font-black tracking-tighter">Communicative (88)</span>
+          </div>
+          <div className="mt-8 space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-sans font-bold text-on-surface-variant">Avg Diagnostic Speed</span>
+              <span className="font-mono text-sm text-primary font-black">1.2s</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-sans font-bold text-on-surface-variant">Clinical Accuracy</span>
+              <span className="font-mono text-sm text-primary font-black">94.8%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Badge Gallery */}
+        <div className="lg:col-span-2 bg-surface-container-lowest p-8 rounded-2xl shadow-sm border border-outline-variant/10 flex flex-col">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-xl font-heading font-bold text-on-surface">Distinction Badges</h2>
+            <button className="text-primary text-sm font-bold hover:underline">View All {user.badges.length}</button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 flex-1">
+             {user.badges.slice(0, 9).map((b) => (
+                <div key={b.badgeId} className="flex flex-col items-center gap-3 group">
+                   <div className="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed group-hover:scale-110 transition-transform shadow-sm">
+                      <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
+                   </div>
+                   <div className="text-center">
+                      <p className="text-xs font-heading font-bold text-on-surface truncate max-w-[80px]">{b.badgeId.split('_').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</p>
+                      <p className="text-[9px] font-mono text-outline uppercase font-bold tracking-tighter">Unlocked</p>
+                   </div>
+                </div>
+             ))}
+             <div className="flex flex-col items-center justify-center w-16 h-16 rounded-full border-2 border-dashed border-outline-variant text-outline-variant hover:border-primary hover:text-primary transition-colors cursor-pointer">
+                <span className="material-symbols-outlined">more_horiz</span>
+             </div>
+          </div>
         </div>
       </div>
 
-      {/* SECTION 7: All Badges */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-text-primary uppercase tracking-tight">All Badges</h2>
-          <span className="text-[11px] font-bold font-mono text-text-tertiary uppercase tracking-widest">
-            {MOCK_PROGRESS.badges.length} / 10 unlocked
-          </span>
+      {/* Specialty Breakdown */}
+      <section className="space-y-6">
+        <h2 className="text-2xl font-heading font-extrabold text-on-surface tracking-tight">Competency Breakdown</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/10 space-y-4">
+              <h3 className="text-sm font-heading font-bold uppercase tracking-widest text-outline">Clinical Specialty Performance</h3>
+              <div className="space-y-4">
+                {metrics.specialtyBreakdown.map((s) => (
+                  <div key={s.specialty} className="space-y-1.5">
+                    <div className="flex justify-between text-xs font-mono font-bold uppercase tracking-wider">
+                      <span>{s.specialty}</span>
+                      <span className="text-primary">{Math.round(s.avgScore)}%</span>
+                    </div>
+                    <div className="h-2 w-full bg-surface-container-high rounded-full overflow-hidden shadow-inner">
+                      <div 
+                        className="h-full bg-primary rounded-full transition-all duration-1000 shadow-[0_0_8px_rgba(0,104,95,0.2)]" 
+                        style={{ width: `${s.avgScore}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+           </div>
+           
+           <div className="bg-surface-container-lowest p-6 rounded-2xl border border-outline-variant/10 flex flex-col justify-center items-center text-center">
+              <span className="material-symbols-outlined text-6xl text-secondary/20 mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>local_fire_department</span>
+              <h3 className="text-2xl font-heading font-black text-on-surface mb-2">{user.currentStreak} Day Streak</h3>
+              <p className="text-sm text-on-surface-variant font-sans max-w-[250px] mb-6">
+                Consistency is key to clinical mastery. You've completed cases for {user.currentStreak} consecutive days!
+              </p>
+              <div className="flex gap-2">
+                 {[1,2,3,4,5,6,7].map(d => (
+                    <div key={d} className={cn(
+                      "w-8 h-8 rounded-lg flex items-center justify-center font-mono text-xs font-bold",
+                      d <= (user.currentStreak % 8) ? "bg-secondary text-white shadow-md" : "bg-surface-container-high text-outline"
+                    )}>
+                      {['M','T','W','T','F','S','S'][d-1]}
+                    </div>
+                 ))}
+              </div>
+           </div>
         </div>
-        <div className="bg-white border border-border-default rounded-xl p-5 shadow-sm">
-          <BadgeGrid userBadges={user.badges} />
-        </div>
-      </div>
+      </section>
 
+      {/* Milestone Timeline */}
+      <section className="space-y-6 pb-20">
+        <div className="flex justify-between items-end">
+          <div>
+            <h2 className="text-2xl font-heading font-extrabold text-on-surface tracking-tight">Milestone Timeline</h2>
+            <p className="text-sm text-on-surface-variant font-sans opacity-80">Recent progression events and earned clinical rewards.</p>
+          </div>
+          <div className="flex gap-2">
+            <span className="px-4 py-1.5 bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-mono font-black rounded-full uppercase tracking-widest border border-tertiary/20 shadow-sm">
+              Level {level} Achieved
+            </span>
+          </div>
+        </div>
+        <div className="space-y-0 relative before:absolute before:left-6 before:top-4 before:bottom-4 before:w-[2px] before:bg-outline-variant/20">
+          {/* Mock Timeline Events */}
+          <div className="relative pl-16 py-4 group">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 rounded-full bg-primary border-4 border-surface group-hover:scale-150 transition-transform z-10 shadow-sm"></div>
+            <div className="bg-surface-container-low p-5 rounded-2xl border border-transparent hover:border-primary/20 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm group-hover:shadow-md">
+              <div className="flex gap-4">
+                <div className="bg-surface-container-lowest p-3 rounded-xl flex items-center justify-center h-fit shadow-inner ring-1 ring-black/5">
+                  <span className="material-symbols-outlined text-primary">clinical_notes</span>
+                </div>
+                <div>
+                  <h4 className="font-heading font-bold text-on-surface">Completed Simulation: Cardiac Emergency</h4>
+                  <p className="text-sm text-on-surface-variant font-sans opacity-80">Stabilized patient with acute myocardial infarction.</p>
+                  <span className="text-[10px] font-mono text-outline uppercase mt-2 block font-bold">2 hours ago</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-sm font-black text-primary">+450 XP</span>
+                <span className="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed-variant rounded-full text-[9px] font-mono font-black uppercase tracking-tighter border border-secondary/20 shadow-sm">Advanced Diagnostician</span>
+              </div>
+            </div>
+          </div>
+          <div className="relative pl-16 py-4 group">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 rounded-full bg-secondary border-4 border-surface group-hover:scale-150 transition-transform z-10 shadow-sm"></div>
+            <div className="bg-secondary-container/10 p-5 rounded-2xl border border-secondary/20 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden backdrop-blur-sm">
+              <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-secondary/5 to-transparent"></div>
+              <div className="flex gap-4 relative z-10">
+                <div className="bg-secondary p-3 rounded-xl flex items-center justify-center h-fit text-white shadow-lg">
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>keyboard_double_arrow_up</span>
+                </div>
+                <div>
+                  <h4 className="font-heading font-black text-secondary text-lg">PROMOTED TO LEVEL {level}</h4>
+                  <p className="text-sm text-on-surface-variant font-sans font-medium">Unlocked: Advanced Neurological Simulation Modules.</p>
+                  <span className="text-[10px] font-mono text-outline uppercase mt-2 block font-bold">Yesterday</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 relative z-10">
+                <span className="font-mono text-xs font-black text-secondary uppercase tracking-widest">Rank Up</span>
+                <div className="w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center shadow-lg">
+                  <span className="material-symbols-outlined">military_tech</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
+
 

@@ -2,7 +2,8 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { StudentNav } from '@/components/StudentNav'
+import { Sidebar } from '@/components/Sidebar'
+import { TopBar } from '@/components/TopBar'
 import { XpToastProvider } from '@/components/gamification/XpToastProvider'
 import { getUser } from '@/lib/auth'
 import type { User } from '@caseflow/types'
@@ -22,32 +23,28 @@ export default function StudentRouteLayout({ children }: { children: ReactNode }
 
   if (!user) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-gray-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+      <div className="flex h-screen w-full items-center justify-center bg-surface">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     )
   }
 
-  const initials = user.name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
-
   return (
     <XpToastProvider>
-      <div className="flex flex-col min-h-screen">
-        <StudentNav 
-          userName={user.name}
-          userInitials={initials}
-          totalXp={user.totalXp ?? 0}
-          streak={user.currentStreak ?? 0}
-          currentPath={typeof window !== 'undefined' ? window.location.pathname : '/'}
+      <div className="flex bg-surface min-h-screen">
+        <Sidebar 
+          userName={user.name} 
+          userRole={user.role === 'student' ? 'Medical Student' : user.role} 
         />
-        <main className="flex-1 bg-surface-page">
-          {children}
-        </main>
+        <div className="flex-1 ml-64 flex flex-col">
+          <TopBar 
+            totalXp={user.totalXp ?? 0}
+            streak={user.currentStreak ?? 0}
+          />
+          <main className="flex-1 p-0">
+            {children}
+          </main>
+        </div>
       </div>
     </XpToastProvider>
   )

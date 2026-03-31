@@ -1,7 +1,6 @@
 'use client'
 
-import Image from 'next/image'
-import { GraduationCap } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export default function AuthLayout({
   children,
@@ -9,49 +8,53 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
-      {/* Left Side: Branding & Image */}
-      <div className="hidden lg:flex relative bg-[#063333] flex-col p-12 overflow-hidden shadow-2xl">
-        {/* Background Image with Gradient Overlay */}
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/login-bg.png"
-            alt="Medical Education"
-            fill
-            className="object-cover opacity-50 transition-transform duration-[10s] hover:scale-105"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0D9488]/80 via-[#063333]/90 to-[#021F1F]/95 mix-blend-multiply" />
+    <div className="min-h-screen grid lg:grid-cols-2 bg-background selection:bg-primary-fixed selection:text-on-primary-fixed">
+      {/* Left Side: Branding & Experience */}
+      <div className="hidden lg:flex relative bg-primary-container flex-col p-16 overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute top-0 left-0 w-full h-full opacity-60">
+          <div className="absolute top-[-10%] right-[-10%] w-[60%] aspect-square bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
+          <div className="absolute bottom-[-20%] left-[-20%] w-[80%] aspect-square bg-secondary/10 rounded-full blur-[160px] animate-bounce-subtle"></div>
         </div>
 
         {/* Content Overlay */}
         <div className="relative z-10 h-full flex flex-col">
-          <div className="flex items-center gap-3 text-white">
-            <div className="w-10 h-10 bg-brand/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20">
-              <GraduationCap className="w-6 h-6 text-brand-light" />
+          <div className="flex items-center gap-4 group">
+            <div className="w-12 h-12 bg-primary text-on-primary rounded-2xl flex items-center justify-center shadow-xl shadow-primary/20 transition-transform group-hover:scale-110">
+              <span className="material-symbols-outlined text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>biotech</span>
             </div>
-            <span className="text-2xl font-bold tracking-tight">Caseflow</span>
+            <span className="text-3xl font-heading font-black tracking-tighter text-primary">Caseflow</span>
           </div>
 
-          <div className="mt-auto max-w-md">
-            <h2 className="text-4xl font-bold text-white mb-6 leading-tight">
-              Master Clinical Cases with the Next Generation of AI Patient Simulations
+          <div className="mt-auto max-w-lg">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full mb-6 border border-primary/20">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+              <span className="text-[10px] font-mono font-black text-primary uppercase tracking-widest">Next-Gen Simulation</span>
+            </div>
+            <h2 className="text-5xl font-heading font-black text-on-surface leading-tight tracking-tight mb-8">
+              Master Clinical <br/> Decisions in <span className="text-primary underline decoration-primary/20 underline-offset-8">Real-time</span>.
             </h2>
-            <div className="flex gap-4">
-              <div className="flex -space-x-2">
+            <p className="text-lg font-sans font-medium text-on-surface-variant mb-12 opacity-80 leading-relaxed">
+              Immerse yourself in high-fidelity AI patient encounters designed to bridge the gap between theory and practice.
+            </p>
+            
+            <div className="flex items-center gap-6 p-6 bg-surface/40 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl shadow-primary/5">
+              <div className="flex -space-x-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-white/10 bg-white/5 backdrop-blur-sm" />
+                  <div key={i} className="w-12 h-12 rounded-2xl border-4 border-surface bg-primary-container/30 overflow-hidden flex items-center justify-center text-primary font-heading font-bold shadow-sm">
+                    {String.fromCharCode(64 + i)}
+                  </div>
                 ))}
               </div>
-              <div>
-                <p className="text-sm font-medium text-white/90">Join 1,000+ medical professionals</p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <svg key={i} className="w-3.5 h-3.5 fill-reward" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                  <p className="text-xs text-white/60">on your journey to clinical excellence</p>
+              <div className="flex-1">
+                <p className="text-sm font-heading font-black text-on-surface tracking-tight leading-tight">Join 2,500+ Medical Scholars</p>
+                <div className="flex items-center gap-2 mt-1.5 opacity-70">
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className="material-symbols-outlined text-[14px] text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                    ))}
+                  </div>
+                  <p className="text-[10px] font-mono font-black text-on-surface-variant uppercase tracking-tighter">Clinical Excellence</p>
                 </div>
               </div>
             </div>
@@ -60,16 +63,20 @@ export default function AuthLayout({
       </div>
 
       {/* Right Side: Form */}
-      <div className="flex items-center justify-center p-6 sm:p-12 lg:p-24 bg-[var(--surface-page)]">
-        <div className="w-full max-w-md animate-slide-up">
-          <div className="flex lg:hidden items-center gap-2 mb-8 justify-center">
-            <GraduationCap className="w-8 h-8 text-brand" />
-            <span className="text-xl font-bold text-gray-900 leading-none">Caseflow</span>
+      <div className="flex items-center justify-center p-8 sm:p-16 lg:p-24 bg-surface relative">
+        <div className="w-full max-w-md relative z-10">
+          <div className="flex lg:hidden items-center gap-3 mb-12 justify-center">
+            <span className="material-symbols-outlined text-4xl text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>biotech</span>
+            <span className="text-2xl font-heading font-black text-on-surface tracking-tighter">Caseflow</span>
           </div>
           {children}
         </div>
+        
+        {/* Subtle Decorative Element */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-bl-full -z-10 blur-3xl opacity-50"></div>
       </div>
     </div>
   )
 }
+
 
