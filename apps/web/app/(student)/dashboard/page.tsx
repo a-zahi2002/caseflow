@@ -127,18 +127,31 @@ export default function StudentDashboard() {
             Welcome back, {firstName}
           </h2>
           <p className="text-on-surface-variant max-w-xl">
-            You've completed {Math.round(metrics.totalCompleted / (metrics.totalCompleted + 3) * 100) || 0}% of your targets. 
-            Your diagnostic accuracy is {Math.round(metrics.overallAvgScore)}% this month.
+            {metrics.totalAttempts === 0 ? (
+              "Welcome to your clinical residency training. Select a case below to begin your professional journey and build your portfolio."
+            ) : (
+              <>
+                You've completed {Math.round(metrics.totalCompleted / (metrics.totalCompleted + 5) * 100)}% of your targets. 
+                Your diagnostic accuracy currently stands at {Math.round(metrics.overallAvgScore)}% across all cases.
+              </>
+            )}
           </p>
         </div>
         <div className="flex gap-3">
           <div className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 min-w-[140px]">
             <p className="font-mono text-[10px] uppercase text-outline mb-1 font-bold tracking-widest">Rank</p>
-            <p className="text-xl font-bold text-primary">Chief Fellow</p>
+            <p className="text-xl font-bold text-primary">
+              {user.totalXp < 500 ? 'Medical Student' : 
+               user.totalXp < 1500 ? 'Junior Resident' : 
+               user.totalXp < 3000 ? 'Senior Resident' : 
+               'Chief Fellow'}
+            </p>
           </div>
           <div className="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 min-w-[140px]">
-            <p className="font-mono text-[10px] uppercase text-outline mb-1 font-bold tracking-widest">Accuracy</p>
-            <p className="text-xl font-bold text-secondary">{Math.round(metrics.overallAvgScore)}%</p>
+            <p className="font-mono text-[10px] uppercase text-outline mb-1 font-bold tracking-widest">Avg Accuracy</p>
+            <p className="text-xl font-bold text-secondary">
+              {metrics.totalCompleted > 0 ? `${Math.round(metrics.overallAvgScore)}%` : '—'}
+            </p>
           </div>
         </div>
       </section>
