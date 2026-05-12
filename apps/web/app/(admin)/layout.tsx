@@ -32,12 +32,10 @@ export default function AdminLayout({
   if (!authorized) return null
 
   const navItems = [
-    { label: 'Cohorts', href: '/admin/dashboard', icon: 'group' },
-    { label: 'Students', href: '/admin/users', icon: 'monitoring' },
-    { label: 'Curriculum', href: '/admin/moderation', icon: 'menu_book' },
-    { label: 'User Admin', href: '/admin/users', icon: 'admin_panel_settings' },
-    { label: 'System Analytics', href: '/admin/analytics', icon: 'analytics' },
-    { label: 'Audit Logs', href: '/admin/audits', icon: 'history' },
+    { label: 'Dashboard', href: '/admin/dashboard', icon: 'dashboard' },
+    { label: 'User Management', href: '/admin/users', icon: 'manage_accounts' },
+    { label: 'Content Review', href: '/admin/moderation', icon: 'fact_check' },
+    { label: 'Platform Settings', href: '/admin/settings', icon: 'settings' },
   ]
 
   return (

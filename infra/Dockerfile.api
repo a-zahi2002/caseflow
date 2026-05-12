@@ -7,7 +7,7 @@ RUN npm install
 
 # Build stage
 FROM base AS builder
-RUN turbo build --filter=api
+RUN turbo build --filter=@caseflow/api
 
 # Production stage
 FROM node:20-alpine AS runner

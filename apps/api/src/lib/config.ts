@@ -2,13 +2,13 @@ import { z } from 'zod'
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.coerce.number().default(4000),
+  PORT: z.coerce.number().default(4001),
   DATABASE_URL: z.string().min(1),
   JWT_SECRET: z.string().min(32),
   OLLAMA_BASE_URL: z.string().url().default('http://localhost:11434'),
   OLLAMA_MODEL: z.string().default('mistral:7b'),
   OLLAMA_GENERATOR_MODEL: z.string().default('llama3.2:3b'),
-  CORS_ORIGIN: z.string().default('http://localhost:3000'),
+  CORS_ORIGIN: z.string().default('http://localhost:3001'),
   STORAGE_TYPE: z.enum(['local', 'supabase']).default('local'),
   SUPABASE_URL: z.string().optional(),
   SUPABASE_KEY: z.string().optional(),

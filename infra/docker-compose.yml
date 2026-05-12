@@ -30,7 +30,7 @@ services:
 
   # One-time initialization for Ollama models
   ollama-init:
-    image: alpine:latest
+    image: ollama/ollama:latest
     container_name: caseflow-ollama-init
     depends_on:
       - ollama

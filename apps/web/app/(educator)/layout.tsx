@@ -1,8 +1,11 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { getUser, clearAuth } from '@/lib/auth'
+import type { User } from '@caseflow/types'
 
 export default function EducatorLayout({
   children,
@@ -10,6 +13,32 @@ export default function EducatorLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
+
+  useEffect(() => {
+    const u = getUser()
+    if (!u) {
+      router.push('/login')
+    } else if (u.role !== 'educator' && u.role !== 'admin') {
+      router.push('/dashboard')
+    } else {
+      setUser(u)
+    }
+  }, [router])
+
+  const handleLogout = () => {
+    clearAuth()
+    router.push('/login')
+  }
+
+  if (!user) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-surface">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    )
+  }
 
   const navItems = [
     { label: 'Cohorts', href: '/educator/dashboard', icon: 'group' },
@@ -49,11 +78,11 @@ export default function EducatorLayout({
           <span className="material-symbols-outlined text-on-surface-variant cursor-pointer p-2 hover:bg-surface-container-low rounded-full transition-all">settings</span>
           <div className="flex items-center gap-3 ml-2 pl-4 border-l border-outline-variant/20">
             <div className="text-right hidden sm:block">
-              <p className="text-xs font-heading font-black text-on-surface">Dr. Educator</p>
+              <p className="text-xs font-heading font-black text-on-surface">{user.name}</p>
               <p className="text-[10px] font-mono uppercase text-on-surface-variant font-bold">Clinical Lead</p>
             </div>
             <div className="w-10 h-10 rounded-full border-2 border-primary-container bg-primary-container flex items-center justify-center text-primary font-heading font-bold">
-              DE
+              {user.name.charAt(0)}
             </div>
           </div>
         </div>
@@ -92,7 +121,7 @@ export default function EducatorLayout({
               )
             })}
           </nav>
-          <div className="px-4 mt-auto mb-6 pt-10">
+          <div className="px-4 mt-auto mb-6 pt-10 space-y-2">
             <Link 
               href="/educator/create" 
               className="w-full py-3 px-4 bg-primary text-on-primary rounded-xl text-sm font-heading font-black shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2"
@@ -100,6 +129,13 @@ export default function EducatorLayout({
               <span className="material-symbols-outlined text-sm">add</span>
               New Simulation
             </Link>
+            <button 
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 text-error font-heading font-bold hover:bg-error-container/10 rounded-xl transition-all group"
+            >
+              <span className="material-symbols-outlined transition-transform group-hover:-translate-x-1">logout</span>
+              <span className="text-sm">Sign out</span>
+            </button>
           </div>
         </aside>
 

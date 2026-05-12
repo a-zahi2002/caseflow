@@ -294,14 +294,22 @@ export default function SimulationPage() {
         {/* Right Column: Chat Interface & History */}
         <div className="col-span-12 lg:col-span-5 flex flex-col gap-6 h-full overflow-hidden min-h-0">
           <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 flex flex-col flex-1 min-h-0">
-            {/* Chat Tabs */}
-            <div className="flex border-b border-outline-variant/10">
-              <button className="flex-1 px-4 py-3 text-xs font-heading font-bold uppercase tracking-[0.15em] text-primary border-b-2 border-primary bg-primary/5">
-                Dialogue
-              </button>
-              <button className="flex-1 px-4 py-3 text-xs font-heading font-bold uppercase tracking-[0.15em] text-outline hover:text-primary transition-colors">
-                History
-              </button>
+            {/* Step Navigation */}
+            <div className="flex border-b border-outline-variant/10 overflow-x-auto no-scrollbar">
+              {(['history', 'examination', 'investigation', 'diagnosis', 'management'] as SimStep[]).map((step, i) => (
+                <button
+                  key={step}
+                  onClick={() => setCurrentStep(step)}
+                  className={cn(
+                    "flex-1 min-w-0 px-2 py-3 text-[10px] font-heading font-bold uppercase tracking-[0.1em] transition-all whitespace-nowrap",
+                    currentStep === step
+                      ? "text-primary border-b-2 border-primary bg-primary/5"
+                      : "text-outline hover:text-primary hover:bg-primary/5"
+                  )}
+                >
+                  <span className="hidden sm:inline">{i + 1}. </span>{step}
+                </button>
+              ))}
             </div>
 
             {/* Messages Area */}

@@ -83,8 +83,15 @@ casesRouter.get('/', async (c) => {
       ? Math.max(...userAttempts.map((a) => a.score ?? 0))
       : null
 
+    // Derive a description from the patient persona for frontend display
+    const persona = c.patientPersona as Record<string, any> | null
+    const description = persona?.presentingComplaint
+      ? `${persona.age ? persona.age + 'y ' : ''}${persona.sex ? persona.sex + ' ' : ''}presenting with ${persona.presentingComplaint}. ${persona.background || ''}`
+      : `${c.specialty} clinical simulation case`
+
     return {
       ...c,
+      description: description.trim(),
       isCompleted,
       bestScore,
       attemptCount: c._count?.attempts || 0,
