@@ -1,29 +1,25 @@
-import { Manrope, Plus_Jakarta_Sans, DM_Mono } from 'next/font/google'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import type { Metadata } from 'next'
 import { cn } from '@/lib/utils'
+import { Providers } from './providers'
 import './globals.css'
 
-const fontSans = Manrope({
+const inter = Inter({
   subsets: ['latin'],
+  display: 'swap',
   variable: '--font-sans',
-  weight: ['400', '500', '600', '700', '800'],
 })
 
-const fontHeading = Plus_Jakarta_Sans({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
-  variable: '--font-heading',
-  weight: ['400', '500', '600', '700', '800'],
-})
-
-const fontMono = DM_Mono({
-  subsets: ['latin'],
+  display: 'swap',
   variable: '--font-mono',
-  weight: ['300', '400', '500'],
 })
 
 export const metadata: Metadata = {
-  title: 'Caseflow | CBL & SBL Platform',
-  description: 'Clinical Case-Based Learning Platform for Medical Education',
+  title: 'Caseflow | Clinical Case-Based Learning',
+  description: 'Master clinical reasoning through AI-powered patient simulations. Practice case-based learning with real-time feedback.',
+  keywords: ['medical education', 'case-based learning', 'clinical simulation', 'AI patient'],
 }
 
 export default function RootLayout({
@@ -33,21 +29,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" />
-      </head>
       <body
         className={cn(
           'min-h-screen bg-background font-sans antialiased',
-          fontSans.variable,
-          fontHeading.variable,
-          fontMono.variable
+          inter.variable,
+          jetbrainsMono.variable,
         )}
-        suppressHydrationWarning
       >
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
 }
-

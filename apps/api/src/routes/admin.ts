@@ -1,251 +1,216 @@
 import { Hono } from 'hono'
-import { z } from 'zod'
-import bcrypt from 'bcryptjs'
-import { zValidator } from '@hono/zod-validator'
 import { prisma } from '@caseflow/db'
 import { authMiddleware } from '../middleware/auth.js'
 import { requireRole } from '../middleware/require-role.js'
 import { success, error } from '../lib/response.js'
 import { NotFoundError } from '../lib/errors.js'
-import type { AppEnv } from '../types.js'
-import type { 
-  UserManagementData, 
-  ModerationQueueItem, 
-  PlatformSettingsData 
-} from '@caseflow/types'
 
-export const adminRouter = new Hono<AppEnv>()
-
-// Enforce admin for everything
+export const adminRouter = new Hono()
 adminRouter.use('*', authMiddleware)
-adminRouter.use('*', requireRole('admin'))
+adminRouter.use('*', requireRole('ADMIN'))
 
-// --- User Management ---
-
+// GET /api/admin/users
 adminRouter.get('/users', async (c) => {
-  const role = c.req.query('role') as any
-  const status = c.req.query('status') as any
-  const institution = c.req.query('institution')
-  const search = c.req.query('search')
+  const page = parseInt(c.req.query('page') ?? '1')
+  const limit = parseInt(c.req.query('limit') ?? '20')
+  const q = c.req.query('q')
 
-  const users = await prisma.user.findMany({
-    where: {
-      ...(role && { role }),
-      ...(status && { status } as any),
-      ...(institution && { institution }),
-      ...(search && {
-        OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { email: { contains: search, mode: 'insensitive' } },
-          { institution: { contains: search, mode: 'insensitive' } },
-        ],
-      }),
-    },
-    orderBy: { createdAt: 'desc' },
+  const where: any = { deletedAt: null }
+  // Note: user search by name/email requires joining with better-auth user table
+  // For now, filter by profile data only
+
+  const [profiles, total] = await Promise.all([
+    prisma.userProfile.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.userProfile.count({ where }),
+  ])
+
+  return success(c, profiles, 200, {
+    page, limit, total, totalPages: Math.ceil(total / limit),
+  })
+})
+
+// PATCH /api/admin/users/:id — role change
+adminRouter.patch('/users/:id', async (c) => {
+  const { id } = c.req.param()
+  const body = await c.req.json()
+
+  const profile = await prisma.userProfile.update({
+    where: { id },
+    data: { role: body.role },
   })
 
-  const data: UserManagementData[] = users.map(u => ({
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    role: u.role as any,
-    institution: u.institution,
-    status: (u as any).status,
-    createdAt: u.createdAt.toISOString(),
-  }))
-
-  return success(c, data)
-})
-
-const createUserSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email().toLowerCase(),
-  password: z.string().min(8),
-  role: z.enum(['student', 'educator', 'admin']).default('student'),
-  institution: z.string().optional(),
-})
-
-adminRouter.post('/users', zValidator('json', createUserSchema), async (c) => {
-  const { name, email, password, role, institution } = (c.req as any).valid('json')
-
-  const existing = await prisma.user.findUnique({ where: { email } })
-  if (existing) {
-    return error(c, 'User with this email already exists', 409)
-  }
-
-  const passwordHash = await bcrypt.hash(password, 12)
-
-  const user = await prisma.user.create({
+  // Audit log
+  const user = c.get('user') as { id: string }
+  await prisma.auditLog.create({
     data: {
-      name,
-      email,
-      passwordHash,
-      role: role as any,
-      institution: institution || null,
+      actorId: user.id,
+      action: 'user.role_change',
+      targetType: 'UserProfile',
+      targetId: id,
+      metadata: { newRole: body.role },
     },
   })
 
-  const data: UserManagementData = {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role as any,
-    institution: user.institution,
-    status: (user as any).status,
-    createdAt: user.createdAt.toISOString(),
-  }
-
-  return success(c, data, 201)
+  return success(c, profile)
 })
 
-const updateUserSchema = z.object({
-  name: z.string().min(2).optional(),
-  email: z.string().email().toLowerCase().optional(),
-  password: z.string().min(8).optional(),
-  role: z.enum(['student', 'educator', 'admin']).optional(),
-  institution: z.string().optional(),
-  status: z.enum(['active', 'suspended']).optional(),
-})
+// POST /api/admin/users/:id/ban
+adminRouter.post('/users/:id/ban', async (c) => {
+  const { id } = c.req.param()
+  const user = c.get('user') as { id: string }
 
-adminRouter.patch('/users/:id', zValidator('json', updateUserSchema), async (c) => {
-  const id = c.req.param('id')
-  const updates = (c.req as any).valid('json')
-
-  if (updates.email) {
-    const existing = await prisma.user.findFirst({
-      where: { email: updates.email, NOT: { id } }
-    })
-    if (existing) {
-      return error(c, 'Email already taken by another user', 409)
-    }
-  }
-
-  if (updates.password) {
-    updates.passwordHash = await bcrypt.hash(updates.password, 12)
-    delete updates.password
-  }
-
-  const user = await prisma.user.update({
+  await prisma.userProfile.update({
     where: { id },
-    data: updates,
+    data: { banned: true },
   })
 
-  const data: UserManagementData = {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role as any,
-    institution: user.institution,
-    status: (user as any).status,
-    createdAt: user.createdAt.toISOString(),
-  }
-
-  return success(c, data)
-})
-
-adminRouter.delete('/users/:id', async (c) => {
-  const id = c.req.param('id')
-  
-  // Optional: prevent deleting self
-  // const me = c.get('jwtPayload').sub
-  // if (id === me) return error(c, 'Cannot delete yourself', 400)
-
-  await prisma.user.delete({ where: { id } })
-  
-  return success(c, { id, deleted: true })
-})
-
-// Consolidating specific updates into the general PATCH route above
-// Keeping these for backward compatibility if needed, or remove them
-// For now, let's keep the general one as the primary.
-
-// --- Content Moderation ---
-
-adminRouter.get('/cases/review', async (c) => {
-  const cases = await prisma.case.findMany({
-    where: { status: 'review' },
-    include: {
-      author: { select: { name: true } },
+  await prisma.auditLog.create({
+    data: {
+      actorId: user.id,
+      action: 'user.ban',
+      targetType: 'UserProfile',
+      targetId: id,
     },
-    orderBy: { updatedAt: 'desc' },
   })
 
-  const data: ModerationQueueItem[] = cases.map(cs => ({
-    id: cs.id,
-    title: cs.title,
-    specialty: cs.specialty,
-    difficulty: cs.difficulty as any,
-    authorName: cs.author.name,
-    submittedAt: cs.updatedAt.toISOString(),
-  }))
-
-  return success(c, data)
+  return success(c, { banned: true })
 })
 
-adminRouter.patch('/cases/:id/approve', async (c) => {
-  const id = c.req.param('id')
+// POST /api/admin/users/:id/unban
+adminRouter.post('/users/:id/unban', async (c) => {
+  const { id } = c.req.param()
+  const user = c.get('user') as { id: string }
+
+  await prisma.userProfile.update({
+    where: { id },
+    data: { banned: false },
+  })
+
+  await prisma.auditLog.create({
+    data: {
+      actorId: user.id,
+      action: 'user.unban',
+      targetType: 'UserProfile',
+      targetId: id,
+    },
+  })
+
+  return success(c, { banned: false })
+})
+
+// GET /api/admin/analytics
+adminRouter.get('/analytics', async (c) => {
+  const now = new Date()
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+
+  const [totalAttempts, avgScore, topCases] = await Promise.all([
+    prisma.attempt.count(),
+    prisma.attempt.aggregate({ where: { status: 'COMPLETED' }, _avg: { score: true } }),
+    prisma.case.findMany({
+      where: { status: 'PUBLISHED', deletedAt: null },
+      orderBy: { totalAttempts: 'desc' },
+      take: 10,
+      select: { id: true, title: true, totalAttempts: true },
+    }),
+  ])
+
+  return success(c, {
+    totalAttempts,
+    avgScore: avgScore._avg.score ?? 0,
+    topCases: topCases.map(c => ({
+      id: c.id,
+      title: c.title,
+      attemptCount: c.totalAttempts,
+    })),
+  })
+})
+
+// GET /api/admin/audit-log
+adminRouter.get('/audit-log', async (c) => {
+  const page = parseInt(c.req.query('page') ?? '1')
+  const limit = parseInt(c.req.query('limit') ?? '50')
+
+  const [logs, total] = await Promise.all([
+    prisma.auditLog.findMany({
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.auditLog.count(),
+  ])
+
+  return success(c, logs, 200, {
+    page, limit, total, totalPages: Math.ceil(total / limit),
+  })
+})
+
+// GET /api/admin/cases — all cases regardless of status
+adminRouter.get('/cases', async (c) => {
+  const page = parseInt(c.req.query('page') ?? '1')
+  const limit = parseInt(c.req.query('limit') ?? '20')
+
+  const [cases, total] = await Promise.all([
+    prisma.case.findMany({
+      where: { deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.case.count({ where: { deletedAt: null } }),
+  ])
+
+  return success(c, cases, 200, {
+    page, limit, total, totalPages: Math.ceil(total / limit),
+  })
+})
+
+// POST /api/admin/cases/:id/approve
+adminRouter.post('/cases/:id/approve', async (c) => {
+  const { id } = c.req.param()
+  const user = c.get('user') as { id: string }
+
   await prisma.case.update({
     where: { id },
-    data: { status: 'published' },
-  })
-  return success(c, { id, status: 'published' })
-})
-
-adminRouter.patch('/cases/:id/reject', async (c) => {
-  const id = c.req.param('id')
-  await prisma.case.update({
-    where: { id },
-    data: { status: 'draft' },
-  })
-  // Note: in a real app, notify author here
-  return success(c, { id, status: 'draft' })
-})
-
-// --- Platform Settings ---
-
-adminRouter.get('/settings', async (c) => {
-  const settings = await (prisma as any).platformSettings.findUnique({
-    where: { id: 'global' },
+    data: { status: 'PUBLISHED' },
   })
 
-  if (!settings) {
-    // Initial default
-    const defaultSettings: PlatformSettingsData = {
-      institutionName: 'CBL Platform',
-      allowedSpecialties: [],
-      discussionsEnabled: true,
-      communitySubmissionsEnabled: true,
-    }
-    return success(c, defaultSettings)
-  }
-
-  const data: PlatformSettingsData = {
-    institutionName: settings.institutionName,
-    allowedSpecialties: settings.allowedSpecialties,
-    discussionsEnabled: settings.discussionsEnabled,
-    communitySubmissionsEnabled: settings.communitySubmissionsEnabled,
-  }
-
-  return success(c, data)
-})
-
-const settingsSchema = z.object({
-  institutionName: z.string().min(1),
-  allowedSpecialties: z.array(z.string()),
-  discussionsEnabled: z.boolean(),
-  communitySubmissionsEnabled: z.boolean(),
-})
-
-adminRouter.put('/settings', zValidator('json', settingsSchema), async (c) => {
-  const input = (c.req as any).valid('json')
-  const settings = await (prisma as any).platformSettings.upsert({
-    where: { id: 'global' },
-    update: input,
-    create: {
-      id: 'global',
-      ...(input as any),
+  await prisma.auditLog.create({
+    data: {
+      actorId: user.id,
+      action: 'case.approve',
+      targetType: 'Case',
+      targetId: id,
     },
   })
 
-  return success(c, settings)
+  return success(c, { approved: true })
+})
+
+// POST /api/admin/cases/:id/reject
+adminRouter.post('/cases/:id/reject', async (c) => {
+  const { id } = c.req.param()
+  const user = c.get('user') as { id: string }
+  const body = await c.req.json()
+
+  await prisma.case.update({
+    where: { id },
+    data: { status: 'ARCHIVED' },
+  })
+
+  await prisma.auditLog.create({
+    data: {
+      actorId: user.id,
+      action: 'case.reject',
+      targetType: 'Case',
+      targetId: id,
+      metadata: { reason: body.reason },
+    },
+  })
+
+  return success(c, { rejected: true })
 })

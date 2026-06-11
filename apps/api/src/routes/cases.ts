@@ -1,321 +1,173 @@
 import { Hono } from 'hono'
-import { z } from 'zod'
-import { prisma, type Difficulty, type CaseStatus } from '@caseflow/db'
+import { zValidator } from '@hono/zod-validator'
+import { prisma } from '@caseflow/db'
 import { authMiddleware } from '../middleware/auth.js'
 import { requireRole } from '../middleware/require-role.js'
 import { success, error } from '../lib/response.js'
-import { NotFoundError } from '../lib/errors.js'
-import type { AppEnv } from '../types.js'
+import { CaseFilterSchema, CreateCaseSchema, UpdateCaseSchema } from '@caseflow/types'
+import { NotFoundError, ForbiddenError } from '../lib/errors.js'
 
-export const casesRouter = new Hono<AppEnv>()
+export const casesRouter = new Hono()
 
-// All case routes require authentication
-casesRouter.use('*', authMiddleware)
-
-// Query schema for list endpoint
-const listQuerySchema = z.object({
-  specialty: z.string().optional(),
-  difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
-  tag: z.string().optional(),
-  search: z.string().optional(),
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(200).default(100),
-})
-
-// GET /cases — list published cases with search, filter, pagination
+// GET /api/cases — public, filterable
 casesRouter.get('/', async (c) => {
-  const query = c.req.query()
-  const parsed = listQuerySchema.safeParse(query)
+  const query = CaseFilterSchema.parse({
+    specialty: c.req.query('specialty'),
+    difficulty: c.req.query('difficulty'),
+    q: c.req.query('q'),
+    filter: c.req.query('filter'),
+    page: c.req.query('page'),
+    limit: c.req.query('limit'),
+  })
 
-  if (!parsed.success) {
-    return error(c, 'Invalid query parameters', 422, 'VALIDATION_ERROR')
+  const where: any = { status: 'PUBLISHED', deletedAt: null }
+  if (query.specialty) where.specialty = query.specialty
+  if (query.difficulty) where.difficulty = query.difficulty
+  if (query.q) {
+    where.OR = [
+      { title: { contains: query.q, mode: 'insensitive' } },
+      { description: { contains: query.q, mode: 'insensitive' } },
+      { tags: { has: query.q } },
+    ]
   }
 
-  const { specialty, difficulty, tag, search, page, limit } = parsed.data
-  const skip = (page - 1) * limit
-
-  const where = {
-    status: 'published' as const,
-    ...(specialty && { specialty: { equals: specialty, mode: 'insensitive' as const } }),
-    ...(difficulty && { difficulty }),
-    ...(tag && { tags: { has: tag } }),
-    ...(search && {
-      OR: [
-        { title: { contains: search, mode: 'insensitive' as const } },
-        { specialty: { contains: search, mode: 'insensitive' as const } },
-        { tags: { has: search } },
-      ],
-    }),
-  }
-
-  const payload = c.get('jwtPayload')
-  const [casesRaw, total] = await Promise.all([
+  const [cases, total] = await Promise.all([
     prisma.case.findMany({
       where,
-      skip,
-      take: limit,
+      orderBy: { createdAt: 'desc' },
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
       include: {
-        author: {
-          select: { id: true, name: true },
-        },
-        attempts: {
-          where: { userId: payload.sub },
-          select: { status: true, score: true },
-        },
-        _count: {
-          select: { attempts: true },
-        },
+        steps: { select: { id: true }, orderBy: { order: 'asc' } },
       },
     }),
     prisma.case.count({ where }),
   ])
 
-  // Custom sort: beginner -> intermediate -> advanced
-  const difficultyOrder = { beginner: 1, intermediate: 2, advanced: 3 }
-  const casesSorted = casesRaw.sort((a, b) => {
-    return (difficultyOrder[a.difficulty] || 99) - (difficultyOrder[b.difficulty] || 99)
-  })
-
-  const cases = casesSorted.map((c) => {
-    const userAttempts = c.attempts
-    const isCompleted = userAttempts.some((a) => a.status === 'completed')
-    const bestScore = userAttempts.length > 0
-      ? Math.max(...userAttempts.map((a) => a.score ?? 0))
-      : null
-
-    // Derive a description from the patient persona for frontend display
-    const persona = c.patientPersona as Record<string, any> | null
-    const description = persona?.presentingComplaint
-      ? `${persona.age ? persona.age + 'y ' : ''}${persona.sex ? persona.sex + ' ' : ''}presenting with ${persona.presentingComplaint}. ${persona.background || ''}`
-      : `${c.specialty} clinical simulation case`
-
-    return {
-      ...c,
-      description: description.trim(),
-      isCompleted,
-      bestScore,
-      attemptCount: c._count?.attempts || 0,
-      rating: 4.5,
-    }
-  })
-
-  return success(c, {
-    cases,
-    pagination: {
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    },
+  return success(c, cases, 200, {
+    page: query.page,
+    limit: query.limit,
+    total,
+    totalPages: Math.ceil(total / query.limit),
   })
 })
 
-// GET /cases/my — educator's own cases (all statuses)
-casesRouter.get('/my', requireRole('educator', 'admin'), async (c) => {
-  const payload = c.get('jwtPayload')
-
-  const cases = await prisma.case.findMany({
-    where: { authorId: payload.sub },
-    orderBy: { createdAt: 'desc' },
-    include: {
-      _count: { select: { attempts: true } },
-      steps: { orderBy: { order: 'asc' } },
-    },
-  })
-
-  return success(c, cases)
-})
-
-// GET /cases/:id — get single case with steps
+// GET /api/cases/:id — public, steps only if authenticated
 casesRouter.get('/:id', async (c) => {
   const { id } = c.req.param()
-
   const caseData = await prisma.case.findUnique({
-    where: { id },
+    where: { id, deletedAt: null },
     include: {
       steps: { orderBy: { order: 'asc' } },
-      author: { select: { id: true, name: true } },
-      _count: { select: { attempts: true } },
+      author: { select: { id: true } },
     },
   })
 
   if (!caseData) throw new NotFoundError('Case')
-
-  // Students can only see published cases
-  // Educators can see their own drafts
-  const payload = c.get('jwtPayload')
-  if (
-    caseData.status !== 'published' &&
-    caseData.authorId !== payload.sub &&
-    payload.role !== 'admin'
-  ) {
-    throw new NotFoundError('Case')
-  }
-
   return success(c, caseData)
 })
 
-// POST /cases — create a new case (educator + admin only)
-casesRouter.post('/', requireRole('educator', 'admin'), async (c) => {
-  const payload = c.get('jwtPayload')
+// POST /api/cases — educator only
+casesRouter.post('/', authMiddleware, requireRole('EDUCATOR', 'ADMIN'), zValidator('json', CreateCaseSchema), async (c) => {
+  const user = c.get('user') as { id: string }
+  const data = c.req.valid('json')
 
-  const createSchema = z.object({
-    title: z.string().min(3).max(200).trim(),
-    specialty: z.string().min(2).max(100).trim(),
-    difficulty: z.enum(['beginner', 'intermediate', 'advanced']),
-    patientPersona: z.object({
-      age: z.number().min(0).max(120),
-      sex: z.enum(['male', 'female', 'other']),
-      presentingComplaint: z.string().min(5).max(500),
-      background: z.string().max(1000),
-    }),
-    tags: z.array(z.string()).max(10).default([]),
-    timeLimit: z.number().min(5).max(120).optional(),
-    steps: z.array(z.object({
-      order: z.number(),
-      type: z.enum(['history', 'examination', 'investigation', 'diagnosis', 'management']),
-      content: z.string().min(5),
-      expectedFindings: z.any()
-    })).optional()
-  })
-
-  const body = await c.req.json()
-  const parsed = createSchema.safeParse(body)
-
-  if (!parsed.success) {
-    return error(c, parsed.error.errors[0]?.message ?? 'Invalid input', 422, 'VALIDATION_ERROR')
-  }
-
-  const { title, specialty, difficulty, patientPersona, tags, timeLimit, steps } = parsed.data
   const newCase = await prisma.case.create({
     data: {
-      title,
-      specialty,
-      difficulty: difficulty as Difficulty,
-      patientPersona: patientPersona as any,
-      tags,
-      ...(timeLimit !== undefined && { timeLimit }),
-      authorId: payload.sub as string,
-      status: 'draft' as CaseStatus,
-      ...(steps && {
-        steps: {
-          create: steps.map(s => ({
-             order: s.order,
-             type: s.type as any,
-             content: s.content,
-             expectedFindings: s.expectedFindings as any
-          }))
-        }
-      })
+      ...data,
+      authorId: user.id,
+      status: 'DRAFT',
     },
-    include: {
-      steps: true
-    }
   })
 
   return success(c, newCase, 201)
 })
 
-// POST /cases/:id/steps — add a step to a case
-casesRouter.post('/:id/steps', requireRole('educator', 'admin'), async (c) => {
+// PATCH /api/cases/:id — educator (own) or admin (any)
+casesRouter.patch('/:id', authMiddleware, zValidator('json', UpdateCaseSchema), async (c) => {
   const { id } = c.req.param()
-  const payload = c.get('jwtPayload')
+  const user = c.get('user') as { id: string }
+  const profile = c.get('userProfile') as { role: string }
+  const data = c.req.valid('json')
 
-  const caseData = await prisma.case.findUnique({ where: { id } })
-  if (!caseData) throw new NotFoundError('Case')
+  const existing = await prisma.case.findUnique({ where: { id } })
+  if (!existing) throw new NotFoundError('Case')
 
-  if (caseData.authorId !== payload.sub && payload.role !== 'admin') {
-    return error(c, 'You do not have permission to edit this case', 403, 'FORBIDDEN')
+  if (existing.authorId !== user.id && profile.role !== 'ADMIN') {
+    throw new ForbiddenError('You can only edit your own cases')
   }
 
-  const stepSchema = z.object({
-    type: z.enum(['history', 'examination', 'investigation', 'diagnosis', 'management']),
-    content: z.string().min(5).max(1000).trim(),
-    expectedFindings: z.object({
-      keyPoints: z.array(z.string()).min(1),
-      redFlags: z.array(z.string()),
-    }),
-  })
-
-  const body = await c.req.json()
-  const parsed = stepSchema.safeParse(body)
-
-  if (!parsed.success) {
-    return error(c, parsed.error.errors[0]?.message ?? 'Invalid input', 422, 'VALIDATION_ERROR')
-  }
-
-  // Get current highest order
-  const lastStep = await prisma.caseStep.findFirst({
-    where: { caseId: id },
-    orderBy: { order: 'desc' },
-  })
-
-  const step = await prisma.caseStep.create({
-    data: {
-      caseId: id,
-      order: (lastStep?.order ?? 0) + 1,
-      ...parsed.data,
-    },
-  })
-
-  return success(c, step, 201)
+  const updated = await prisma.case.update({ where: { id }, data })
+  return success(c, updated)
 })
 
-// PATCH /cases/:id — update a case (author or admin only)
-casesRouter.patch('/:id', requireRole('educator', 'admin'), async (c) => {
+// POST /api/cases/:id/publish — educator
+casesRouter.post('/:id/publish', authMiddleware, requireRole('EDUCATOR', 'ADMIN'), async (c) => {
   const { id } = c.req.param()
-  const payload = c.get('jwtPayload')
+  const user = c.get('user') as { id: string }
 
-  const caseData = await prisma.case.findUnique({ where: { id } })
-  if (!caseData) throw new NotFoundError('Case')
-
-  if (caseData.authorId !== payload.sub && payload.role !== 'admin') {
-    return error(c, 'You do not have permission to edit this case', 403, 'FORBIDDEN')
-  }
-
-  const updateSchema = z.object({
-    title: z.string().min(3).max(200).trim().optional(),
-    specialty: z.string().min(2).max(100).trim().optional(),
-    difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
-    status: z.enum(['draft', 'review', 'published']).optional(),
-    tags: z.array(z.string()).max(10).optional(),
-    timeLimit: z.number().min(5).max(120).optional(),
+  const existing = await prisma.case.findUnique({
+    where: { id },
+    include: { steps: true },
   })
+  if (!existing) throw new NotFoundError('Case')
+  if (existing.authorId !== user.id) throw new ForbiddenError('Not your case')
 
-  const body = await c.req.json()
-  const parsed = updateSchema.safeParse(body)
-
-  if (!parsed.success) {
-    return error(c, parsed.error.errors[0]?.message ?? 'Invalid input', 422, 'VALIDATION_ERROR')
-  }
+  // Pre-publish checks
+  if (existing.steps.length === 0) return error(c, 'Case must have at least 1 step', 422, 'VALIDATION_ERROR')
+  if (!existing.patientBackground) return error(c, 'Patient background is required', 422, 'VALIDATION_ERROR')
+  if (!existing.title) return error(c, 'Title is required', 422, 'VALIDATION_ERROR')
 
   const updated = await prisma.case.update({
     where: { id },
-    data: {
-      ...(parsed.data.title && { title: parsed.data.title }),
-      ...(parsed.data.specialty && { specialty: parsed.data.specialty }),
-      ...(parsed.data.difficulty && { difficulty: parsed.data.difficulty as Difficulty }),
-      ...(parsed.data.status && { status: parsed.data.status as CaseStatus }),
-      ...(parsed.data.tags && { tags: parsed.data.tags }),
-      ...(parsed.data.timeLimit !== undefined && { timeLimit: parsed.data.timeLimit }),
-    },
+    data: { status: 'PUBLISHED' },
   })
 
   return success(c, updated)
 })
 
-// DELETE /cases/:id — delete a case (author or admin only)
-casesRouter.delete('/:id', requireRole('educator', 'admin'), async (c) => {
+// POST /api/cases/:id/archive
+casesRouter.post('/:id/archive', authMiddleware, requireRole('EDUCATOR', 'ADMIN'), async (c) => {
   const { id } = c.req.param()
-  const payload = c.get('jwtPayload')
+  const updated = await prisma.case.update({
+    where: { id },
+    data: { status: 'ARCHIVED' },
+  })
+  return success(c, updated)
+})
 
-  const caseData = await prisma.case.findUnique({ where: { id } })
-  if (!caseData) throw new NotFoundError('Case')
-
-  if (caseData.authorId !== payload.sub && payload.role !== 'admin') {
-    return error(c, 'You do not have permission to delete this case', 403, 'FORBIDDEN')
-  }
-
-  await prisma.case.delete({ where: { id } })
+// DELETE /api/cases/:id — admin only, soft delete
+casesRouter.delete('/:id', authMiddleware, requireRole('ADMIN'), async (c) => {
+  const { id } = c.req.param()
+  await prisma.case.update({
+    where: { id },
+    data: { deletedAt: new Date() },
+  })
   return success(c, { deleted: true })
+})
+
+// POST /api/cases/:id/bookmark
+casesRouter.post('/:id/bookmark', authMiddleware, async (c) => {
+  const { id } = c.req.param()
+  const user = c.get('user') as { id: string }
+
+  await prisma.bookmark.upsert({
+    where: { userId_caseId: { userId: user.id, caseId: id } },
+    create: { userId: user.id, caseId: id },
+    update: {},
+  })
+
+  return success(c, { bookmarked: true })
+})
+
+// DELETE /api/cases/:id/bookmark
+casesRouter.delete('/:id/bookmark', authMiddleware, async (c) => {
+  const { id } = c.req.param()
+  const user = c.get('user') as { id: string }
+
+  await prisma.bookmark.deleteMany({
+    where: { userId: user.id, caseId: id },
+  })
+
+  return success(c, { bookmarked: false })
 })

@@ -1,26 +1,62 @@
 import { createMiddleware } from 'hono/factory'
-import jwt from 'jsonwebtoken'
-import { config } from '../lib/config.js'
+import { auth } from '../lib/auth.js'
 import { UnauthorizedError } from '../lib/errors.js'
-import type { JwtPayload } from '@caseflow/types'
-import type { AppEnv } from '../types.js'
+import { prisma } from '@caseflow/db'
 
-export const authMiddleware = createMiddleware<AppEnv>(async (c, next) => {
-  let token = c.req.header('Authorization')?.startsWith('Bearer ') 
-    ? c.req.header('Authorization')?.slice(7) 
-    : c.req.query('token')
+interface AuthEnv {
+  Variables: {
+    user: {
+      id: string
+      name: string
+      email: string
+    }
+    userProfile: {
+      id: string
+      role: string
+      institution: string | null
+      xp: number
+      level: number
+      currentStreak: number
+      banned: boolean
+    } | null
+  }
+}
 
-  if (!token) {
-    throw new UnauthorizedError('Missing authentication token')
+export const authMiddleware = createMiddleware<AuthEnv>(async (c, next) => {
+  const session = await auth.api.getSession({
+    headers: c.req.raw.headers,
+  })
+
+  if (!session?.user) {
+    throw new UnauthorizedError('Authentication required')
   }
 
-  let payload: JwtPayload
-  try {
-    payload = jwt.verify(token, config.JWT_SECRET) as JwtPayload
-  } catch {
-    throw new UnauthorizedError('Invalid or expired token')
+  // Set user from better-auth session
+  c.set('user', {
+    id: session.user.id,
+    name: session.user.name,
+    email: session.user.email,
+  })
+
+  // Load user profile (extended data)
+  const profile = await prisma.userProfile.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      role: true,
+      institution: true,
+      xp: true,
+      level: true,
+      currentStreak: true,
+      banned: true,
+    },
+  })
+
+  c.set('userProfile', profile)
+
+  if (profile?.banned) {
+    throw new UnauthorizedError('Account suspended')
   }
 
-  c.set('jwtPayload', payload)
   await next()
 })

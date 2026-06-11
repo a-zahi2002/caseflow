@@ -1,191 +1,160 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { apiClient } from '@/lib/api-client'
-import { saveAuth, getDashboardPath, getUser } from '@/lib/auth'
-import type { AuthResponse } from '@caseflow/types'
-import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, Shield, Activity, User as UserIcon } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { motion } from 'framer-motion'
+import { LoginSchema, type LoginInput } from '@caseflow/types'
+import { signIn } from '@/lib/auth-client'
+import { Eye, EyeOff, ArrowRight, Stethoscope } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    const user = getUser()
-    if (user) {
-      router.push(getDashboardPath(user.role))
-    }
-  }, [router])
+  const form = useForm<LoginInput>({
+    resolver: zodResolver(LoginSchema),
+    defaultValues: { email: '', password: '' },
+  })
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null)
+  async function onSubmit(data: LoginInput) {
     setLoading(true)
-
+    setError(null)
     try {
-      const res = await apiClient.post<AuthResponse>('/auth/login', {
-        email,
-        password,
+      const result = await signIn.email({
+        email: data.email,
+        password: data.password,
       })
 
-      if (!res.success) {
-        setError(res.error)
+      if (result.error) {
+        setError(result.error.message ?? 'Invalid credentials')
         return
       }
 
-      saveAuth(res.data.token, res.data.user)
-      router.push(getDashboardPath(res.data.user.role))
-    } catch {
-      setError('Internal server error during authentication. Please retry.')
+      router.push('/dashboard')
+    } catch (err: any) {
+      setError(err.message ?? 'Login failed')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="w-full">
-      <header className="mb-12">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 rounded-lg border border-primary/10 mb-6 group cursor-default">
-           <Activity size={12} className="text-primary animate-pulse" />
-           <span className="text-[10px] font-mono font-black text-primary uppercase tracking-widest leading-none">Security Portal</span>
-        </div>
-        <h1 className="text-4xl font-heading font-black text-on-surface tracking-tighter leading-tight mb-2 italic">
-          Clinical Access
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Welcome back
         </h1>
-        <p className="text-on-surface-variant font-sans font-medium text-lg opacity-70 leading-relaxed">
-          Unlock your medical training dashboard and resume your case progress.
+        <p className="mt-2 text-muted-foreground">
+          Sign in to continue your clinical journey
         </p>
-      </header>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="rounded-lg bg-danger/10 border border-danger/20 px-4 py-3 text-sm text-danger"
+          >
+            {error}
+          </motion.div>
+        )}
+
         <div className="space-y-2">
-          <label className="text-[10px] font-mono font-black text-outline uppercase tracking-widest px-1 ml-1 flex items-center gap-1.5 opacity-60">
-            <Mail className="w-3 h-3" />
-            Registry Email
+          <label htmlFor="email" className="text-sm font-medium text-foreground">
+            Email
           </label>
-          <div className="relative group">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-5 py-4 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl text-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary group-hover:border-outline-variant outline-none"
-              placeholder="name@university.edu"
-            />
-            <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-transparent group-focus-within:ring-primary/20 pointer-events-none transition-all" />
-          </div>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder="you@medical.edu"
+            className={cn(
+              'flex h-11 w-full rounded-lg border border-border bg-surface px-4 py-2 text-sm transition-colors',
+              'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent',
+              form.formState.errors.email && 'border-danger focus:ring-danger',
+            )}
+            {...form.register('email')}
+          />
+          {form.formState.errors.email && (
+            <p className="text-xs text-danger">{form.formState.errors.email.message}</p>
+          )}
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between px-1 ml-1 mb-1">
-            <label className="text-[10px] font-mono font-black text-outline uppercase tracking-widest flex items-center gap-1.5 opacity-60">
-              <Lock className="w-3 h-3" />
-              Access Key
+          <div className="flex items-center justify-between">
+            <label htmlFor="password" className="text-sm font-medium text-foreground">
+              Password
             </label>
-            <Link 
-              href="/forgot-password" 
-              className="text-[10px] font-mono font-black text-primary hover:text-secondary-fixed transition-colors uppercase tracking-widest"
+            <Link
+              href="/forgot-password"
+              className="text-xs font-medium text-brand hover:text-brand/80 transition-colors"
             >
-              Recover Pin?
+              Forgot password?
             </Link>
           </div>
-          <div className="relative group">
+          <div className="relative">
             <input
+              id="password"
               type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-5 py-4 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl text-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary group-hover:border-outline-variant outline-none"
+              autoComplete="current-password"
               placeholder="••••••••"
+              className={cn(
+                'flex h-11 w-full rounded-lg border border-border bg-surface px-4 py-2 pr-11 text-sm transition-colors',
+                'placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent',
+                form.formState.errors.password && 'border-danger focus:ring-danger',
+              )}
+              {...form.register('password')}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-outline hover:text-primary transition-colors focus:ring-2 focus:ring-primary/30 rounded-lg outline-none"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
-            <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-transparent group-focus-within:ring-primary/20 pointer-events-none transition-all" />
           </div>
+          {form.formState.errors.password && (
+            <p className="text-xs text-danger">{form.formState.errors.password.message}</p>
+          )}
         </div>
-
-        <div className="flex items-center justify-between px-1">
-          <label className="flex items-center gap-3 cursor-pointer group select-none">
-            <div className="relative flex items-center h-5">
-              <input 
-                type="checkbox" 
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="peer h-5 w-5 bg-surface-container-low border border-outline-variant/50 rounded-lg text-primary focus:ring-primary focus:ring-offset-0 transition-all checked:bg-primary"
-              />
-              <span className="material-symbols-outlined absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-white scale-0 peer-checked:scale-75 transition-transform pointer-events-none text-[20px]">check</span>
-            </div>
-            <span className="text-xs font-bold text-on-surface-variant group-hover:text-on-surface transition-colors">Remember identity</span>
-          </label>
-        </div>
-
-        {error && (
-          <div className="bg-rose-50 border border-rose-100/50 rounded-2xl px-5 py-4 animate-shake shadow-sm shadow-rose-200/20">
-            <p className="text-xs text-rose-600 font-bold flex items-center gap-3">
-              <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
-              {error}
-            </p>
-          </div>
-        )}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-5 px-6 bg-primary text-on-primary text-sm font-heading font-black rounded-2xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-4 group"
+          className={cn(
+            'flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-brand text-white font-semibold text-sm transition-all',
+            'hover:bg-brand/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed',
+            'shadow-lg shadow-brand/20',
+          )}
         >
           {loading ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              <span className="tracking-widest uppercase text-xs">Verifying...</span>
-            </>
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
           ) : (
             <>
-              <span className="tracking-widest uppercase text-xs">Enter Dashboard</span>
-              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1.5" />
+              Sign in
+              <ArrowRight className="h-4 w-4" />
             </>
           )}
         </button>
       </form>
 
-      <div className="mt-12 pt-12 border-t border-outline-variant/20">
-        <div className="flex flex-col gap-4">
-          <button className="w-full flex items-center justify-center gap-4 px-6 py-4 border border-outline-variant/30 rounded-2xl text-xs font-heading font-black uppercase tracking-widest text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant/20 hover:border-outline-variant transition-all duration-300 shadow-sm relative overflow-hidden group">
-            <Shield className="w-5 h-5 text-primary" />
-            <span>Institutional SSO</span>
-            <div className="absolute inset-0 bg-primary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-          </button>
-          
-          <button className="w-full flex items-center justify-center gap-4 px-6 py-4 border border-outline-variant/30 rounded-2xl text-xs font-heading font-black uppercase tracking-widest text-on-surface-variant bg-surface-container-lowest hover:bg-surface-variant/20 hover:border-outline-variant transition-all duration-300 shadow-sm relative overflow-hidden group">
-            <UserIcon className="w-5 h-5 text-secondary" />
-            <span>Clinician ID Connect</span>
-            <div className="absolute inset-0 bg-secondary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-          </button>
-        </div>
-      </div>
-
-      <footer className="mt-12 text-center">
-        <p className="text-sm text-on-surface-variant font-medium opacity-60">
-          First clinical encounter?{' '}
-          <Link href="/register" className="text-primary hover:text-secondary font-black decoration-2 underline-offset-4 hover:underline transition-all">
-            Join the Registry
-          </Link>
-        </p>
-      </footer>
-    </div>
+      <p className="mt-8 text-center text-sm text-muted-foreground">
+        Don't have an account?{' '}
+        <Link href="/register" className="font-semibold text-brand hover:text-brand/80 transition-colors">
+          Create account
+        </Link>
+      </p>
+    </motion.div>
   )
 }
-
-

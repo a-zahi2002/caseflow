@@ -1,153 +1,142 @@
-import { readFileSync } from 'fs'
-import { prisma } from './client.js'
-import bcrypt from 'bcryptjs'
-const { hash } = bcrypt
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 async function main() {
-  // Create test educator
-  const passwordHash = await hash('password123', 12)
+  console.log('🌱 Starting Caseflow Database Seed...')
 
-  const educator = await prisma.user.upsert({
-    where: { email: 'educator@caseflow.dev' },
-    update: {},
-    create: {
-      name: 'Dr. Test Educator',
-      email: 'educator@caseflow.dev',
-      passwordHash,
-      role: 'educator',
-      institution: 'St. Mary\'s Medical School',
-    },
+  // 1. Clean up existing (Optional, be careful in prod. We assume dev environment)
+  await prisma.attempt.deleteMany()
+  await prisma.caseStep.deleteMany()
+  await prisma.case.deleteMany()
+  await prisma.userProfile.deleteMany()
+  await prisma.user.deleteMany()
+
+  // 2. Create Users
+  console.log('👤 Creating Users...')
+  
+  // Note: Since we use better-auth, actual authentication users should be created via the auth API.
+  // For the seed, we manually insert them into the DB matching the better-auth schema requirements.
+  
+  const adminUser = await prisma.user.create({
+    data: {
+      id: 'admin_user_id_123',
+      name: 'System Admin',
+      email: 'admin@caseflow.local',
+      emailVerified: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      profile: {
+        create: {
+          role: 'ADMIN',
+          xp: 10000,
+          level: 50,
+        }
+      }
+    }
   })
 
-  // Create test student 1
-  await prisma.user.upsert({
-    where: { email: 'student@caseflow.dev' },
-    update: {},
-    create: {
-      name: 'Sam Student',
-      email: 'student@caseflow.dev',
-      passwordHash,
-      role: 'student',
-      institution: 'City Hospital University',
-    },
+  const educatorUser = await prisma.user.create({
+    data: {
+      id: 'educator_user_id_456',
+      name: 'Dr. Gregory House',
+      email: 'house@caseflow.local',
+      emailVerified: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      profile: {
+        create: {
+          role: 'EDUCATOR',
+          institution: 'Princeton-Plainsboro Teaching Hospital',
+          specialties: ['Infectious Disease', 'Nephrology'],
+        }
+      }
+    }
   })
 
-  // Create test student 2 (Zahi)
-  await prisma.user.upsert({
-    where: { email: 'zahi@caseflow.dev' },
-    update: {},
-    create: {
-      name: 'Zahi',
-      email: 'zahi@caseflow.dev',
-      passwordHash,
-      role: 'student',
-      institution: 'Zahi University',
-    },
+  const studentUser = await prisma.user.create({
+    data: {
+      id: 'student_user_id_789',
+      name: 'JD Dorian',
+      email: 'jd@caseflow.local',
+      emailVerified: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      profile: {
+        create: {
+          role: 'STUDENT',
+          institution: 'Sacred Heart',
+          specialties: ['Internal Medicine'],
+          xp: 450,
+          level: 3,
+        }
+      }
+    }
   })
 
-  // Create test admin
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@caseflow.dev' },
-    update: {},
-    create: {
-      name: 'Admin User',
-      email: 'admin@caseflow.dev',
-      passwordHash,
-      role: 'admin',
-      institution: 'Caseflow Platform',
-    },
+  // 3. Create sample cases
+  console.log('🩺 Creating Clinical Cases...')
+
+  const case1 = await prisma.case.create({
+    data: {
+      title: 'Acute Chest Pain in a 55-year-old Male',
+      description: 'A classic presentation of a potentially life-threatening cardiac event. Evaluate the patient, order the right ECGs, and decide on reperfusion therapy.',
+      specialty: 'Cardiology',
+      difficulty: 'INTERMEDIATE',
+      status: 'PUBLISHED',
+      estimatedMinutes: 15,
+      learningObjectives: [
+        'Recognize the typical presentation of STEMI.',
+        'Prioritize initial stabilizing interventions (MONA).',
+        'Identify indications for immediate catheterization.'
+      ],
+      patientName: 'Arthur Pendelton',
+      patientAge: 55,
+      patientGender: 'Male',
+      chiefComplaint: '"It feels like an elephant is sitting on my chest."',
+      patientBackground: 'History of hypertension, hyperlipidemia, and a 30-pack-year smoking history. No prior MI. Takes lisinopril and atorvastatin.',
+      personalityTraits: ['Anxious', 'Diaphoretic', 'Short of breath'],
+      authorId: educatorUser.id,
+      totalAttempts: 12,
+      steps: {
+        create: [
+          {
+            order: 0,
+            name: 'Initial Assessment',
+            expectedFindings: [
+              'Ask about pain radiation (e.g. to jaw or arm).',
+              'Ask about associated symptoms like nausea or sweating.',
+              'Order a 12-lead ECG immediately.'
+            ],
+            criticalErrors: [
+              'Sending the patient home without an ECG.',
+              'Giving GI cocktails before ruling out cardiac ischemia.'
+            ],
+            revealedData: 'The 12-lead ECG shows 3mm ST-segment elevations in leads V2-V4. Troponin is pending. BP is 150/90, HR 105.'
+          },
+          {
+            order: 1,
+            name: 'Intervention & Triage',
+            expectedFindings: [
+              'Administer Aspirin 324mg chewed.',
+              'Activate the Cath Lab for primary PCI.',
+              'Give sublingual nitroglycerin (if BP tolerates).'
+            ],
+            criticalErrors: [
+              'Delaying Cath Lab activation for lab results.',
+              'Giving NSAIDs (other than Aspirin) for pain.'
+            ],
+            revealedData: 'The Cath Lab is activated. The patient\'s pain improves slightly after nitroglycerin. Cardiology accepts the patient for immediate PCI.'
+          }
+        ]
+      }
+    }
   })
 
-  // Clean up any test cases from development
-  await prisma.case.deleteMany({
-    where: {
-      title: 'New Educator Case',
-    },
-  })
-
-  // Load cases from JSON
-  const casesData = JSON.parse(readFileSync(new URL('./data/cases.json', import.meta.url), 'utf-8'))
-  console.log(`Loading ${casesData.length} cases...`)
-
-  for (const caseData of casesData) {
-    await prisma.case.upsert({
-      where: { id: caseData.id },
-      update: {},
-      create: {
-        id: caseData.id,
-        authorId: educator.id,
-        title: caseData.title,
-        specialty: caseData.specialty,
-        difficulty: caseData.difficulty,
-        status: 'published',
-        timeLimit: caseData.timeLimit,
-        tags: caseData.tags,
-        patientPersona: {
-          name: caseData.name,
-          emoji: caseData.emoji,
-          age: caseData.age,
-          sex: caseData.sex,
-          presentingComplaint: caseData.complaint,
-          background: caseData.background,
-        },
-        steps: {
-          create: [
-            {
-              order: 1,
-              type: 'history',
-              content: 'Take a focused history from the patient',
-              expectedFindings: {
-                keyPoints: caseData.h_keys || [],
-                redFlags: caseData.h_reds || [],
-              },
-            },
-            {
-              order: 2,
-              type: 'examination',
-              content: 'Perform a focused examination',
-              expectedFindings: {
-                keyPoints: caseData.e_keys || [],
-                redFlags: caseData.e_reds || [],
-              },
-            },
-            {
-              order: 3,
-              type: 'investigation',
-              content: 'Order appropriate investigations',
-              expectedFindings: {
-                keyPoints: caseData.i_keys || [],
-                redFlags: caseData.i_reds || [],
-              },
-            },
-            {
-              order: 4,
-              type: 'diagnosis',
-              content: 'State your diagnosis and differential diagnoses',
-              expectedFindings: {
-                keyPoints: [caseData.dx, ...(caseData.diff || [])],
-                redFlags: [],
-              },
-            },
-            {
-              order: 5,
-              type: 'management',
-              content: 'Outline your immediate management plan',
-              expectedFindings: {
-                keyPoints: caseData.m_keys || [],
-                redFlags: caseData.m_reds || [],
-              },
-            },
-          ],
-        },
-      },
-    })
-  }
-
-  console.log(`✅ Seed complete — Created Educator, Student, and Admin test accounts and ${casesData.length} cases`)
-  console.log('   Educator: educator@caseflow.dev | password123')
-  console.log('   Student:  student@caseflow.dev  | password123')
-  console.log('   Student:  zahi@caseflow.dev     | password123')
-  console.log('   Admin:    admin@caseflow.dev    | password123')
+  console.log(`✅ Seed Complete! Created 3 Users and 1 Case.`)
+  console.log(`Admin: ${adminUser.email}`)
+  console.log(`Educator: ${educatorUser.email}`)
+  console.log(`Student: ${studentUser.email}`)
 }
 
 main()

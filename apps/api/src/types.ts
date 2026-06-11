@@ -1,7 +1,18 @@
-import type { JwtPayload } from '@caseflow/types'
-
-export type AppEnv = {
+export interface AppEnv {
   Variables: {
-    jwtPayload: JwtPayload
+    user: {
+      id: string
+      name: string
+      email: string
+    }
+    userProfile: {
+      id: string
+      role: string
+      institution: string | null
+      xp: number
+      level: number
+      currentStreak: number
+      banned: boolean
+    } | null
   }
 }

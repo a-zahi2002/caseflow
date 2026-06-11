@@ -1,12 +1,12 @@
 import type { Context } from 'hono'
-import type { ApiSuccess, ApiError } from '@caseflow/types'
+import type { ApiResponse } from '@caseflow/types'
 
-export function success<T>(c: Context, data: T, status = 200): Response {
-  const body: ApiSuccess<T> = { success: true, data }
+export function success<T>(c: Context, data: T, status: number = 200, meta?: Record<string, unknown>) {
+  const body: ApiResponse<T> = { success: true, data, ...(meta && { meta }) }
   return c.json(body, status as any)
 }
 
-export function error(c: Context, message: string, status = 500, code?: string): Response {
-  const body: ApiError = { success: false, error: message, ...(code && { code }) }
+export function error(c: Context, message: string, status: number = 500, code: string = 'INTERNAL_ERROR') {
+  const body: ApiResponse<never> = { success: false, error: message, code }
   return c.json(body, status as any)
 }

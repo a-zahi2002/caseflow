@@ -1,19 +1,20 @@
-export { prisma } from './client.js'
-export { Prisma, PrismaClient } from '@prisma/client'
+export { prisma, xprisma } from './client.js'
+export { PrismaClient, Prisma } from './generated/client/index.js'
 export type {
-  User,
+  UserProfile,
   Case,
   CaseStep,
   Attempt,
   SimMessage,
-  Discussion,
-  PlatformSettings,
+  AttemptEvaluation,
+  Badge,
+  UserBadge,
+  Bookmark,
+  DiscussionPost,
+  Notification,
+  AuditLog,
   Role,
-  UserStatus,
   Difficulty,
-  CaseStatus,
-  StepType,
   AttemptStatus,
-  MessageRole,
-  CaseOutcome,
-} from '@prisma/client'
+  CaseStatus,
+} from './generated/client/index.js'

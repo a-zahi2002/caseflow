@@ -5,3 +5,14 @@ node_modules
 dist
 .next
 *.tsbuildinfo
+*.log
+
+# Generated
+packages/db/src/generated
+
+# Uploads
+uploads/
+
+# OS
+.DS_Store
+Thumbs.db

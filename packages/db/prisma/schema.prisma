@@ -1,166 +1,274 @@
+// packages/db/prisma/schema.prisma
+
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  output          = "../src/generated/client"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgvector(map: "vector")]
 }
 
 enum Role {
-  student
-  educator
-  admin
+  STUDENT
+  EDUCATOR
+  ADMIN
 }
 
 enum Difficulty {
-  beginner
-  intermediate
-  advanced
-}
-
-enum CaseStatus {
-  draft
-  review
-  published
-}
-
-enum StepType {
-  history
-  examination
-  investigation
-  diagnosis
-  management
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
 }
 
 enum AttemptStatus {
-  in_progress
-  completed
-  abandoned
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ABANDONED
+  FAILED
 }
 
-enum MessageRole {
-  student
-  patient
+enum CaseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
-enum CaseOutcome {
-  survived
-  deteriorated
-  died
-}
+// better-auth manages its own tables (user, session, account, verification)
+// via schema migration. DO NOT define them here — run `npx @better-auth/cli migrate`
+// to generate and apply them. They will be added to the same database.
+// Reference better-auth's User by ID string only.
 
-enum UserStatus {
-  active
-  suspended
-}
-
-model User {
-  id           String     @id @default(uuid())
-  name         String
-  email        String     @unique
-  passwordHash String
-  role         Role       @default(student)
-  status       UserStatus @default(active)
-  institution  String?
-  totalXp      Int        @default(0)
-  currentStreak Int       @default(0)
-  longestStreak Int       @default(0)
+model UserProfile {
+  // Extended profile on top of better-auth's core User record.
+  // Joined by matching id to better-auth user.id
+  id             String    @id // matches better-auth user.id
+  role           Role      @default(STUDENT)
+  institution    String?
+  yearOfStudy    Int?
+  specialties    String[]  @default([])
+  avatarUrl      String?
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
   lastActiveDate DateTime?
-  badges       Json       @default("[]") // Store array of { badgeId, unlockedAt }
-  createdAt    DateTime   @default(now())
+  xp             Int       @default(0)
+  level          Int       @default(1)
+  banned         Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
 
-  cases       Case[]
-  attempts    Attempt[]
-  discussions Discussion[]
+  attempts        Attempt[]
+  authoredCases   Case[]           @relation("AuthoredCases")
+  badges          UserBadge[]
+  bookmarks       Bookmark[]
+  discussionPosts DiscussionPost[]
+  notifications   Notification[]
+
+  @@index([role])
 }
 
 model Case {
-  id                String     @id @default(uuid())
-  authorId          String
-  title             String
-  specialty         String
-  difficulty        Difficulty
-  status            CaseStatus @default(draft)
-  patientPersona    Json
-  tags              String[]
-  timeLimit         Int?
-  sourceDocumentUrl String?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  id                  String     @id @default(cuid())
+  title               String
+  description         String
+  specialty           String
+  difficulty          Difficulty @default(BEGINNER)
+  estimatedMinutes    Int        @default(30)
+  tags                String[]   @default([])
+  learningObjectives  String[]   @default([])
+  status              CaseStatus @default(DRAFT)
+  thumbnailColor      String?
+  thumbnailIcon       String?
+  authorId            String
+  prerequisiteCaseIds String[]   @default([])
+  totalAttempts       Int        @default(0)
+  avgScore            Float      @default(0)
+  // Patient persona (used to construct simulation prompt)
+  patientName         String
+  patientAge          Int
+  patientGender       String
+  chiefComplaint      String
+  patientBackground   String
+  personalityTraits   String[]   @default([])
+  // pgvector — for future semantic search (nullable until populated)
+  embedding           Unsupported("vector(1536)")?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  deletedAt           DateTime?
 
-  author      User         @relation(fields: [authorId], references: [id])
+  author      UserProfile      @relation("AuthoredCases", fields: [authorId], references: [id])
   steps       CaseStep[]
   attempts    Attempt[]
-  discussions Discussion[]
+  discussions DiscussionPost[]
+  bookmarks   Bookmark[]
+
+  @@index([specialty])
+  @@index([difficulty])
+  @@index([status])
+  @@index([authorId])
 }
 
 model CaseStep {
-  id               String   @id @default(uuid())
+  id               String   @id @default(cuid())
   caseId           String
   order            Int
-  type             StepType
-  content          String
-  expectedFindings Json
+  name             String
+  expectedFindings String[]
+  criticalErrors   String[]
+  // JSON structure: { vitals?: {...}, labs?: {...}, imaging?: string }
+  // Only data present here gets revealed to the student when this step activates
+  revealedData     Json     @default("{}")
+  scoringWeight    Float    @default(1.0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   case Case @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
-  @@index([caseId, order])
+  @@unique([caseId, order])
+  @@index([caseId])
 }
 
 model Attempt {
-  id              String        @id @default(uuid())
-  userId          String
-  caseId          String
-  status          AttemptStatus @default(in_progress)
-  score           Float?
-  evalResult      Json?
-  heartsRemaining Int           @default(3)
-  timeElapsed     Int           @default(0)
-  outcome         CaseOutcome?
-  completedAt     DateTime?
-  createdAt       DateTime      @default(now())
+  id               String        @id @default(cuid())
+  studentId        String
+  caseId           String
+  status           AttemptStatus @default(ACTIVE)
+  currentStepOrder Int           @default(0)
+  heartsRemaining  Int           @default(3)
+  score            Float         @default(0)
+  xpEarned         Int           @default(0)
+  notes            String?
+  startedAt        DateTime      @default(now())
+  completedAt      DateTime?
+  updatedAt        DateTime      @updatedAt
+  deletedAt        DateTime?
 
-  user     User         @relation(fields: [userId], references: [id])
-  case     Case         @relation(fields: [caseId], references: [id])
-  messages SimMessage[]
+  student    UserProfile        @relation(fields: [studentId], references: [id])
+  case       Case               @relation(fields: [caseId], references: [id])
+  messages   SimMessage[]
+  evaluation AttemptEvaluation?
 
-  @@index([userId, caseId])
+  @@index([studentId])
+  @@index([caseId])
+  @@index([status])
 }
 
 model SimMessage {
-  id        String      @id @default(uuid())
-  attemptId String
-  role      MessageRole
-  content   String
-  createdAt DateTime    @default(now())
+  id         String   @id @default(cuid())
+  attemptId  String
+  role       String // "student" | "patient" | "system"
+  content    String
+  stepOrder  Int      @default(0)
+  tokenCount Int?
+  createdAt  DateTime @default(now())
 
   attempt Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
 
   @@index([attemptId])
 }
 
-model Discussion {
-  id        String   @id @default(uuid())
-  caseId    String
-  userId    String
-  content   String
-  parentId  String?
-  createdAt DateTime @default(now())
+model AttemptEvaluation {
+  id                 String   @id @default(cuid())
+  attemptId          String   @unique
+  overallScore       Float
+  overallFeedback    String
+  stepEvaluations    Json // EvaluationResult[] — one per step
+  missedFindings     String[]
+  correctFindings    String[]
+  criticalErrorCount Int      @default(0)
+  createdAt          DateTime @default(now())
 
-  case    Case         @relation(fields: [caseId], references: [id])
-  user    User         @relation(fields: [userId], references: [id])
-  parent  Discussion?  @relation("Replies", fields: [parentId], references: [id])
-  replies Discussion[] @relation("Replies")
-
-  @@index([caseId])
+  attempt Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
 }
 
-model PlatformSettings {
-  id                          String   @id @default("global")
-  institutionName             String   @default("CBL Platform")
-  allowedSpecialties          String[]
-  discussionsEnabled          Boolean  @default(true)
-  communitySubmissionsEnabled Boolean  @default(true)
-  updatedAt                   DateTime @updatedAt
+model Badge {
+  id          String      @id @default(cuid())
+  key         String      @unique // e.g. "first_case", "streak_7", "perfect_score"
+  name        String
+  description String
+  iconKey     String // maps to a predefined icon set in the frontend
+  xpReward    Int         @default(0)
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String
+  badgeId  String
+  earnedAt DateTime @default(now())
+
+  user  UserProfile @relation(fields: [userId], references: [id])
+  badge Badge       @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  caseId    String
+  createdAt DateTime @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id])
+  case Case        @relation(fields: [caseId], references: [id])
+
+  @@unique([userId, caseId])
+}
+
+model DiscussionPost {
+  id         String   @id @default(cuid())
+  caseId     String
+  authorId   String
+  parentId   String?
+  content    String // stored as markdown; rendered client-side
+  isOfficial Boolean  @default(false)
+  upvotes    Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  deletedAt  DateTime?
+
+  case    Case             @relation(fields: [caseId], references: [id])
+  author  UserProfile      @relation(fields: [authorId], references: [id])
+  parent  DiscussionPost?  @relation("Replies", fields: [parentId], references: [id])
+  replies DiscussionPost[] @relation("Replies")
+
+  @@index([caseId])
+  @@index([authorId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String // "badge_earned" | "reply" | "mention" | "official_answer"
+  title     String
+  body      String
+  isRead    Boolean  @default(false)
+  linkUrl   String?
+  createdAt DateTime @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id])
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String // better-auth user.id
+  action     String // e.g. "user.ban", "case.publish", "case.reject"
+  targetType String
+  targetId   String
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
 }

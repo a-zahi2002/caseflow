@@ -1,20 +1,17 @@
 import { createMiddleware } from 'hono/factory'
-import { ForbiddenError, UnauthorizedError } from '../lib/errors.js'
+import { ForbiddenError } from '../lib/errors.js'
 import type { Role } from '@caseflow/types'
-import type { AppEnv } from '../types.js'
 
 export function requireRole(...roles: Role[]) {
-  return createMiddleware<AppEnv>(async (c, next) => {
-    const payload = c.get('jwtPayload')
+  return createMiddleware(async (c, next) => {
+    const profile = c.get('userProfile') as { role: string } | null
 
-    if (!payload) {
-      throw new UnauthorizedError()
+    if (!profile) {
+      throw new ForbiddenError('User profile not found')
     }
 
-    if (!roles.includes(payload.role)) {
-      throw new ForbiddenError(
-        `This action requires one of the following roles: ${roles.join(', ')}`
-      )
+    if (!roles.includes(profile.role as Role)) {
+      throw new ForbiddenError(`This action requires one of: ${roles.join(', ')}`)
     }
 
     await next()

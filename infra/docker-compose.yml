@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:15-alpine
+    image: ankane/pgvector:v0.5.1
     container_name: caseflow-db
     restart: always
     environment:
@@ -13,6 +13,13 @@ services:
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: caseflow-redis
+    restart: always
+    ports:
+      - "6379:6379"
 
   ollama:
     image: ollama/ollama
@@ -35,9 +42,9 @@ services:
     depends_on:
       - ollama
     entrypoint: /bin/sh
-    command: /scripts/init-ollama.sh
+    command: -c "sleep 5 && ollama pull llama3" # Default model
     volumes:
-      - ./scripts:/scripts
+      - ollama_data:/root/.ollama
 
   api:
     build:
@@ -47,14 +54,18 @@ services:
     restart: always
     depends_on:
       - db
+      - redis
       - ollama
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-caseflow}?schema=public
+      REDIS_URL: redis://redis:6379
       OLLAMA_URL: http://ollama:11434
-      PORT: 4000
-      JWT_SECRET: ${JWT_SECRET:-supersecret}
+      PORT: 3001
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-supersecret_better_auth_key}
+      BETTER_AUTH_URL: http://localhost:3001
+      FRONTEND_URL: http://localhost:3000
     ports:
-      - "4000:4000"
+      - "3001:3001"
 
   web:
     build:
@@ -65,7 +76,8 @@ services:
     depends_on:
       - api
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:4000
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_WS_URL: ws://localhost:3001
       PORT: 3000
     ports:
       - "3000:3000"

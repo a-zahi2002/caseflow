@@ -1,6 +1,6 @@
 import { createNodeWebSocket } from '@hono/node-ws'
 import { Hono } from 'hono'
-import type { AppEnv } from '../types.js'
 
-export const app = new Hono<AppEnv>()
-export const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app })
+// Create a dummy app just to initialize the websocket factory
+const app = new Hono()
+export const { upgradeWebSocket, injectWebSocket } = createNodeWebSocket({ app })

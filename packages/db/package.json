@@ -1,6 +1,6 @@
 {
   "name": "@caseflow/db",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "main": "./src/index.ts",
@@ -16,12 +16,10 @@
     "db:seed": "tsx src/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^5.15.0",
-    "bcryptjs": "^2.4.3"
+    "@prisma/client": "^6.8.0"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "prisma": "^5.15.0",
+    "prisma": "^6.8.0",
     "tsx": "^4.21.0"
   }
 }

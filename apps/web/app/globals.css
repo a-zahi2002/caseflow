@@ -1,37 +1,87 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  /* Surface & Background */
-  --background: #f9f9f8;
-  --foreground: #1a1c1c;
+@custom-variant dark (&:is(.dark *));
 
-  /* Primary */
-  --primary: #00685f;
-  --primary-foreground: #ffffff;
-  
-  /* Secondary */
-  --secondary: #855300;
-  --secondary-foreground: #ffffff;
+@theme inline {
+  /* Brand — clinical, trustworthy, modern */
+  --color-brand: #2563EB;
+  --color-accent: #0EA5E9;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+  --color-xp: #7C3AED;
 
-  /* Accent / Tertiary */
-  --accent: #006947;
-  --accent-foreground: #ffffff;
+  /* Specialty colours (used for case thumbnails) */
+  --color-cardiology: #EF4444;
+  --color-neurology: #8B5CF6;
+  --color-respiratory: #3B82F6;
+  --color-gastroenterology: #F59E0B;
+  --color-infectious: #10B981;
+  --color-nephrology: #06B6D4;
+  --color-endocrinology: #EC4899;
+  --color-haematology: #F97316;
 
-  /* Muted / Surface Variants */
-  --muted: #eeeeed;
-  --muted-foreground: #6d7a77;
+  /* Surfaces (light mode) */
+  --color-background: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F1F5F9;
+  --color-border: #E2E8F0;
+  --color-input: #E2E8F0;
+  --color-ring: #2563EB;
 
-  /* Borders / Outlines */
-  --border: #bcc9c6;
-  --input: #bcc9c6;
-  --ring: #00685f;
+  /* Text */
+  --color-foreground: #0F172A;
+  --color-muted: #F1F5F9;
+  --color-muted-foreground: #64748B;
 
-  /* Radius */
-  --radius: 0.5rem;
+  /* shadcn compatibility */
+  --color-primary: #2563EB;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #F1F5F9;
+  --color-secondary-foreground: #0F172A;
+  --color-destructive: #DC2626;
+  --color-destructive-foreground: #FFFFFF;
+  --color-accent-surface: #F1F5F9;
+  --color-accent-foreground: #0F172A;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #0F172A;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #0F172A;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Spacing & radius */
+  --radius: 0.625rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
 }
 
+/* Dark mode */
+.dark {
+  --color-background: #0F172A;
+  --color-surface: #1E293B;
+  --color-surface-2: #334155;
+  --color-border: #475569;
+  --color-input: #475569;
+  --color-foreground: #F1F5F9;
+  --color-muted: #334155;
+  --color-muted-foreground: #94A3B8;
+  --color-primary: #3B82F6;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #334155;
+  --color-secondary-foreground: #F1F5F9;
+  --color-card: #1E293B;
+  --color-card-foreground: #F1F5F9;
+  --color-popover: #1E293B;
+  --color-popover-foreground: #F1F5F9;
+}
+
+/* Base styles */
 @layer base {
   * {
     @apply border-border;
@@ -39,50 +89,28 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
-}
-
-.glass {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-}
-
-@keyframes bounce-subtle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-
-.animate-bounce-subtle {
-  animation: bounce-subtle 2s infinite ease-in-out;
-}
-
-/* Custom Scrollbar */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(188, 201, 198, 0.5);
+  background: rgba(100, 116, 139, 0.3);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(188, 201, 198, 1);
+  background: rgba(100, 116, 139, 0.5);
 }
 
-
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
@@ -90,9 +118,18 @@
     animation-delay: -1ms !important;
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
-    background-attachment: initial !important;
     scroll-behavior: auto !important;
     transition-duration: 0s !important;
     transition-delay: 0s !important;
   }
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.dark .glass {
+  background: rgba(30, 41, 59, 0.8);
 }

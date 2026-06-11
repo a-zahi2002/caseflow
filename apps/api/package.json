@@ -1,6 +1,6 @@
 {
   "name": "@caseflow/api",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,25 +10,22 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@caseflow/ai": "*",
-    "@caseflow/db": "*",
-    "@caseflow/types": "*",
-    "@hono/node-server": "^1.12.0",
-    "@hono/node-ws": "^1.3.0",
-    "@hono/zod-validator": "^0.2.2",
-    "@supabase/supabase-js": "^2.100.1",
-    "bcryptjs": "^2.4.3",
-    "hono": "^4.4.0",
-    "jsonwebtoken": "^9.0.2",
-    "mammoth": "^1.12.0",
-    "pdf-parse": "^2.4.5",
-    "zod": "^3.23.0"
+    "@caseflow/ai": "workspace:*",
+    "@caseflow/db": "workspace:*",
+    "@caseflow/types": "workspace:*",
+    "@caseflow/email": "workspace:*",
+    "@hono/node-server": "^1.14.0",
+    "@hono/node-ws": "^1.0.6",
+    "@hono/zod-validator": "^0.4.0",
+    "better-auth": "^1.2.0",
+    "hono": "^4.7.0",
+    "ioredis": "^5.4.0",
+    "ws": "^8.18.0",
+    "zod": "^3.25.0"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/jsonwebtoken": "^9.0.6",
-    "@types/pdf-parse": "^1.1.5",
+    "@types/ws": "^8.5.0",
     "tsx": "^4.15.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.7.0"
   }
 }

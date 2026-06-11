@@ -2,120 +2,99 @@ import { Hono } from 'hono'
 import { prisma } from '@caseflow/db'
 import { authMiddleware } from '../middleware/auth.js'
 import { success } from '../lib/response.js'
-import type { AppEnv } from '../types.js'
-import type { StudentProgressData } from '@caseflow/types'
+import { xpToLevel, getLevelTitle, xpToNextLevel } from '@caseflow/types'
 
-export const progressRouter = new Hono<AppEnv>()
-
+export const progressRouter = new Hono()
 progressRouter.use('*', authMiddleware)
 
-progressRouter.get('/me', async (c) => {
-  const jwtPayload = c.get('jwtPayload')
-  const userId = jwtPayload.sub
+// GET /api/progress/stats
+progressRouter.get('/stats', async (c) => {
+  const user = c.get('user') as { id: string }
 
-  const attempts = await prisma.attempt.findMany({
-    where: { userId },
-    include: {
-      case: {
-        select: {
-          title: true,
-          specialty: true,
-        },
-      },
-    },
-    orderBy: { createdAt: 'desc' },
+  const profile = await prisma.userProfile.findUnique({ where: { id: user.id } })
+  if (!profile) return success(c, null)
+
+  const [completedCount, inProgressCount, avgScoreResult, totalDuration] = await Promise.all([
+    prisma.attempt.count({ where: { studentId: user.id, status: 'COMPLETED' } }),
+    prisma.attempt.count({ where: { studentId: user.id, status: { in: ['ACTIVE', 'PAUSED'] } } }),
+    prisma.attempt.aggregate({ where: { studentId: user.id, status: 'COMPLETED' }, _avg: { score: true } }),
+    prisma.attempt.findMany({
+      where: { studentId: user.id, status: 'COMPLETED', completedAt: { not: null } },
+      select: { startedAt: true, completedAt: true },
+    }),
+  ])
+
+  const totalMinutes = totalDuration.reduce((sum, a) => {
+    if (!a.completedAt) return sum
+    return sum + (a.completedAt.getTime() - a.startedAt.getTime()) / 60000
+  }, 0)
+
+  const level = xpToLevel(profile.xp)
+  const levelProgress = xpToNextLevel(profile.xp)
+
+  return success(c, {
+    xp: profile.xp,
+    level,
+    levelTitle: getLevelTitle(level),
+    levelProgress: levelProgress.progress,
+    currentStreak: profile.currentStreak,
+    longestStreak: profile.longestStreak,
+    casesCompleted: completedCount,
+    casesInProgress: inProgressCount,
+    averageScore: avgScoreResult._avg.score ?? 0,
+    totalStudyMinutes: Math.round(totalMinutes),
+  })
+})
+
+// GET /api/progress/leaderboard
+progressRouter.get('/leaderboard', async (c) => {
+  const period = c.req.query('period') ?? 'alltime'
+  const specialty = c.req.query('specialty')
+
+  // TODO: Use Redis sorted set for cached leaderboard
+  // For now, query directly from DB
+  const profiles = await prisma.userProfile.findMany({
+    where: { deletedAt: null, role: 'STUDENT' },
+    orderBy: { xp: 'desc' },
+    take: 50,
   })
 
-  // Basic metrics
-  const totalAttempts = attempts.length
-  const completedAttempts = attempts.filter((a) => a.status === 'completed')
-  const totalCompleted = completedAttempts.length
-  
-  const overallAvgScore = totalCompleted > 0
-    ? completedAttempts.reduce((acc, a) => acc + (a.score || 0), 0) / totalCompleted
-    : 0
-
-  const completionRate = totalAttempts > 0 ? (totalCompleted / totalAttempts) * 100 : 0
-
-  // Specialty breakdown
-  const specialtyStats: Record<string, { totalScore: number; completedCount: number; totalCount: number }> = {}
-  
-  attempts.forEach((a) => {
-    const s = a.case.specialty
-    if (!specialtyStats[s]) {
-      specialtyStats[s] = { totalScore: 0, completedCount: 0, totalCount: 0 }
-    }
-    specialtyStats[s].totalCount++
-    if (a.status === 'completed') {
-      specialtyStats[s].completedCount++
-      specialtyStats[s].totalScore += a.score || 0
-    }
-  })
-
-  const specialtyBreakdown = Object.entries(specialtyStats).map(([specialty, stats]) => ({
-    specialty,
-    avgScore: stats.completedCount > 0 ? stats.totalScore / stats.completedCount : 0,
-    attempts: stats.totalCount,
+  const leaderboard = profiles.map((p, i) => ({
+    rank: i + 1,
+    userId: p.id,
+    name: '', // Will be joined with auth user table
+    level: xpToLevel(p.xp),
+    xp: p.xp,
   }))
 
-  // Weak areas
-  const weakAreas = specialtyBreakdown.filter((s) => s.avgScore < 60 && s.attempts > 0)
+  return success(c, leaderboard)
+})
 
-  // Recent attempts
-  const recentAttempts = attempts.slice(0, 10).map((a) => ({
-    id: a.id,
-    caseTitle: a.case.title,
-    specialty: a.case.specialty,
-    score: a.score,
-    status: a.status as 'in_progress' | 'completed' | 'abandoned',
-    date: a.createdAt.toISOString(),
-  }))
+// GET /api/progress/recommendations
+progressRouter.get('/recommendations', async (c) => {
+  const user = c.get('user') as { id: string }
 
-  // Trend (score over time)
-  const trend = [...completedAttempts]
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-    .map((a) => ({
-      date: a.createdAt.toISOString(),
-      score: a.score || 0,
-      caseTitle: a.case.title,
-    }))
+  const profile = await prisma.userProfile.findUnique({ where: { id: user.id } })
+  if (!profile) return success(c, [])
 
-  const userData = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      name: true,
-      email: true,
-      role: true,
-      institution: true,
-      totalXp: true,
-      currentStreak: true,
-      longestStreak: true,
-      badges: true,
-      lastActiveDate: true,
+  // Get completed case IDs
+  const completedAttempts = await prisma.attempt.findMany({
+    where: { studentId: user.id, status: 'COMPLETED' },
+    select: { caseId: true },
+  })
+  const completedIds = completedAttempts.map(a => a.caseId)
+
+  // Recommend cases matching specialties that aren't completed
+  const recommendations = await prisma.case.findMany({
+    where: {
+      status: 'PUBLISHED',
+      deletedAt: null,
+      id: { notIn: completedIds },
+      ...(profile.specialties.length > 0 && { specialty: { in: profile.specialties } }),
     },
+    orderBy: { totalAttempts: 'desc' },
+    take: 3,
   })
 
-  if (!userData) {
-    return c.json({ success: false, message: 'User not found' }, 404)
-  }
-
-  const progressData: StudentProgressData = {
-    user: {
-      ...userData,
-      badges: userData.badges as any[],
-      lastActiveDate: userData.lastActiveDate?.toISOString(),
-    },
-    metrics: {
-      totalAttempts,
-      totalCompleted,
-      overallAvgScore,
-      completionRate,
-      specialtyBreakdown,
-    },
-    recentAttempts,
-    weakAreas,
-    trend,
-  }
-
-  return success(c, progressData)
+  return success(c, recommendations)
 })

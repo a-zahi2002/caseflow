@@ -1,67 +1,51 @@
-import { config } from './config'
-import { getToken } from './auth'
 import type { ApiResponse } from '@caseflow/types'
+
+const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:3001'
 
 async function request<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<ApiResponse<T>> {
-  const token = getToken()
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string>),
-  }
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`
-  }
-
-  const res = await fetch(`${config.apiUrl}${path}`, {
+  const res = await fetch(`${API_URL}${path}`, {
     ...options,
-    headers,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string>),
+    },
   })
 
   const data = await res.json()
   return data as ApiResponse<T>
 }
 
-export const apiClient = {
-  post<T>(path: string, body: unknown, token?: string): Promise<ApiResponse<T>> {
+export const api = {
+  get<T>(path: string): Promise<ApiResponse<T>> {
+    return request<T>(path, { method: 'GET' })
+  },
+
+  post<T>(path: string, body?: unknown): Promise<ApiResponse<T>> {
     return request<T>(path, {
       method: 'POST',
-      body: JSON.stringify(body),
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      ...(body && { body: JSON.stringify(body) }),
     })
   },
 
-  patch<T>(path: string, body: unknown, token?: string): Promise<ApiResponse<T>> {
+  patch<T>(path: string, body: unknown): Promise<ApiResponse<T>> {
     return request<T>(path, {
       method: 'PATCH',
       body: JSON.stringify(body),
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
   },
 
-  put<T>(path: string, body: unknown, token?: string): Promise<ApiResponse<T>> {
+  put<T>(path: string, body: unknown): Promise<ApiResponse<T>> {
     return request<T>(path, {
       method: 'PUT',
       body: JSON.stringify(body),
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
   },
 
-  get<T>(path: string, token?: string): Promise<ApiResponse<T>> {
-    return request<T>(path, {
-      method: 'GET',
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
-  },
-
-  delete<T>(path: string, token?: string): Promise<ApiResponse<T>> {
-    return request<T>(path, {
-      method: 'DELETE',
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
+  delete<T>(path: string): Promise<ApiResponse<T>> {
+    return request<T>(path, { method: 'DELETE' })
   },
 }
-

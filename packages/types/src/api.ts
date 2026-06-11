@@ -1,30 +1,15 @@
-export interface ApiSuccess<T> {
-  success: true
-  data: T
-}
+import { z } from 'zod'
 
-export interface ApiError {
-  success: false
-  error: string
-  code?: string
-}
+// ─── API Response Envelope ───────────────────────────────────────────
+export type ApiResponse<T> =
+  | { success: true; data: T; meta?: Record<string, unknown> }
+  | { success: false; error: string; code: string }
 
-export type ApiResponse<T> = ApiSuccess<T> | ApiError
-
-// Auth request/response shapes
-export interface RegisterRequest {
-  name: string
-  email: string
-  password: string
-  institution?: string
-}
-
-export interface LoginRequest {
-  email: string
-  password: string
-}
-
-export interface AuthResponse {
-  token: string
-  user: import('./user').User
-}
+// ─── Pagination Meta ─────────────────────────────────────────────────
+export const PaginationMetaSchema = z.object({
+  page: z.number().int(),
+  limit: z.number().int(),
+  total: z.number().int(),
+  totalPages: z.number().int(),
+})
+export type PaginationMeta = z.infer<typeof PaginationMetaSchema>
