@@ -1,4 +1,4 @@
-import type { Case, CaseStep } from './case.js';
+import type { Case, CaseStep } from './case';
 
 export interface EducatorAnalytics {
   totalCases: number;

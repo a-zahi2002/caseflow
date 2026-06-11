@@ -7,6 +7,15 @@ export type Difficulty = z.infer<typeof DifficultySchema>
 export const CaseStatusSchema = z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
 export type CaseStatus = z.infer<typeof CaseStatusSchema>
 
+export const PatientPersonaSchema = z.object({
+  name: z.string(),
+  age: z.number().int(),
+  sex: z.string(),
+  presentingComplaint: z.string(),
+  background: z.string(),
+})
+export type PatientPersona = z.infer<typeof PatientPersonaSchema>
+
 // ─── Revealed Data (per step) ────────────────────────────────────────
 export const RevealedDataSchema = z.object({
   vitals: z.record(z.string(), z.union([z.string(), z.number()])).optional(),

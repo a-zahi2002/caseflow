@@ -19,8 +19,8 @@ export const uploadsRouter = new Hono<AppEnv>();
 // Authenticate all upload routes
 uploadsRouter.use('*', authMiddleware);
 
-uploadsRouter.post('/', requireRole('educator', 'admin'), async (c) => {
-  const payload = c.get('jwtPayload');
+uploadsRouter.post('/', requireRole('EDUCATOR', 'ADMIN'), async (c) => {
+  const user = c.get('user');
   
   const formData = await c.req.formData();
   const file = formData.get('file');
@@ -70,7 +70,7 @@ uploadsRouter.post('/', requireRole('educator', 'admin'), async (c) => {
   try {
     if (config.STORAGE_TYPE === 'supabase' && config.SUPABASE_URL && config.SUPABASE_KEY) {
       const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_KEY);
-      const filePath = `${payload.sub}/${Date.now()}-${file.name}`;
+      const filePath = `${user.id}/${Date.now()}-${file.name}`;
       const { data, error: uploadErr } = await supabase.storage
         .from('cases')
         .upload(filePath, buffer, {
@@ -99,23 +99,42 @@ uploadsRouter.post('/', requireRole('educator', 'admin'), async (c) => {
 
   // Step 4: Save to database as a draft
   try {
+    const persona = (caseDraft as any).patientPersona || {};
     const newCase = await prisma.case.create({
       data: {
         title: caseDraft.title || 'Untitled Case (Extracted)',
+        description: caseDraft.description || 'Extracted clinical case.',
         specialty: caseDraft.specialty || 'General',
-        difficulty: (caseDraft.difficulty as any) || 'intermediate',
-        patientPersona: (caseDraft.patientPersona as any) || {},
+        difficulty: (caseDraft.difficulty?.toUpperCase() as any) || 'BEGINNER',
+        patientName: persona.name || 'Jane Doe',
+        patientAge: typeof persona.age === 'number' ? persona.age : 30,
+        patientGender: persona.sex || persona.gender || 'Female',
+        chiefComplaint: persona.presentingComplaint || persona.chiefComplaint || '',
+        patientBackground: persona.background || persona.patientBackground || '',
+        personalityTraits: persona.personalityTraits || [],
         tags: caseDraft.tags || [],
-        authorId: payload.sub,
-        status: 'draft',
+        authorId: user.id,
+        status: 'DRAFT',
         sourceDocumentUrl: fileUrl,
         steps: {
-          create: caseDraft.steps?.map((step: any, index: number) => ({
-            order: step.order || index + 1,
-            type: step.type || 'history',
-            content: step.content || '',
-            expectedFindings: step.expectedFindings || {},
-          })) || [],
+          create: caseDraft.steps?.map((step: any, index: number) => {
+            const findings: string[] = [];
+            if (step.expectedFindings) {
+              if (Array.isArray(step.expectedFindings.keyPoints)) {
+                findings.push(...step.expectedFindings.keyPoints);
+              }
+              if (Array.isArray(step.expectedFindings.redFlags)) {
+                findings.push(...step.expectedFindings.redFlags);
+              }
+            }
+            return {
+              order: step.order ?? index,
+              name: step.content ? (step.content.slice(0, 50) + (step.content.length > 50 ? '...' : '')) : `Step ${index + 1}`,
+              expectedFindings: findings,
+              criticalErrors: [],
+              revealedData: {},
+            };
+          }) || [],
         },
       },
       include: {

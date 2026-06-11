@@ -58,7 +58,7 @@ export interface AttemptMeta {
 }
 
 export function scoreToXP(score: number, meta: AttemptMeta): number {
-  let xp = XP.CASE_COMPLETE_BASE
+  let xp: number = XP.CASE_COMPLETE_BASE
 
   // Perfect score bonus
   if (score === 100) xp += XP.PERFECT_SCORE_BONUS

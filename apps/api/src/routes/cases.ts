@@ -7,7 +7,9 @@ import { success, error } from '../lib/response.js'
 import { CaseFilterSchema, CreateCaseSchema, UpdateCaseSchema } from '@caseflow/types'
 import { NotFoundError, ForbiddenError } from '../lib/errors.js'
 
-export const casesRouter = new Hono()
+import type { AppEnv } from '../types.js'
+
+export const casesRouter = new Hono<AppEnv>()
 
 // GET /api/cases — public, filterable
 casesRouter.get('/', async (c) => {
@@ -69,7 +71,7 @@ casesRouter.get('/:id', async (c) => {
 
 // POST /api/cases — educator only
 casesRouter.post('/', authMiddleware, requireRole('EDUCATOR', 'ADMIN'), zValidator('json', CreateCaseSchema), async (c) => {
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
   const data = c.req.valid('json')
 
   const newCase = await prisma.case.create({
@@ -86,25 +88,30 @@ casesRouter.post('/', authMiddleware, requireRole('EDUCATOR', 'ADMIN'), zValidat
 // PATCH /api/cases/:id — educator (own) or admin (any)
 casesRouter.patch('/:id', authMiddleware, zValidator('json', UpdateCaseSchema), async (c) => {
   const { id } = c.req.param()
-  const user = c.get('user') as { id: string }
-  const profile = c.get('userProfile') as { role: string }
+  const user = c.get('user')
+  const profile = c.get('userProfile')
   const data = c.req.valid('json')
 
   const existing = await prisma.case.findUnique({ where: { id } })
   if (!existing) throw new NotFoundError('Case')
 
-  if (existing.authorId !== user.id && profile.role !== 'ADMIN') {
+  if (existing.authorId !== user.id && profile?.role !== 'ADMIN') {
     throw new ForbiddenError('You can only edit your own cases')
   }
 
-  const updated = await prisma.case.update({ where: { id }, data })
+  // Strip undefined properties to satisfy exactOptionalPropertyTypes: true
+  const updateData = Object.fromEntries(
+    Object.entries(data).filter(([_, v]) => v !== undefined)
+  )
+
+  const updated = await prisma.case.update({ where: { id }, data: updateData })
   return success(c, updated)
 })
 
 // POST /api/cases/:id/publish — educator
 casesRouter.post('/:id/publish', authMiddleware, requireRole('EDUCATOR', 'ADMIN'), async (c) => {
   const { id } = c.req.param()
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
 
   const existing = await prisma.case.findUnique({
     where: { id },
@@ -149,7 +156,7 @@ casesRouter.delete('/:id', authMiddleware, requireRole('ADMIN'), async (c) => {
 // POST /api/cases/:id/bookmark
 casesRouter.post('/:id/bookmark', authMiddleware, async (c) => {
   const { id } = c.req.param()
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
 
   await prisma.bookmark.upsert({
     where: { userId_caseId: { userId: user.id, caseId: id } },
@@ -163,7 +170,7 @@ casesRouter.post('/:id/bookmark', authMiddleware, async (c) => {
 // DELETE /api/cases/:id/bookmark
 casesRouter.delete('/:id/bookmark', authMiddleware, async (c) => {
   const { id } = c.req.param()
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
 
   await prisma.bookmark.deleteMany({
     where: { userId: user.id, caseId: id },

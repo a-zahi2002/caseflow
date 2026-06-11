@@ -5,15 +5,16 @@ import { authMiddleware } from '../middleware/auth.js'
 import { success, error } from '../lib/response.js'
 import { UpdateProfileSchema } from '@caseflow/types'
 import { NotFoundError } from '../lib/errors.js'
+import type { AppEnv } from '../types.js'
 
-export const usersRouter = new Hono()
+export const usersRouter = new Hono<AppEnv>()
 
 // All user routes require auth
 usersRouter.use('*', authMiddleware)
 
 // GET /api/users/me
 usersRouter.get('/me', async (c) => {
-  const user = c.get('user') as { id: string; name: string; email: string }
+  const user = c.get('user')
   const profile = await prisma.userProfile.findUnique({
     where: { id: user.id },
     include: {
@@ -33,12 +34,23 @@ usersRouter.get('/me', async (c) => {
 
 // PATCH /api/users/me
 usersRouter.patch('/me', zValidator('json', UpdateProfileSchema), async (c) => {
-  const user = c.get('user') as { id: string }
-  const data = c.req.valid('json')
+  const user = c.get('user')
+  const { name, institution, yearOfStudy, specialties } = c.req.valid('json')
+
+  if (name !== undefined) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { name },
+    })
+  }
 
   const profile = await prisma.userProfile.update({
     where: { id: user.id },
-    data,
+    data: {
+      ...(institution !== undefined && { institution }),
+      ...(yearOfStudy !== undefined && { yearOfStudy }),
+      ...(specialties !== undefined && { specialties }),
+    },
   })
 
   return success(c, profile)
@@ -46,7 +58,7 @@ usersRouter.patch('/me', zValidator('json', UpdateProfileSchema), async (c) => {
 
 // GET /api/users/me/badges
 usersRouter.get('/me/badges', async (c) => {
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
   const badges = await prisma.userBadge.findMany({
     where: { userId: user.id },
     include: { badge: true },
@@ -57,7 +69,7 @@ usersRouter.get('/me/badges', async (c) => {
 
 // GET /api/users/me/attempts
 usersRouter.get('/me/attempts', async (c) => {
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
   const page = parseInt(c.req.query('page') ?? '1')
   const limit = parseInt(c.req.query('limit') ?? '10')
 

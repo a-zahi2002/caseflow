@@ -7,15 +7,16 @@ import { upgradeWebSocket } from '../lib/ws.js'
 import { StartSimulationSchema } from '@caseflow/types'
 import { NotFoundError, ForbiddenError, AppError } from '../lib/errors.js'
 import { simulationManager } from '../lib/simulation-manager.js'
+import type { AppEnv } from '../types.js'
 
-export const simulationRouter = new Hono()
+export const simulationRouter = new Hono<AppEnv>()
 
 // All simulation routes require auth
 simulationRouter.use('*', authMiddleware)
 
 // POST /api/simulation/start — create a new attempt
 simulationRouter.post('/start', zValidator('json', StartSimulationSchema), async (c) => {
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
   const { caseId } = c.req.valid('json')
 
   // Verify case exists and is published
@@ -72,8 +73,8 @@ simulationRouter.post('/start', zValidator('json', StartSimulationSchema), async
 
 // GET /api/simulation/:id — get attempt with messages (for reconnect)
 simulationRouter.get('/:id', async (c) => {
-  const { id } = c.req.param()
-  const user = c.get('user') as { id: string }
+  const id = c.req.param('id')
+  const user = c.get('user')
 
   const attempt = await prisma.attempt.findUnique({
     where: { id },
@@ -93,8 +94,8 @@ simulationRouter.get('/:id', async (c) => {
 
 // POST /api/simulation/:id/pause
 simulationRouter.post('/:id/pause', async (c) => {
-  const { id } = c.req.param()
-  const user = c.get('user') as { id: string }
+  const id = c.req.param('id')
+  const user = c.get('user')
 
   const attempt = await prisma.attempt.findUnique({ where: { id } })
   if (!attempt) throw new NotFoundError('Attempt')
@@ -111,8 +112,8 @@ simulationRouter.post('/:id/pause', async (c) => {
 
 // POST /api/simulation/:id/abandon
 simulationRouter.post('/:id/abandon', async (c) => {
-  const { id } = c.req.param()
-  const user = c.get('user') as { id: string }
+  const id = c.req.param('id')
+  const user = c.get('user')
 
   const attempt = await prisma.attempt.findUnique({ where: { id } })
   if (!attempt) throw new NotFoundError('Attempt')
@@ -128,7 +129,7 @@ simulationRouter.post('/:id/abandon', async (c) => {
 
 // GET /api/simulation/:id/ws — WebSocket endpoint
 simulationRouter.get('/:id/ws', upgradeWebSocket((c) => {
-  const { id } = c.req.param()
+  const id = c.req.param('id')
   
   return {
     onOpen: async (evt, ws) => {

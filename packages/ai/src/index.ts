@@ -16,3 +16,6 @@ export type { AttemptSummary } from './adaptive.js'
 // Patient simulation (existing, preserved)
 export { buildPatientSystemPrompt } from './prompts/patient.js'
 export type { PatientPromptOptions } from './prompts/patient.js'
+
+// Generator
+export { extractCaseFromDocument } from './generator.js'

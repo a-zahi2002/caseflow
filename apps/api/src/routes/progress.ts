@@ -3,13 +3,14 @@ import { prisma } from '@caseflow/db'
 import { authMiddleware } from '../middleware/auth.js'
 import { success } from '../lib/response.js'
 import { xpToLevel, getLevelTitle, xpToNextLevel } from '@caseflow/types'
+import type { AppEnv } from '../types.js'
 
-export const progressRouter = new Hono()
+export const progressRouter = new Hono<AppEnv>()
 progressRouter.use('*', authMiddleware)
 
 // GET /api/progress/stats
 progressRouter.get('/stats', async (c) => {
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
 
   const profile = await prisma.userProfile.findUnique({ where: { id: user.id } })
   if (!profile) return success(c, null)
@@ -72,7 +73,7 @@ progressRouter.get('/leaderboard', async (c) => {
 
 // GET /api/progress/recommendations
 progressRouter.get('/recommendations', async (c) => {
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
 
   const profile = await prisma.userProfile.findUnique({ where: { id: user.id } })
   if (!profile) return success(c, [])

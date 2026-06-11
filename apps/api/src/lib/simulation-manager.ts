@@ -197,7 +197,7 @@ export class SimulationSession {
         this.send({ type: 'step_advance', newStepOrder: nextStepOrder, revealedData: nextStep.revealedData })
         
         // Tell AI that context shifted
-        const sysContext = \`[SYSTEM] The student successfully advanced to step: \${nextStep.name}. Adjust your responses accordingly if they ask about new revealed data.\`
+        const sysContext = `[SYSTEM] The student successfully advanced to step: ${nextStep.name}. Adjust your responses accordingly if they ask about new revealed data.`
         this.messages.push({ role: 'system', content: sysContext })
         await prisma.simMessage.create({
           data: { attemptId: this.attemptId, role: 'system', content: sysContext, stepOrder: nextStepOrder }

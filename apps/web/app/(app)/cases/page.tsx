@@ -69,7 +69,7 @@ export default function CasesPage() {
     if (page > 1) params.set('page', page.toString())
 
     const query = params.toString()
-    router.replace(\`/cases\${query ? \`?\${query}\` : ''}\`)
+    router.replace(`/cases${query ? `?${query}` : ''}`)
   }, [debouncedSearch, specialty, difficulty, filterMode, page, router])
 
   const { data, isLoading } = useQuery({
@@ -83,7 +83,7 @@ export default function CasesPage() {
       params.set('page', page.toString())
       params.set('limit', '12')
 
-      const res = await api.get<CaseListItem[]>(\`/api/cases?\${params.toString()}\`)
+      const res = await api.get<CaseListItem[]>(`/api/cases?${params.toString()}`)
       return { cases: res.data, meta: res.meta as unknown as PaginationMeta }
     },
   })
@@ -267,7 +267,7 @@ export default function CasesPage() {
                             </span>
                           </div>
                           
-                          <Link href={\`/cases/\${c.id}\`} className="focus:outline-none">
+                          <Link href={`/cases/${c.id}`} className="focus:outline-none">
                             <h3 className="font-bold text-lg text-foreground mb-2 line-clamp-2 group-hover:text-brand transition-colors">
                               {c.title}
                             </h3>
@@ -294,7 +294,7 @@ export default function CasesPage() {
                           </div>
                           
                           <Link 
-                            href={\`/cases/\${c.id}\`}
+                            href={`/cases/${c.id}`}
                             className="flex items-center justify-center gap-2 w-full py-2.5 bg-surface-2 text-foreground font-semibold rounded-lg group-hover:bg-brand group-hover:text-white transition-colors"
                           >
                             <PlayCircle className="w-4 h-4" />

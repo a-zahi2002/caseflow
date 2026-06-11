@@ -24,7 +24,7 @@ export function getAIProvider(): AIProvider {
       return new OllamaProvider({
         baseUrl: process.env['OLLAMA_BASE_URL'] ?? 'http://localhost:11434',
         model: process.env['OLLAMA_MODEL'] ?? 'mistral:7b',
-        generatorModel: process.env['OLLAMA_GENERATOR_MODEL'],
+        ...(process.env['OLLAMA_GENERATOR_MODEL'] && { generatorModel: process.env['OLLAMA_GENERATOR_MODEL'] }),
       })
   }
 }

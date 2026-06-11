@@ -14,19 +14,23 @@ analyticsRouter.use('*', authMiddleware);
  * GET /analytics/educator
  * Aggregates performance data for all cases authored by the current educator.
  */
-analyticsRouter.get('/educator', requireRole('educator', 'admin'), async (c) => {
-  const payload = c.get('jwtPayload');
-  const authorId = payload.sub;
+analyticsRouter.get('/educator', requireRole('EDUCATOR', 'ADMIN'), async (c) => {
+  const user = c.get('user');
+  const authorId = user.id;
 
   // 1. Fetch all cases by this author with their attempts
   const cases = await prisma.case.findMany({
-    where: { authorId },
+    where: { authorId, deletedAt: null },
     include: {
       attempts: {
         select: {
           status: true,
           score: true,
-          evalResult: true,
+          evaluation: {
+            select: {
+              stepEvaluations: true,
+            }
+          },
           createdAt: true,
         },
       },
@@ -45,7 +49,7 @@ analyticsRouter.get('/educator', requireRole('educator', 'admin'), async (c) => 
 
   for (const caseData of cases) {
     const attempts = caseData.attempts;
-    const completedAttempts = attempts.filter((a) => a.status === 'completed');
+    const completedAttempts = attempts.filter((a: any) => a.status === 'COMPLETED');
     
     const attemptCount = caseData._count.attempts;
     const completedCount = completedAttempts.length;
@@ -54,7 +58,7 @@ analyticsRouter.get('/educator', requireRole('educator', 'admin'), async (c) => 
     totalCompleted += completedCount;
 
     const avgScore = completedCount > 0
-      ? completedAttempts.reduce((sum, a) => sum + (a.score || 0), 0) / completedCount
+      ? completedAttempts.reduce((sum: number, a: any) => sum + (a.score || 0), 0) / completedCount
       : 0;
     
     totalScoreSum += avgScore * completedCount;
@@ -63,17 +67,16 @@ analyticsRouter.get('/educator', requireRole('educator', 'admin'), async (c) => 
       ? (completedCount / attemptCount) * 100
       : 0;
 
-    // Determine most commonly missed step from evalResult
-    // Assumption: evalResult is { feedback: Array<{ stepType: string, passed: boolean }> }
+    // Determine most commonly missed step from stepEvaluations
     const stepMisses: Record<string, number> = {};
-    completedAttempts.forEach((a) => {
-      const evalData = a.evalResult as any;
-      if (evalData && Array.isArray(evalData.feedback)) {
-        evalData.feedback.forEach((f: any) => {
+    completedAttempts.forEach((a: any) => {
+      const evalData = a.evaluation;
+      if (evalData && Array.isArray(evalData.stepEvaluations)) {
+        evalData.stepEvaluations.forEach((f: any) => {
           if (f.passed === false && f.stepType) {
             stepMisses[f.stepType] = (stepMisses[f.stepType] || 0) + 1;
           }
-        } );
+        });
       }
     });
 

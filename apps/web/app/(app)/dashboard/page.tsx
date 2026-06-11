@@ -90,7 +90,7 @@ export default function DashboardPage() {
             <div className="mt-4 h-1.5 w-full bg-surface-2 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-xp rounded-full transition-all duration-1000"
-                style={{ width: \`\${stats.levelProgress}%\` }}
+                style={{ width: `${stats.levelProgress}%` }}
               />
             </div>
           </motion.div>
@@ -143,7 +143,7 @@ export default function DashboardPage() {
                   <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-1">{c.description}</p>
                   
                   <Link 
-                    href={\`/cases/\${c.id}\`}
+                    href={`/cases/${c.id}`}
                     className="mt-auto flex items-center justify-center gap-2 w-full py-2 bg-brand/10 text-brand font-medium rounded-lg hover:bg-brand hover:text-white transition-colors"
                   >
                     <PlayCircle className="w-4 h-4" />
