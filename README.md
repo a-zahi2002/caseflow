@@ -35,6 +35,7 @@ After running the seed command, use these credentials to test:
 
 ## 📖 Documentation
 
+-   [Project Overview](docs/PROJECT_OVERVIEW.md) — High-level overview of the platform architecture, tech stack, and roadmap.
 -   [Contributing Guide](docs/CONTRIBUTING.md) — How to join the project.
 -   [Case Format Specification](docs/CASE_FORMAT.md) — How to build patient simulations.
 -   [Self-Hosting Guide](docs/SELF_HOSTING.md) — Advanced deployment options.
