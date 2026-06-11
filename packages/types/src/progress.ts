@@ -44,3 +44,41 @@ export interface StudentProgressData {
   }[]
   trend: ScoreTrendPoint[]
 }
+
+export interface StudentProgressSummary {
+  totalXp: number
+  level: {
+    level: number
+    title: string
+    currentLevelXp: number
+    nextLevelXp: number
+    progressPercent: number
+  }
+  streak: {
+    currentStreak: number
+    longestStreak: number
+    lastActiveDate: Date | null
+    completedToday: boolean
+    last7Days: any[]
+  }
+  casesCompleted: number
+  casesAttempted: number
+  overallAverageScore: number
+  specialtyPerformance: {
+    specialty: string
+    casesAttempted: number
+    casesCompleted: number
+    averageScore: number
+    totalXp: number
+  }[]
+  weakAreas: {
+    specialty: string
+    issue: string
+    affectedCases: number
+    suggestedFocus: string
+  }[]
+  badges: any[]
+  institutionRank: number
+  weeklyXp: number[]
+}
+

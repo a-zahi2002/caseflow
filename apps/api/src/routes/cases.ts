@@ -72,11 +72,16 @@ casesRouter.get('/:id', async (c) => {
 // POST /api/cases — educator only
 casesRouter.post('/', authMiddleware, requireRole('EDUCATOR', 'ADMIN'), zValidator('json', CreateCaseSchema), async (c) => {
   const user = c.get('user')
-  const data = c.req.valid('json')
+  const { patientPersona, ...rest } = c.req.valid('json')
 
   const newCase = await prisma.case.create({
     data: {
-      ...data,
+      ...rest,
+      patientName: patientPersona.name,
+      patientAge: patientPersona.age,
+      patientGender: patientPersona.sex,
+      chiefComplaint: patientPersona.presentingComplaint,
+      patientBackground: patientPersona.background,
       authorId: user.id,
       status: 'DRAFT',
     },
@@ -99,12 +104,22 @@ casesRouter.patch('/:id', authMiddleware, zValidator('json', UpdateCaseSchema), 
     throw new ForbiddenError('You can only edit your own cases')
   }
 
+  const { patientPersona, ...rest } = data
+  const updateData: any = { ...rest }
+  if (patientPersona) {
+    if (patientPersona.name) updateData.patientName = patientPersona.name
+    if (patientPersona.age !== undefined) updateData.patientAge = patientPersona.age
+    if (patientPersona.sex) updateData.patientGender = patientPersona.sex
+    if (patientPersona.presentingComplaint) updateData.chiefComplaint = patientPersona.presentingComplaint
+    if (patientPersona.background) updateData.patientBackground = patientPersona.background
+  }
+
   // Strip undefined properties to satisfy exactOptionalPropertyTypes: true
-  const updateData = Object.fromEntries(
-    Object.entries(data).filter(([_, v]) => v !== undefined)
+  const filteredUpdateData = Object.fromEntries(
+    Object.entries(updateData).filter(([_, v]) => v !== undefined)
   )
 
-  const updated = await prisma.case.update({ where: { id }, data: updateData })
+  const updated = await prisma.case.update({ where: { id }, data: filteredUpdateData })
   return success(c, updated)
 })
 

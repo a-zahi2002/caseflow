@@ -25,7 +25,7 @@ export async function getStudentProgress(): Promise<StudentProgressSummary> {
     casesCompleted: data.metrics.totalCompleted,
     casesAttempted: data.metrics.totalAttempts,
     overallAverageScore: data.metrics.overallAvgScore,
-    specialtyPerformance: data.metrics.specialtyBreakdown.map(s => ({
+    specialtyPerformance: data.metrics.specialtyBreakdown.map((s: { specialty: string; avgScore: number; attempts: number }) => ({
        specialty: s.specialty,
        casesAttempted: s.attempts,
        casesCompleted: s.attempts,
@@ -38,7 +38,7 @@ export async function getStudentProgress(): Promise<StudentProgressSummary> {
        affectedCases: w.attempts,
        suggestedFocus: 'Review guidelines for this specialty'
     })),
-    badges: user?.badges?.map(b => ({ ...b, isNew: false })) || [],
+    badges: user?.badges?.map((b: any) => ({ ...b, isNew: false })) || [],
     institutionRank: 4,
     weeklyXp: [180, 420, 320, 500],
   }
@@ -48,9 +48,9 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
   // Mock leaderboard for now as there is no /leaderboard endpoint yet content.
   // This matches Phase 6/7 plans content.
   return [
-    { rank: 1, userId: 'u1', name: 'Rashmi Perera', avatarInitials: 'RP', totalXp: 5820, level: 15, streak: 30, casesCompleted: 89, institution: 'University of Colombo', isCurrentUser: false },
-    { rank: 2, userId: 'u2', name: 'Nimal Silva', avatarInitials: 'NS', totalXp: 4990, level: 13, streak: 14, casesCompleted: 76, institution: 'University of Colombo', isCurrentUser: false },
-    { rank: 3, userId: 'u3', name: 'Priya Fernando', avatarInitials: 'PF', totalXp: 4310, level: 12, streak: 21, casesCompleted: 68, institution: 'University of Colombo', isCurrentUser: false },
+    { rank: 1, userId: 'u1', name: 'Rashmi Perera', avatarInitials: 'RP', xp: 5820, totalXp: 5820, level: 15, streak: 30, casesCompleted: 89, institution: 'University of Colombo', isCurrentUser: false },
+    { rank: 2, userId: 'u2', name: 'Nimal Silva', avatarInitials: 'NS', xp: 4990, totalXp: 4990, level: 13, streak: 14, casesCompleted: 76, institution: 'University of Colombo', isCurrentUser: false },
+    { rank: 3, userId: 'u3', name: 'Priya Fernando', avatarInitials: 'PF', xp: 4310, totalXp: 4310, level: 12, streak: 21, casesCompleted: 68, institution: 'University of Colombo', isCurrentUser: false },
   ]
 }
 

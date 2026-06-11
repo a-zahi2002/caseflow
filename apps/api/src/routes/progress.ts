@@ -8,6 +8,120 @@ import type { AppEnv } from '../types.js'
 export const progressRouter = new Hono<AppEnv>()
 progressRouter.use('*', authMiddleware)
 
+// GET /api/progress/me
+progressRouter.get('/me', async (c) => {
+  const user = c.get('user')
+
+  const profile = await prisma.userProfile.findUnique({
+    where: { id: user.id },
+    include: {
+      badges: { include: { badge: true } },
+    },
+  })
+
+  if (!profile) {
+    return c.json({ success: false, error: 'Profile not found' }, 404)
+  }
+
+  const attempts = await prisma.attempt.findMany({
+    where: { studentId: user.id, deletedAt: null },
+    include: { case: true },
+    orderBy: { startedAt: 'desc' },
+  })
+
+  const recentAttempts = attempts.slice(0, 5).map((a) => ({
+    id: a.id,
+    caseTitle: a.case.title,
+    specialty: a.case.specialty,
+    score: a.score,
+    status: (a.status === 'COMPLETED'
+      ? 'completed'
+      : a.status === 'ABANDONED'
+      ? 'abandoned'
+      : 'in_progress') as 'completed' | 'abandoned' | 'in_progress',
+    date: a.startedAt.toISOString(),
+  }))
+
+  const completedAttempts = attempts.filter(
+    (a) => a.status === 'COMPLETED' && a.score !== null
+  )
+  const overallAvgScore =
+    completedAttempts.length > 0
+      ? completedAttempts.reduce((sum, a) => sum + (a.score ?? 0), 0) /
+        completedAttempts.length
+      : 0
+
+  const metrics = {
+    totalAttempts: attempts.length,
+    totalCompleted: completedAttempts.length,
+    overallAvgScore,
+    completionRate:
+      attempts.length > 0 ? (completedAttempts.length / attempts.length) * 100 : 0,
+    specialtyBreakdown: [] as { specialty: string; avgScore: number; attempts: number }[],
+  }
+
+  const specialtyGroups: Record<
+    string,
+    { totalScore: number; completedCount: number; attemptCount: number }
+  > = {}
+  for (const a of attempts) {
+    const spec = a.case.specialty
+    if (!specialtyGroups[spec]) {
+      specialtyGroups[spec] = { totalScore: 0, completedCount: 0, attemptCount: 0 }
+    }
+    specialtyGroups[spec].attemptCount++
+    if (a.status === 'COMPLETED' && a.score !== null) {
+      specialtyGroups[spec].totalScore += a.score
+      specialtyGroups[spec].completedCount++
+    }
+  }
+
+  metrics.specialtyBreakdown = Object.entries(specialtyGroups).map(
+    ([specialty, g]) => ({
+      specialty,
+      avgScore: g.completedCount > 0 ? g.totalScore / g.completedCount : 0,
+      attempts: g.attemptCount,
+    })
+  )
+
+  const weakAreas = metrics.specialtyBreakdown
+    .filter((s) => s.avgScore < 75)
+    .map((s) => ({
+      specialty: s.specialty,
+      avgScore: s.avgScore,
+      attempts: s.attempts,
+    }))
+
+  const trend = completedAttempts
+    .slice()
+    .reverse()
+    .map((a) => ({
+      date: a.completedAt ? a.completedAt.toLocaleDateString() : a.startedAt.toLocaleDateString(),
+      score: a.score ?? 0,
+      caseTitle: a.case.title,
+    }))
+
+  return success(c, {
+    user: {
+      name: user.name,
+      email: user.email,
+      role: profile.role,
+      institution: profile.institution,
+      totalXp: profile.xp,
+      currentStreak: profile.currentStreak,
+      longestStreak: profile.longestStreak,
+      lastActiveDate: profile.lastActiveDate
+        ? profile.lastActiveDate.toISOString()
+        : undefined,
+      badges: profile.badges || [],
+    },
+    metrics,
+    recentAttempts,
+    weakAreas,
+    trend,
+  })
+})
+
 // GET /api/progress/stats
 progressRouter.get('/stats', async (c) => {
   const user = c.get('user')

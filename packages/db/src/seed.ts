@@ -1,6 +1,12 @@
 import { PrismaClient } from './generated/client/index.js'
+import { betterAuth } from 'better-auth'
 
 const prisma = new PrismaClient()
+
+const auth = betterAuth({
+  secret: 'seed-secret-12345678901234567890123456789012',
+  emailAndPassword: { enabled: true }
+})
 
 async function main() {
   console.log('🌱 Starting Caseflow Database Seed...')
@@ -10,19 +16,21 @@ async function main() {
   await prisma.caseStep.deleteMany()
   await prisma.case.deleteMany()
   await prisma.userProfile.deleteMany()
+  await prisma.session.deleteMany()
+  await prisma.account.deleteMany()
   await prisma.user.deleteMany()
 
   // 2. Create Users
   console.log('👤 Creating Users...')
   
-  // Note: Since we use better-auth, actual authentication users should be created via the auth API.
-  // For the seed, we manually insert them into the DB matching the better-auth schema requirements.
+  const ctx = await auth.$context
+  const hashedPassword = await ctx.password.hash('password123')
   
   const adminUser = await prisma.user.create({
     data: {
       id: 'admin_user_id_123',
       name: 'System Admin',
-      email: 'admin@caseflow.local',
+      email: 'admin@caseflow.dev',
       emailVerified: true,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -40,7 +48,7 @@ async function main() {
     data: {
       id: 'educator_user_id_456',
       name: 'Dr. Gregory House',
-      email: 'house@caseflow.local',
+      email: 'educator@caseflow.dev',
       emailVerified: true,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -58,7 +66,7 @@ async function main() {
     data: {
       id: 'student_user_id_789',
       name: 'JD Dorian',
-      email: 'jd@caseflow.local',
+      email: 'student@caseflow.dev',
       emailVerified: true,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -72,6 +80,40 @@ async function main() {
         }
       }
     }
+  })
+
+  // Create corresponding better-auth accounts for credentials login
+  console.log('🔑 Creating Credentials Accounts...')
+  await prisma.account.createMany({
+    data: [
+      {
+        id: 'admin_account_id_123',
+        accountId: adminUser.id,
+        providerId: 'credential',
+        userId: adminUser.id,
+        password: hashedPassword,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 'educator_account_id_456',
+        accountId: educatorUser.id,
+        providerId: 'credential',
+        userId: educatorUser.id,
+        password: hashedPassword,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 'student_account_id_789',
+        accountId: studentUser.id,
+        providerId: 'credential',
+        userId: studentUser.id,
+        password: hashedPassword,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
+    ]
   })
 
   // 3. Create sample cases

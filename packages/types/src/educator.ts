@@ -27,6 +27,29 @@ export interface CompletionTrend {
   rate: number;
 }
 
-export interface CaseFormInput extends Omit<Case, 'id' | 'authorId' | 'status' | 'createdAt' | 'updatedAt' | 'steps'> {
-  steps: Array<Omit<CaseStep, 'id' | 'caseId'> & { id?: string | undefined }>;
+export interface CaseFormInput {
+  title: string;
+  description?: string;
+  specialty: string;
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'beginner' | 'intermediate' | 'advanced';
+  estimatedMinutes?: number;
+  tags: string[];
+  learningObjectives?: string[];
+  patientPersona: {
+    name?: string;
+    age: number;
+    sex: 'male' | 'female' | 'other';
+    presentingComplaint: string;
+    background: string;
+  };
+  steps: Array<{
+    order: number;
+    type: 'history' | 'examination' | 'investigation' | 'diagnosis' | 'management';
+    content: string;
+    expectedFindings: {
+      keyPoints: string[];
+      redFlags?: string[];
+    };
+    id?: string;
+  }>;
 }

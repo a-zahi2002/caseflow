@@ -35,7 +35,7 @@ app.use('*', cors({
 }))
 
 // ─── better-auth handler ────────────────────────────────────────────
-app.on(['GET', 'POST'], '/api/auth/**', (c) => {
+app.on(['GET', 'POST'], '/api/auth/*', (c) => {
   return auth.handler(c.req.raw)
 })
 

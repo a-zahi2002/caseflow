@@ -48,3 +48,36 @@ export const AdminUserUpdateSchema = z.object({
   role: z.enum(['STUDENT', 'EDUCATOR', 'ADMIN']).optional(),
 })
 export type AdminUserUpdate = z.infer<typeof AdminUserUpdateSchema>
+
+// ─── Moderation Queue ────────────────────────────────────────────────
+export const ModerationQueueItemSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  difficulty: z.string(), // e.g. BEGINNER, INTERMEDIATE, ADVANCED
+  specialty: z.string(),
+  authorName: z.string(),
+  submittedAt: z.coerce.date(),
+})
+export type ModerationQueueItem = z.infer<typeof ModerationQueueItemSchema>
+
+// ─── Platform Settings ───────────────────────────────────────────────
+export const PlatformSettingsDataSchema = z.object({
+  institutionName: z.string(),
+  allowedSpecialties: z.array(z.string()),
+  discussionsEnabled: z.boolean(),
+  communitySubmissionsEnabled: z.boolean(),
+})
+export type PlatformSettingsData = z.infer<typeof PlatformSettingsDataSchema>
+
+// ─── User Management ─────────────────────────────────────────────────
+export const UserManagementDataSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string(),
+  role: z.string(),
+  institution: z.string().nullable().optional(),
+  status: z.string(),
+  createdAt: z.coerce.date(),
+})
+export type UserManagementData = z.infer<typeof UserManagementDataSchema>
+

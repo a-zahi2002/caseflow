@@ -110,7 +110,7 @@ export default function DiscussionPage() {
         if (m.id === parentId) {
           return { 
             ...m, 
-            replies: (m.replies || []).map(r => r.id === tempId ? res.data : r)
+            replies: (m.replies || []).map((r: DiscussionMessage) => r.id === tempId ? res.data : r)
           }
         }
         return m
@@ -118,7 +118,7 @@ export default function DiscussionPage() {
     } else {
       setMessages(prev => prev.map(m => {
         if (m.id === parentId) {
-          return { ...m, replies: (m.replies || []).filter(r => r.id !== tempId) }
+          return { ...m, replies: (m.replies || []).filter((r: DiscussionMessage) => r.id !== tempId) }
         }
         return m
       }))
@@ -269,7 +269,7 @@ export default function DiscussionPage() {
               {/* Nested Replies */}
               {msg.replies && msg.replies.length > 0 && (
                 <div className="ml-12 mt-4 space-y-4 border-l-2 border-slate-100 pl-6">
-                  {msg.replies.map((reply) => (
+                  {msg.replies.map((reply: DiscussionMessage) => (
                     <div key={reply.id} className="bg-slate-50 p-4 rounded-xl border border-slate-100 relative">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="font-bold text-sm text-slate-900">{reply.userName}</span>

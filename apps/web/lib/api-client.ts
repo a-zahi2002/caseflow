@@ -6,7 +6,8 @@ async function request<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<ApiResponse<T>> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const normalizedPath = path.startsWith('/api') ? path : `/api${path}`
+  const res = await fetch(`${API_URL}${normalizedPath}`, {
     ...options,
     credentials: 'include',
     headers: {
@@ -20,33 +21,42 @@ async function request<T>(
 }
 
 export const api = {
-  get<T>(path: string): Promise<ApiResponse<T>> {
-    return request<T>(path, { method: 'GET' })
+  get<T>(path: string, token?: string): Promise<ApiResponse<T>> {
+    return request<T>(path, { 
+      method: 'GET',
+      ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {})
+    })
   },
 
-  post<T>(path: string, body?: unknown): Promise<ApiResponse<T>> {
+  post<T>(path: string, body?: unknown, token?: string): Promise<ApiResponse<T>> {
     return request<T>(path, {
       method: 'POST',
       ...(body ? { body: JSON.stringify(body) } : {}),
+      ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {})
     })
   },
 
-  patch<T>(path: string, body: unknown): Promise<ApiResponse<T>> {
+  patch<T>(path: string, body: unknown, token?: string): Promise<ApiResponse<T>> {
     return request<T>(path, {
       method: 'PATCH',
       body: JSON.stringify(body),
+      ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {})
     })
   },
 
-  put<T>(path: string, body: unknown): Promise<ApiResponse<T>> {
+  put<T>(path: string, body: unknown, token?: string): Promise<ApiResponse<T>> {
     return request<T>(path, {
       method: 'PUT',
       body: JSON.stringify(body),
+      ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {})
     })
   },
 
-  delete<T>(path: string): Promise<ApiResponse<T>> {
-    return request<T>(path, { method: 'DELETE' })
+  delete<T>(path: string, token?: string): Promise<ApiResponse<T>> {
+    return request<T>(path, { 
+      method: 'DELETE',
+      ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {})
+    })
   },
 }
 

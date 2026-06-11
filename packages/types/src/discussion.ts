@@ -20,6 +20,17 @@ export const DiscussionPostSchema = z.object({
   replies: z.array(z.lazy((): z.ZodType => DiscussionPostSchema)).optional(),
 })
 export type DiscussionPost = z.infer<typeof DiscussionPostSchema>
+export interface DiscussionMessage {
+  id: string
+  caseId: string
+  userId: string
+  userName: string
+  userRole: string
+  content: string
+  parentId: string | null
+  createdAt: string
+  replies?: DiscussionMessage[]
+}
 
 export const CreateDiscussionPostSchema = z.object({
   content: z.string().min(1, 'Content is required').max(10000),

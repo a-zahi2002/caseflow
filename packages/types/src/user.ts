@@ -48,7 +48,7 @@ export const RegisterStep2Schema = z.object({
 })
 
 export const RegisterStep3Schema = z.object({
-  specialties: z.array(z.string()).max(3, 'Select up to 3 specialties').default([]),
+  specialties: z.array(z.string()).max(3, 'Select up to 3 specialties'),
 })
 
 export type RegisterStep1 = z.infer<typeof RegisterStep1Schema>

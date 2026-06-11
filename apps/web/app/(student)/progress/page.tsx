@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { getUser } from '@/lib/auth'
 import { apiClient } from '@/lib/api-client'
 import { Loader2 } from 'lucide-react'
-import { User, computeLevel, StudentProgressData, XP_PER_LEVEL } from '@caseflow/types'
+import { User, computeLevel, StudentProgressData } from '@caseflow/types'
 
 const MOCK_PROGRESS = {
   totalXp: 3240,
@@ -171,7 +171,7 @@ export default function ProgressPage() {
           <div className="relative z-10">
             <h3 className="text-[10px] font-mono text-outline uppercase tracking-widest mb-4 font-bold">Next Milestone</h3>
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-5xl font-heading font-extrabold text-secondary">{nextLevelXp - (XP_PER_LEVEL[level-1] || 0) - currentLevelXp}</span>
+              <span className="text-5xl font-heading font-extrabold text-secondary">{nextLevelXp - currentLevelXp}</span>
               <span className="text-on-surface-variant text-sm font-sans font-bold">XP to Level {level + 1}</span>
             </div>
             <div className="mt-4 w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden shadow-inner">

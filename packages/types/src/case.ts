@@ -76,17 +76,19 @@ export type Case = z.infer<typeof CaseSchema>
 // ─── Case Create/Update ─────────────────────────────────────────────
 export const CreateCaseSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters').max(200),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters').optional().default(''),
   specialty: z.string().min(1, 'Specialty is required'),
   difficulty: DifficultySchema,
-  estimatedMinutes: z.number().int().min(5).max(120).default(30),
+  estimatedMinutes: z.number().int().min(5).max(120).optional().default(30),
   tags: z.array(z.string()).default([]),
   learningObjectives: z.array(z.string()).default([]),
-  patientName: z.string().min(1, 'Patient name is required'),
-  patientAge: z.number().int().min(1).max(100),
-  patientGender: z.string().min(1, 'Patient gender is required'),
-  chiefComplaint: z.string().min(1, 'Chief complaint is required'),
-  patientBackground: z.string().min(1, 'Patient background is required'),
+  patientPersona: z.object({
+    name: z.string().default('Jane Doe'),
+    age: z.number().int().min(1).max(120),
+    sex: z.string().min(1),
+    presentingComplaint: z.string().min(1),
+    background: z.string().min(1),
+  }),
   personalityTraits: z.array(z.string()).default([]),
   prerequisiteCaseIds: z.array(z.string()).default([]),
 })
