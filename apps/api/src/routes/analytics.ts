@@ -31,7 +31,6 @@ analyticsRouter.get('/educator', requireRole('EDUCATOR', 'ADMIN'), async (c) => 
               stepEvaluations: true,
             }
           },
-          createdAt: true,
         },
       },
       _count: {

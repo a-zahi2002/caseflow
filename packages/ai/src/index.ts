@@ -5,6 +5,8 @@ export type { OllamaConfig } from './providers/ollama.js'
 export { OpenAIProvider } from './providers/openai.js'
 export type { OpenAIConfig } from './providers/openai.js'
 export { getAIProvider } from './providers/factory.js'
+export { OllamaClient } from './ollama.js'
+export type { OllamaClientConfig } from './ollama.js'
 
 // Evaluator
 export { runEvaluator } from './evaluator.js'

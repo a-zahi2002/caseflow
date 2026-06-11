@@ -70,3 +70,18 @@ export const UpdateProfileSchema = z.object({
   specialties: z.array(z.string()).max(3).optional(),
 })
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>
+
+export interface User {
+  id: string
+  name: string
+  email: string
+  role: 'STUDENT' | 'EDUCATOR' | 'ADMIN' | 'student' | 'educator' | 'admin'
+  createdAt: Date
+  totalXp?: number
+  currentStreak?: number
+  longestStreak?: number
+  badges?: any
+  institution?: string | null
+  lastActiveDate?: Date | null
+}
+

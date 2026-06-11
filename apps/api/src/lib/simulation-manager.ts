@@ -43,12 +43,18 @@ export class SimulationSession {
     if (pastMsgs.length === 0) {
       // First time - system prompt + initial greeting
       const systemPrompt = buildPatientSystemPrompt({
-        patientName: attempt.case.patientName,
-        patientAge: attempt.case.patientAge,
-        patientGender: attempt.case.patientGender,
-        chiefComplaint: attempt.case.chiefComplaint,
-        background: attempt.case.patientBackground,
-        traits: attempt.case.personalityTraits,
+        persona: {
+          name: attempt.case.patientName,
+          age: attempt.case.patientAge,
+          sex: attempt.case.patientGender,
+          presentingComplaint: attempt.case.chiefComplaint,
+          background: attempt.case.patientBackground,
+        },
+        caseTitle: attempt.case.title,
+        specialty: attempt.case.specialty,
+        heartsRemaining: attempt.heartsRemaining,
+        timeElapsed: Math.round((Date.now() - attempt.startedAt.getTime()) / 60000),
+        currentStep: 'history',
       })
 
       this.messages.push({ role: 'system', content: systemPrompt })

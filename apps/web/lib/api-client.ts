@@ -27,7 +27,7 @@ export const api = {
   post<T>(path: string, body?: unknown): Promise<ApiResponse<T>> {
     return request<T>(path, {
       method: 'POST',
-      ...(body && { body: JSON.stringify(body) }),
+      ...(body ? { body: JSON.stringify(body) } : {}),
     })
   },
 
@@ -49,3 +49,5 @@ export const api = {
     return request<T>(path, { method: 'DELETE' })
   },
 }
+
+export const apiClient = api

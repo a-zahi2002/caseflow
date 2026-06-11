@@ -102,27 +102,48 @@ export function getLevelTitle(level: number): string {
   return 'Medical Student I'
 }
 
+export interface UserBadge {
+  id: string
+  userId: string
+  badgeId: string
+  earnedAt: Date
+  isNew?: boolean
+  badge?: {
+    id: string
+    key: string
+    name: string
+    description: string
+    iconKey: string
+    xpReward: number
+    rarity: 'common' | 'rare' | 'epic' | 'legendary'
+    icon: string
+  }
+}
+
 // ─── Badge Definitions ───────────────────────────────────────────────
 export const BadgeDefinitionSchema = z.object({
+  id: z.string(),
   key: z.string(),
   name: z.string(),
   description: z.string(),
   iconKey: z.string(),
   xpReward: z.number().int(),
+  rarity: z.enum(['common', 'rare', 'epic', 'legendary']),
+  icon: z.string(),
 })
 export type BadgeDefinition = z.infer<typeof BadgeDefinitionSchema>
 
 export const BADGE_DEFINITIONS: BadgeDefinition[] = [
-  { key: 'first_case', name: 'First Blood', description: 'Completed your first clinical case', iconKey: 'trophy', xpReward: 100 },
-  { key: 'streak_3', name: 'Getting Started', description: '3-day clinical streak', iconKey: 'flame', xpReward: 50 },
-  { key: 'streak_7', name: 'Week Warrior', description: '7-day clinical streak', iconKey: 'flame', xpReward: 150 },
-  { key: 'streak_30', name: 'Iron Discipline', description: '30-day clinical streak', iconKey: 'flame', xpReward: 500 },
-  { key: 'perfect_score', name: 'The Perfectionist', description: 'Achieved a perfect 100% score', iconKey: 'star', xpReward: 200 },
-  { key: 'speed_demon', name: 'Speed Demon', description: 'Completed in under 50% of estimated time', iconKey: 'zap', xpReward: 150 },
-  { key: 'night_owl', name: 'Night Owl', description: 'Completed a case between 23:00 and 04:00', iconKey: 'moon', xpReward: 75 },
-  { key: 'specialty_master_cardiology', name: 'Heart Expert', description: 'Mastered all Cardiology cases', iconKey: 'heart', xpReward: 300 },
-  { key: 'specialty_master_neurology', name: 'Brain Expert', description: 'Mastered all Neurology cases', iconKey: 'brain', xpReward: 300 },
-  { key: 'specialty_master_respiratory', name: 'Lung Expert', description: 'Mastered all Respiratory cases', iconKey: 'wind', xpReward: 300 },
+  { id: 'first_case', key: 'first_case', name: 'First Blood', description: 'Completed your first clinical case', iconKey: 'trophy', xpReward: 100, rarity: 'common', icon: '🏆' },
+  { id: 'streak_3', key: 'streak_3', name: 'Getting Started', description: '3-day clinical streak', iconKey: 'flame', xpReward: 50, rarity: 'common', icon: '🥉' },
+  { id: 'streak_7', key: 'streak_7', name: 'Week Warrior', description: '7-day clinical streak', iconKey: 'flame', xpReward: 150, rarity: 'rare', icon: '🥈' },
+  { id: 'streak_30', key: 'streak_30', name: 'Iron Discipline', description: '30-day clinical streak', iconKey: 'flame', xpReward: 500, rarity: 'legendary', icon: '🥇' },
+  { id: 'perfect_score', key: 'perfect_score', name: 'The Perfectionist', description: 'Achieved a perfect 100% score', iconKey: 'star', xpReward: 200, rarity: 'rare', icon: '⭐' },
+  { id: 'speed_demon', key: 'speed_demon', name: 'Speed Demon', description: 'Completed in under 50% of estimated time', iconKey: 'zap', xpReward: 150, rarity: 'rare', icon: '⚡' },
+  { id: 'night_owl', key: 'night_owl', name: 'Night Owl', description: 'Completed a case between 23:00 and 04:00', iconKey: 'moon', xpReward: 75, rarity: 'common', icon: '🦉' },
+  { id: 'specialty_master_cardiology', key: 'specialty_master_cardiology', name: 'Heart Expert', description: 'Mastered all Cardiology cases', iconKey: 'heart', xpReward: 300, rarity: 'epic', icon: '❤️' },
+  { id: 'specialty_master_neurology', key: 'specialty_master_neurology', name: 'Brain Expert', description: 'Mastered all Neurology cases', iconKey: 'brain', xpReward: 300, rarity: 'epic', icon: '🧠' },
+  { id: 'specialty_master_respiratory', key: 'specialty_master_respiratory', name: 'Lung Expert', description: 'Mastered all Respiratory cases', iconKey: 'wind', xpReward: 300, rarity: 'epic', icon: '🫁' },
 ]
 
 // ─── Leaderboard ─────────────────────────────────────────────────────
@@ -132,8 +153,46 @@ export const LeaderboardEntrySchema = z.object({
   name: z.string(),
   level: z.number().int(),
   xp: z.number().int(),
+  avatarInitials: z.string().optional(),
+  totalXp: z.number().optional(),
+  streak: z.number().optional(),
+  casesCompleted: z.number().optional(),
+  institution: z.string().optional(),
+  isCurrentUser: z.boolean().optional(),
 })
 export type LeaderboardEntry = z.infer<typeof LeaderboardEntrySchema>
+
+export interface StreakStatus {
+  currentStreak: number
+  longestStreak: number
+  completedToday: boolean
+  last7Days: {
+    date: string
+    completed: boolean
+  }[]
+}
+
+export interface LevelInfo {
+  level: number
+  title: string
+  currentLevelXp: number
+  nextLevelXp: number
+  progressPercent: number
+}
+
+export function computeLevel(totalXp: number): LevelInfo {
+  const level = xpToLevel(totalXp)
+  const title = getLevelTitle(level)
+  const nextLevelInfo = xpToNextLevel(totalXp)
+  
+  return {
+    level,
+    title,
+    currentLevelXp: nextLevelInfo.current,
+    nextLevelXp: nextLevelInfo.threshold,
+    progressPercent: nextLevelInfo.progress,
+  }
+}
 
 export type LeaderboardPeriod = 'weekly' | 'alltime'
 

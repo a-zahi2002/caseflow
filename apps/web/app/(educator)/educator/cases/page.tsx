@@ -41,12 +41,12 @@ export default function EducatorCasesPage() {
 
     const res = await apiClient.patch<Case>(
       `/cases/${id}`,
-      { status: 'published' },
+      { status: 'PUBLISHED' },
       token
     )
     if (res.success) {
       setCases((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, status: 'published' } : c))
+        prev.map((c) => (c.id === id ? { ...c, status: 'PUBLISHED' } : c))
       )
     }
   }
@@ -86,27 +86,27 @@ export default function EducatorCasesPage() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h2 className="text-base font-medium text-gray-900">{c.title}</h2>
-                    <span className={`text-xs px-2 py-0.5 rounded-full capitalize font-medium ${statusColors[c.status]}`}>
-                      {c.status}
+                    <span className={`text-xs px-2 py-0.5 rounded-full capitalize font-medium ${statusColors[c.status.toLowerCase()]}`}>
+                      {c.status.toLowerCase()}
                     </span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full capitalize font-medium ${difficultyColors[c.difficulty]}`}>
-                      {c.difficulty}
+                    <span className={`text-xs px-2 py-0.5 rounded-full capitalize font-medium ${difficultyColors[c.difficulty.toLowerCase()]}`}>
+                      {c.difficulty.toLowerCase()}
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-gray-500">
                     <span>{c.specialty}</span>
                     <span>•</span>
                     <span>{c._count.attempts} attempts</span>
-                    {c.timeLimit && (
+                    {c.estimatedMinutes && (
                       <>
                         <span>•</span>
-                        <span>{c.timeLimit} min</span>
+                        <span>{c.estimatedMinutes} min</span>
                       </>
                     )}
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
-                  {c.status === 'draft' && (
+                  {c.status === 'DRAFT' && (
                     <button
                       onClick={() => publishCase(c.id)}
                       className="px-3 py-1.5 text-xs font-medium text-green-700 border border-green-300 rounded-lg hover:bg-green-50"

@@ -4,8 +4,9 @@ import { authMiddleware } from '../middleware/auth.js'
 import { requireRole } from '../middleware/require-role.js'
 import { success, error } from '../lib/response.js'
 import { NotFoundError } from '../lib/errors.js'
+import type { AppEnv } from '../types.js'
 
-export const adminRouter = new Hono()
+export const adminRouter = new Hono<AppEnv>()
 adminRouter.use('*', authMiddleware)
 adminRouter.use('*', requireRole('ADMIN'))
 
@@ -45,7 +46,7 @@ adminRouter.patch('/users/:id', async (c) => {
   })
 
   // Audit log
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
   await prisma.auditLog.create({
     data: {
       actorId: user.id,
@@ -62,7 +63,7 @@ adminRouter.patch('/users/:id', async (c) => {
 // POST /api/admin/users/:id/ban
 adminRouter.post('/users/:id/ban', async (c) => {
   const { id } = c.req.param()
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
 
   await prisma.userProfile.update({
     where: { id },
@@ -84,7 +85,7 @@ adminRouter.post('/users/:id/ban', async (c) => {
 // POST /api/admin/users/:id/unban
 adminRouter.post('/users/:id/unban', async (c) => {
   const { id } = c.req.param()
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
 
   await prisma.userProfile.update({
     where: { id },
@@ -172,7 +173,7 @@ adminRouter.get('/cases', async (c) => {
 // POST /api/admin/cases/:id/approve
 adminRouter.post('/cases/:id/approve', async (c) => {
   const { id } = c.req.param()
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
 
   await prisma.case.update({
     where: { id },
@@ -194,7 +195,7 @@ adminRouter.post('/cases/:id/approve', async (c) => {
 // POST /api/admin/cases/:id/reject
 adminRouter.post('/cases/:id/reject', async (c) => {
   const { id } = c.req.param()
-  const user = c.get('user') as { id: string }
+  const user = c.get('user')
   const body = await c.req.json()
 
   await prisma.case.update({

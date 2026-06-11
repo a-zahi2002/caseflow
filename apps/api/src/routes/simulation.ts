@@ -129,7 +129,7 @@ simulationRouter.post('/:id/abandon', async (c) => {
 
 // GET /api/simulation/:id/ws — WebSocket endpoint
 simulationRouter.get('/:id/ws', upgradeWebSocket((c) => {
-  const id = c.req.param('id')
+  const id = c.req.param('id') as string
   
   return {
     onOpen: async (evt, ws) => {

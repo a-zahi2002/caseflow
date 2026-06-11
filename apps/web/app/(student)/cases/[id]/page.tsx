@@ -84,14 +84,15 @@ export default function CaseDetailPage() {
 
   if (!caseData) return null
 
-  const persona = caseData.patientPersona as {
-    age: number
-    sex: string
-    presentingComplaint: string
-    background: string
+  const persona = {
+    age: caseData.patientAge,
+    sex: caseData.patientGender,
+    presentingComplaint: caseData.chiefComplaint,
+    background: caseData.patientBackground,
   }
 
-  const diff = difficultyConfig[caseData.difficulty] || difficultyConfig.beginner
+  const diffKey = caseData.difficulty.toLowerCase() as keyof typeof difficultyConfig
+  const diff = difficultyConfig[diffKey] || difficultyConfig.beginner
 
   return (
     <div className="max-w-4xl mx-auto p-8 space-y-8">
@@ -119,12 +120,12 @@ export default function CaseDetailPage() {
                 <span className="material-symbols-outlined text-sm text-primary">medical_services</span>
                 <span>{caseData.specialty}</span>
               </div>
-              {caseData.timeLimit && (
+              {caseData.estimatedMinutes && (
                 <>
                   <span className="text-outline-variant">•</span>
                   <div className="flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-sm text-outline">schedule</span>
-                    <span>{caseData.timeLimit} min limit</span>
+                    <span>{caseData.estimatedMinutes} min limit</span>
                   </div>
                 </>
               )}
@@ -205,12 +206,15 @@ export default function CaseDetailPage() {
                 {index + 1}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={cn("text-[10px] px-2.5 py-1 rounded-lg border font-mono font-black uppercase tracking-wider", stepTypeColors[step.type])}>
-                    {stepTypeLabels[step.type]}
-                  </span>
+                <h3 className="text-sm font-bold text-on-surface mb-2">{step.name}</h3>
+                <div className="text-xs text-on-surface-variant space-y-1">
+                  <span className="font-semibold">Expected Findings:</span>
+                  <ul className="list-disc list-inside space-y-0.5 mt-1 font-medium">
+                    {step.expectedFindings.map((finding, fi) => (
+                      <li key={fi}>{finding}</li>
+                    ))}
+                  </ul>
                 </div>
-                <p className="text-sm text-on-surface-variant font-medium leading-relaxed">{step.content}</p>
               </div>
             </div>
           ))}
