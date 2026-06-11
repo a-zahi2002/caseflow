@@ -6,6 +6,7 @@ import { success, error } from '../lib/response.js'
 import { UpdateProfileSchema } from '@caseflow/types'
 import { NotFoundError } from '../lib/errors.js'
 import type { AppEnv } from '../types.js'
+import { config } from '../lib/config.js'
 
 export const usersRouter = new Hono<AppEnv>()
 
@@ -35,7 +36,7 @@ usersRouter.get('/me', async (c) => {
 // PATCH /api/users/me
 usersRouter.patch('/me', zValidator('json', UpdateProfileSchema), async (c) => {
   const user = c.get('user')
-  const { name, institution, yearOfStudy, specialties } = c.req.valid('json')
+  const { name, institution, yearOfStudy, specialties, role, inviteCode } = c.req.valid('json')
 
   if (name !== undefined) {
     await prisma.user.update({
@@ -44,12 +45,27 @@ usersRouter.patch('/me', zValidator('json', UpdateProfileSchema), async (c) => {
     })
   }
 
+  let resolvedRole: 'STUDENT' | 'EDUCATOR' | 'ADMIN' | undefined = undefined
+  if (role !== undefined) {
+    if (role === 'EDUCATOR') {
+      if (inviteCode !== config.EDUCATOR_INVITE_CODE) {
+        return error(c, 'Invalid educator invite code', 400, 'INVALID_INVITE_CODE')
+      }
+      resolvedRole = 'EDUCATOR'
+    } else if (role === 'ADMIN') {
+      return error(c, 'Unauthorized role change', 403, 'UNAUTHORIZED')
+    } else {
+      resolvedRole = 'STUDENT'
+    }
+  }
+
   const profile = await prisma.userProfile.update({
     where: { id: user.id },
     data: {
       ...(institution !== undefined && { institution }),
       ...(yearOfStudy !== undefined && { yearOfStudy }),
       ...(specialties !== undefined && { specialties }),
+      ...(resolvedRole !== undefined && { role: resolvedRole }),
     },
   })
 

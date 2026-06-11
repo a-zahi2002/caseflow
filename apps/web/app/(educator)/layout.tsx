@@ -20,7 +20,7 @@ export default function EducatorLayout({
     const u = getUser()
     if (!u) {
       router.push('/login')
-    } else if (u.role !== 'educator' && u.role !== 'admin') {
+    } else if (u.role.toLowerCase() !== 'educator' && u.role.toLowerCase() !== 'admin') {
       router.push('/dashboard')
     } else {
       setUser(u)

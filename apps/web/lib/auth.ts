@@ -30,7 +30,8 @@ export function clearAuth(): void {
 }
 
 export function getDashboardPath(role: User['role']): string {
-  switch (role) {
+  const normalizedRole = role?.toLowerCase()
+  switch (normalizedRole) {
     case 'educator': return '/educator/dashboard'
     case 'admin': return '/admin/dashboard'
     default: return '/dashboard'

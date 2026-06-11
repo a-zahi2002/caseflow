@@ -7,8 +7,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion, AnimatePresence } from 'framer-motion'
 import { RegisterStep1Schema, RegisterStep2Schema, RegisterStep3Schema, SPECIALTIES } from '@caseflow/types'
-import type { RegisterStep1, RegisterStep2, RegisterStep3 } from '@caseflow/types'
+import type { RegisterStep1, RegisterStep2, RegisterStep3, User } from '@caseflow/types'
 import { signUp } from '@/lib/auth-client'
+import { saveAuth, getDashboardPath } from '@/lib/auth'
 import { api } from '@/lib/api-client'
 import { ArrowRight, ArrowLeft, Check, Eye, EyeOff, GraduationCap, Stethoscope } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -76,12 +77,31 @@ export default function RegisterPage() {
       }
 
       // Create UserProfile with role + specialties
-      await api.patch('/api/users/me', {
+      const patchRes = await api.patch('/api/users/me', {
         institution: undefined,
         specialties: s3.specialties,
+        role: s2.role,
+        inviteCode: s2.inviteCode || undefined,
       })
 
-      router.push('/dashboard')
+      if (!patchRes.success) {
+        setError(patchRes.error ?? 'Failed to update user profile')
+        return
+      }
+
+      // Fetch completed user profile
+      const profileRes = await api.get<User>('/users/me')
+      if (!profileRes.success || !profileRes.data) {
+        setError('Failed to load user profile after registration')
+        return
+      }
+
+      // Save auth details to local storage
+      const token = result.data.token ?? ''
+      saveAuth(token, profileRes.data)
+
+      // Redirect to the appropriate dashboard
+      router.push(getDashboardPath(profileRes.data.role))
     } catch (err: any) {
       setError(err.message ?? 'Registration failed')
     } finally {

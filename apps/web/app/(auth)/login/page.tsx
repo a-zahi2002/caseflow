@@ -6,8 +6,10 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion } from 'framer-motion'
-import { LoginSchema, type LoginInput } from '@caseflow/types'
+import { LoginSchema, type LoginInput, type User } from '@caseflow/types'
 import { signIn } from '@/lib/auth-client'
+import { saveAuth, getDashboardPath } from '@/lib/auth'
+import { api } from '@/lib/api-client'
 import { Eye, EyeOff, ArrowRight, Stethoscope } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -36,7 +38,19 @@ export default function LoginPage() {
         return
       }
 
-      router.push('/dashboard')
+      // Fetch user profile to get full details (role, streak, xp, etc.)
+      const profileRes = await api.get<User>('/users/me')
+      if (!profileRes.success || !profileRes.data) {
+        setError('Failed to load user profile')
+        return
+      }
+
+      // Save auth details to local storage
+      const token = result.data.token
+      saveAuth(token, profileRes.data)
+
+      // Redirect to the appropriate dashboard
+      router.push(getDashboardPath(profileRes.data.role))
     } catch (err: any) {
       setError(err.message ?? 'Login failed')
     } finally {

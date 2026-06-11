@@ -68,6 +68,8 @@ export const UpdateProfileSchema = z.object({
   institution: z.string().max(200).trim().optional(),
   yearOfStudy: z.number().int().min(1).max(10).optional(),
   specialties: z.array(z.string()).max(3).optional(),
+  role: z.enum(['STUDENT', 'EDUCATOR', 'ADMIN']).optional(),
+  inviteCode: z.string().optional(),
 })
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>
 

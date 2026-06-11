@@ -39,7 +39,7 @@ export const authMiddleware = createMiddleware<AuthEnv>(async (c, next) => {
   })
 
   // Load user profile (extended data)
-  const profile = await prisma.userProfile.findUnique({
+  let profile = await prisma.userProfile.findUnique({
     where: { id: session.user.id },
     select: {
       id: true,
@@ -51,6 +51,25 @@ export const authMiddleware = createMiddleware<AuthEnv>(async (c, next) => {
       banned: true,
     },
   })
+
+  // If profile is missing, automatically initialize it with default STUDENT role
+  if (!profile) {
+    profile = await prisma.userProfile.create({
+      data: {
+        id: session.user.id,
+        role: 'STUDENT',
+      },
+      select: {
+        id: true,
+        role: true,
+        institution: true,
+        xp: true,
+        level: true,
+        currentStreak: true,
+        banned: true,
+      },
+    })
+  }
 
   c.set('userProfile', profile)
 

@@ -14,7 +14,7 @@ export default function StudentRouteLayout({ children }: { children: ReactNode }
 
   useEffect(() => {
     const u = getUser()
-    if (!u || u.role !== 'student') {
+    if (!u || u.role.toLowerCase() !== 'student') {
       router.push('/login')
     } else {
       setUser(u)
