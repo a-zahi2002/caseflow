@@ -24,7 +24,7 @@ export default function SimulationDashboard() {
       try {
         const [progRes, casesRes] = await Promise.all([
           apiClient.get<StudentProgressData>('/progress/me'),
-          apiClient.get<RecommendedCase[]>('/cases?limit=3')
+          apiClient.get<RecommendedCase[]>('/progress/recommendations')
         ])
 
         if (progRes.success) setProgress(progRes.data)

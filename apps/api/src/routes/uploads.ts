@@ -4,8 +4,7 @@ import { authMiddleware } from '../middleware/auth.js';
 import { requireRole } from '../middleware/require-role.js';
 import { success, error } from '../lib/response.js';
 import { config } from '../lib/config.js';
-import { ollamaClient } from '../lib/ollama-client.js';
-import { extractCaseFromDocument } from '@caseflow/ai';
+import { getAIProvider, extractCaseFromDocument } from '@caseflow/ai';
 import * as pdfImport from 'pdf-parse';
 const pdf = (pdfImport as any).default || pdfImport;
 import mammoth from 'mammoth';
@@ -59,7 +58,8 @@ uploadsRouter.post('/', requireRole('EDUCATOR', 'ADMIN'), async (c) => {
   // Step 2: Extract structured case data using AI
   let caseDraft;
   try {
-    caseDraft = await extractCaseFromDocument(ollamaClient, text);
+    const aiProvider = getAIProvider();
+    caseDraft = await extractCaseFromDocument(aiProvider, text);
   } catch (err) {
     console.error('AI extraction failed:', err);
     return error(c, 'Failed to generate case from document text', 500, 'AI_ERROR');
@@ -127,8 +127,16 @@ uploadsRouter.post('/', requireRole('EDUCATOR', 'ADMIN'), async (c) => {
                 findings.push(...step.expectedFindings.redFlags);
               }
             }
+
+            // Map step types to 0-based order index expected by Caseflow UI
+            const stepTypes = ['history', 'examination', 'investigation', 'diagnosis', 'management'];
+            let stepOrder = stepTypes.indexOf(step.type?.toLowerCase());
+            if (stepOrder === -1) {
+              stepOrder = typeof step.order === 'number' ? step.order - 1 : index;
+            }
+
             return {
-              order: step.order ?? index,
+              order: stepOrder,
               name: step.content ? (step.content.slice(0, 50) + (step.content.length > 50 ? '...' : '')) : `Step ${index + 1}`,
               expectedFindings: findings,
               criticalErrors: [],

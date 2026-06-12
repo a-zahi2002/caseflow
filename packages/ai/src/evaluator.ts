@@ -53,10 +53,11 @@ export async function runEvaluator(
         { temperature: 0.1, format: 'json' }
       )
 
-      // Extract JSON from response (handle markdown code blocks)
+      // Extract JSON from response using regex to handle extra conversational text
       let jsonStr = response.trim()
-      if (jsonStr.startsWith('```')) {
-        jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        jsonStr = jsonMatch[0]
       }
 
       const parsed = JSON.parse(jsonStr)
@@ -109,9 +110,11 @@ export async function runOverallEvaluator(
         { role: 'user', content: userPrompt }
       ], { temperature: 0.1, format: 'json' })
 
+      // Safely extract JSON structure using regex to handle extra conversational text
       let jsonStr = response.trim()
-      if (jsonStr.startsWith('```')) {
-        jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        jsonStr = jsonMatch[0]
       }
 
       const parsed = JSON.parse(jsonStr)

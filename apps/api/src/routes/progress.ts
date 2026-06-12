@@ -3,6 +3,7 @@ import { prisma } from '@caseflow/db'
 import { authMiddleware } from '../middleware/auth.js'
 import { success } from '../lib/response.js'
 import { xpToLevel, getLevelTitle, xpToNextLevel } from '@caseflow/types'
+import { getRecommendationCriteria } from '@caseflow/ai'
 import type { AppEnv } from '../types.js'
 
 export const progressRouter = new Hono<AppEnv>()
@@ -192,24 +193,55 @@ progressRouter.get('/recommendations', async (c) => {
   const profile = await prisma.userProfile.findUnique({ where: { id: user.id } })
   if (!profile) return success(c, [])
 
-  // Get completed case IDs
+  // Load all completed attempts with their scores and case difficulty levels
   const completedAttempts = await prisma.attempt.findMany({
     where: { studentId: user.id, status: 'COMPLETED' },
-    select: { caseId: true },
+    select: {
+      caseId: true,
+      score: true,
+      completedAt: true,
+      case: { select: { difficulty: true } }
+    },
   })
+  
   const completedIds = completedAttempts.map(a => a.caseId)
 
-  // Recommend cases matching specialties that aren't completed
-  const recommendations = await prisma.case.findMany({
+  // Format the history summary to feed the adaptive difficulty engine
+  const history = completedAttempts.map(a => ({
+    score: a.score ?? 0,
+    difficulty: a.case.difficulty,
+    completedAt: a.completedAt ?? new Date(),
+  }))
+
+  // Run the adaptive difficulty recommendation engine
+  const criteria = getRecommendationCriteria(history, profile.specialties)
+
+  // Recommend cases matching adaptive difficulty and user specialties that are not completed
+  let recommendations = await prisma.case.findMany({
     where: {
       status: 'PUBLISHED',
       deletedAt: null,
       id: { notIn: completedIds },
-      ...(profile.specialties.length > 0 && { specialty: { in: profile.specialties } }),
+      difficulty: criteria.difficulty,
+      ...(criteria.specialties.length > 0 && { specialty: { in: criteria.specialties } }),
     },
     orderBy: { totalAttempts: 'desc' },
     take: 3,
   })
+
+  // Fallback: if there are no cases matching the exact criteria, recommend other published cases
+  if (recommendations.length < 3) {
+    const additionalCases = await prisma.case.findMany({
+      where: {
+        status: 'PUBLISHED',
+        deletedAt: null,
+        id: { notIn: [...completedIds, ...recommendations.map(r => r.id)] },
+      },
+      orderBy: { totalAttempts: 'desc' },
+      take: 3 - recommendations.length,
+    })
+    recommendations = [...recommendations, ...additionalCases]
+  }
 
   return success(c, recommendations)
 })

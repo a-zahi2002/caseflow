@@ -1,29 +1,33 @@
-import { OllamaClient } from './ollama.js';
+import type { AIProvider } from './providers/base.js';
 import { CASE_EXTRACTION_PROMPT } from './prompts/generator.js';
 import type { CaseFormInput } from '@caseflow/types';
 
 /**
- * Extracts a clinical case structure from document text using Ollama.
+ * Extracts a clinical case structure from document text using AI.
  */
 export async function extractCaseFromDocument(
-  client: OllamaClient,
+  provider: AIProvider,
   documentText: string
 ): Promise<CaseFormInput> {
   const prompt = CASE_EXTRACTION_PROMPT.replace('{{text}}', documentText);
   
-  const response = await client.generate(
+  const response = await provider.generate(
     prompt,
     {
       format: 'json',
       temperature: 0.1,
-    },
-    client.generatorModel
+    }
   );
 
   try {
     // Attempt to parse the JSON response
-    // Sometimes LLMs wrap it in markdown code blocks
-    const cleanResponse = response.replace(/```json\n?|\n?```/g, '').trim();
+    // Safely extract JSON structure using regex to handle extra LLM text
+    let cleanResponse = response.trim();
+    const jsonMatch = cleanResponse.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      cleanResponse = jsonMatch[0];
+    }
+    
     const data = JSON.parse(cleanResponse);
     
     // Ensure basic structure exists
