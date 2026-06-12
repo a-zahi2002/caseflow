@@ -151,10 +151,9 @@ export default function SimulationPage() {
 
   const hearts = Array.from({ length: 3 }, (_, i) => i < simState.heartsRemaining)
 
-  const persona = attempt?.case?.patientPersona
-  const isFemale = persona?.sex?.toLowerCase() === 'female'
-  const displayName = persona?.name || (isFemale ? 'Ms. Nimali Perera' : 'Mr. Kamal Perera')
-  const displayEmoji = persona?.emoji || (isFemale ? '👩🏽‍🦳' : '🧑🏽‍🦳')
+  const isFemale = attempt?.case?.patientGender?.toLowerCase() === 'female'
+  const displayName = attempt?.case?.patientName || (isFemale ? 'Ms. Nimali Perera' : 'Mr. Kamal Perera')
+  const displayEmoji = isFemale ? '👩🏽‍🦳' : '🧑🏽‍🦳'
 
   return (
     <div className="p-8 flex-1 bg-surface h-[calc(100vh-64px)] overflow-hidden flex flex-col">
@@ -273,11 +272,11 @@ export default function SimulationPage() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center py-1.5 border-b border-outline-variant/10">
                   <span className="text-xs text-outline font-sans font-bold uppercase tracking-wider">Demographics</span>
-                  <span className="text-sm font-mono font-bold">{attempt?.case?.patientPersona?.age || 45}y / {attempt?.case?.patientPersona?.sex || 'M'}</span>
+                  <span className="text-sm font-mono font-bold">{attempt?.case?.patientAge || 45}y / {attempt?.case?.patientGender || 'M'}</span>
                 </div>
                 <div className="flex justify-between items-center py-1.5 border-b border-outline-variant/10">
                   <span className="text-xs text-outline font-sans font-bold uppercase tracking-wider">Complaint</span>
-                  <span className="text-sm font-mono font-bold text-primary">{attempt?.case?.patientPersona?.presentingComplaint || 'Chest Pain'}</span>
+                  <span className="text-sm font-mono font-bold text-primary">{attempt?.case?.chiefComplaint || 'Chest Pain'}</span>
                 </div>
                 <div className="flex justify-between items-center py-1.5 border-b border-outline-variant/10">
                   <span className="text-xs text-outline font-sans font-bold uppercase tracking-wider">Risk Level</span>

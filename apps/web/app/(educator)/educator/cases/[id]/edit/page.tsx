@@ -61,8 +61,13 @@ export default function EditCasePage() {
         reset({
           title: res.data.title,
           specialty: res.data.specialty,
-          difficulty: res.data.difficulty,
-          patientPersona: res.data.patientPersona,
+          difficulty: res.data.difficulty?.toLowerCase(),
+          patientPersona: {
+            age: res.data.patientAge,
+            sex: res.data.patientGender?.toLowerCase(),
+            presentingComplaint: res.data.chiefComplaint,
+            background: res.data.patientBackground,
+          },
           tags: res.data.tags || [],
           steps: res.data.steps || [],
         })
@@ -76,7 +81,12 @@ export default function EditCasePage() {
     if (!token) return
     setSubmitting(true)
 
-    const res = await apiClient.patch<any>(`/cases/${id}`, data, token)
+    const payload = {
+      ...data,
+      difficulty: data.difficulty.toUpperCase(),
+    }
+
+    const res = await apiClient.patch<any>(`/cases/${id}`, payload, token)
     if (res.success) {
       router.push('/educator/cases')
     } else {

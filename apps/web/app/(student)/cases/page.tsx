@@ -130,9 +130,9 @@ export default function CaseLibraryPage() {
   useEffect(() => {
     async function loadCases() {
       try {
-        const res = await apiClient.get<{ cases: Case[] }>('/cases')
-        if (res.success && res.data?.cases) {
-          setCases(res.data.cases)
+        const res = await apiClient.get<Case[]>('/cases')
+        if (res.success && Array.isArray(res.data)) {
+          setCases(res.data)
         }
       } catch (err) {
         console.error('Failed to load cases')

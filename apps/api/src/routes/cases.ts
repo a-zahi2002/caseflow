@@ -54,6 +54,21 @@ casesRouter.get('/', async (c) => {
   })
 })
 
+// GET /api/cases/my — educator/admin cases list
+casesRouter.get('/my', authMiddleware, requireRole('EDUCATOR', 'ADMIN'), async (c) => {
+  const user = c.get('user')
+  const cases = await prisma.case.findMany({
+    where: { authorId: user.id, deletedAt: null },
+    include: {
+      _count: {
+        select: { attempts: true }
+      }
+    },
+    orderBy: { createdAt: 'desc' },
+  })
+  return success(c, cases)
+})
+
 // GET /api/cases/:id — public, steps only if authenticated
 casesRouter.get('/:id', async (c) => {
   const { id } = c.req.param()

@@ -29,14 +29,14 @@ export function TopBar({ totalXp, streak, userAvatar }: TopBarProps) {
       
       <div className="flex items-center space-x-4">
         <div className="relative">
-          <button className="p-2 text-outline hover:bg-surface-container-low rounded-full transition-colors relative">
-            <span className="material-symbols-outlined">notifications</span>
-            <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+          <button className="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors relative flex items-center justify-center">
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
           </button>
         </div>
         
-        <button className="p-2 text-outline hover:bg-surface-container-low rounded-full transition-colors">
-          <span className="material-symbols-outlined">emoji_events</span>
+        <button className="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors flex items-center justify-center">
+          <Trophy className="w-5 h-5" />
         </button>
 
         <div className="relative group ml-2">

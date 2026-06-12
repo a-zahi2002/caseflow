@@ -18,6 +18,8 @@ import { notificationsRouter } from './routes/notifications.js'
 import { searchRouter } from './routes/search.js'
 import { adminRouter } from './routes/admin.js'
 import { healthRouter } from './routes/health.js'
+import { analyticsRouter } from './routes/analytics.js'
+import { uploadsRouter } from './routes/uploads.js'
 
 const app = new Hono()
 
@@ -49,6 +51,8 @@ app.route('/api/notifications', notificationsRouter)
 app.route('/api/search', searchRouter)
 app.route('/api/admin', adminRouter)
 app.route('/api/health', healthRouter)
+app.route('/api/analytics', analyticsRouter)
+app.route('/api/uploads', uploadsRouter)
 
 // ─── Global Error Handler ────────────────────────────────────────────
 app.onError((err, c) => {

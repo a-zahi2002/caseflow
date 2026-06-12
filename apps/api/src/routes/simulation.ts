@@ -71,6 +71,25 @@ simulationRouter.post('/start', zValidator('json', StartSimulationSchema), async
   return success(c, { attemptId: attempt.id, resumed: false }, 201)
 })
 
+// GET /api/simulation/attempts/:id — get completed attempt with evaluation scorecard
+simulationRouter.get('/attempts/:id', async (c) => {
+  const id = c.req.param('id')
+  const user = c.get('user')
+
+  const attempt = await prisma.attempt.findUnique({
+    where: { id },
+    include: {
+      case: true,
+      evaluation: true,
+    },
+  })
+
+  if (!attempt) throw new NotFoundError('Attempt')
+  if (attempt.studentId !== user.id) throw new ForbiddenError('Not your attempt')
+
+  return success(c, attempt)
+})
+
 // GET /api/simulation/:id — get attempt with messages (for reconnect)
 simulationRouter.get('/:id', async (c) => {
   const id = c.req.param('id')

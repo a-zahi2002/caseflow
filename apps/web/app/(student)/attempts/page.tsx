@@ -74,7 +74,7 @@ export default function CaseFilesPage() {
           {attempts.map((attempt) => (
             <Link 
               key={attempt.id}
-              href={`/simulation/${attempt.id}`}
+              href={attempt.status === 'completed' ? `/attempts/${attempt.id}/result` : `/simulation/run/${attempt.id}`}
               className="group bg-white border border-outline-variant/30 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300"
             >
               <div className="flex items-start sm:items-center gap-5">

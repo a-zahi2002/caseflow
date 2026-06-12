@@ -45,18 +45,15 @@ export default function AdminLayout({
         <div className="flex items-center gap-8">
           <span className="text-xl font-heading font-black tracking-tighter text-primary">Caseflow</span>
           <nav className="hidden md:flex gap-6">
-            {['Dashboard', 'Analytics', 'Reports'].map((item) => (
-              <Link 
-                key={item}
-                href={`/admin/${item.toLowerCase()}`} 
-                className={cn(
-                  "text-sm font-heading font-bold transition-all pb-1",
-                  pathname.includes(item.toLowerCase()) ? "text-primary border-b-2 border-primary" : "text-on-surface-variant hover:text-primary"
-                )}
-              >
-                {item}
-              </Link>
-            ))}
+            <Link 
+              href="/admin/dashboard" 
+              className={cn(
+                "text-sm font-heading font-bold transition-all pb-1",
+                pathname.includes('dashboard') ? "text-primary border-b-2 border-primary" : "text-on-surface-variant hover:text-primary"
+              )}
+            >
+              Dashboard
+            </Link>
           </nav>
         </div>
         <div className="flex items-center gap-4">

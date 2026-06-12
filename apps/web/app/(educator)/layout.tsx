@@ -42,11 +42,8 @@ export default function EducatorLayout({
 
   const navItems = [
     { label: 'Cohorts', href: '/educator/dashboard', icon: 'group' },
-    { label: 'Students', href: '/educator/students', icon: 'monitoring' },
     { label: 'Curriculum', href: '/educator/cases', icon: 'menu_book' },
-    { label: 'User Admin', href: '/educator/admin', icon: 'admin_panel_settings' },
-    { label: 'System Analytics', href: '/educator/analytics', icon: 'analytics' },
-    { label: 'Audit Logs', href: '/educator/audits', icon: 'history' },
+    { label: 'System Analytics', href: '/analytics', icon: 'analytics' },
   ]
 
   return (
@@ -60,14 +57,10 @@ export default function EducatorLayout({
               "pb-1 text-sm font-heading font-bold transition-all",
               pathname === '/educator/dashboard' ? "text-primary border-b-2 border-primary" : "text-on-surface-variant hover:text-primary"
             )}>Dashboard</Link>
-            <Link href="/educator/analytics" className={cn(
+            <Link href="/analytics" className={cn(
               "pb-1 text-sm font-heading font-bold transition-all",
-              pathname === '/educator/analytics' ? "text-primary border-b-2 border-primary" : "text-on-surface-variant hover:text-primary"
+              pathname === '/analytics' ? "text-primary border-b-2 border-primary" : "text-on-surface-variant hover:text-primary"
             )}>Analytics</Link>
-            <Link href="/educator/reports" className={cn(
-              "pb-1 text-sm font-heading font-bold transition-all",
-              pathname === '/educator/reports' ? "text-primary border-b-2 border-primary" : "text-on-surface-variant hover:text-primary"
-            )}>Reports</Link>
           </nav>
         </div>
         <div className="flex items-center gap-4">

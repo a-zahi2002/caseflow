@@ -24,11 +24,11 @@ export default function SimulationDashboard() {
       try {
         const [progRes, casesRes] = await Promise.all([
           apiClient.get<StudentProgressData>('/progress/me'),
-          apiClient.get<{ cases: RecommendedCase[] }>('/cases?limit=3')
+          apiClient.get<RecommendedCase[]>('/cases?limit=3')
         ])
 
         if (progRes.success) setProgress(progRes.data)
-        if (casesRes.success && casesRes.data?.cases) setRecommendations(casesRes.data.cases)
+        if (casesRes.success && Array.isArray(casesRes.data)) setRecommendations(casesRes.data)
       } catch (err) {
         console.error('Failed to load simulation dashboard data')
       } finally {

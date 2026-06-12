@@ -189,12 +189,13 @@ export default function ModerationPage() {
                 <div>
                   <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                     <BookOpen size={20} className="text-indigo-600" />
-                    Patient Persona
+                    Patient Details
                   </h3>
-                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">
-                    {typeof previewData.patientPersona === 'string' 
-                      ? previewData.patientPersona 
-                      : JSON.stringify(previewData.patientPersona, null, 2)}
+                  <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 text-slate-700 text-sm space-y-2">
+                    <p><strong>Name:</strong> {previewData.patientName}</p>
+                    <p><strong>Age/Gender:</strong> {previewData.patientAge}y / {previewData.patientGender}</p>
+                    <p><strong>Chief Complaint:</strong> {previewData.chiefComplaint}</p>
+                    <p><strong>Background:</strong> {previewData.patientBackground}</p>
                   </div>
                 </div>
 

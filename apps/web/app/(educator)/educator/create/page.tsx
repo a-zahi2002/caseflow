@@ -80,7 +80,7 @@ export default function CreateCasePage() {
       const caseRes = await apiClient.post<Case>('/cases', {
         title: title.trim(),
         specialty,
-        difficulty,
+        difficulty: difficulty.toUpperCase() as any,
         timeLimit: timeLimit ? Number(timeLimit) : undefined,
         tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
         patientPersona: {

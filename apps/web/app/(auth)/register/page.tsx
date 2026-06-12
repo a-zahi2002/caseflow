@@ -77,7 +77,7 @@ export default function RegisterPage() {
       }
 
       // Create UserProfile with role + specialties
-      const patchRes = await api.patch('/api/users/me', {
+      const patchRes = await api.patch('/users/me', {
         institution: undefined,
         specialties: s3.specialties,
         role: s2.role,
@@ -122,29 +122,36 @@ export default function RegisterPage() {
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="bg-surface-container-lowest glass p-8 md:p-10 rounded-[2.5rem] shadow-2xl border border-outline-variant/20 relative overflow-hidden"
     >
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Create account
+      <div className="absolute top-0 left-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl -ml-20 -mt-20 pointer-events-none z-0"></div>
+      
+      <div className="mb-8 relative z-10 text-center">
+        <h1 className="text-3xl md:text-4xl font-heading font-black tracking-tight text-on-surface mb-2">
+          Create Account
         </h1>
-        <p className="mt-2 text-muted-foreground">
+        <p className="text-on-surface-variant font-medium">
           Join the next generation of clinical learners
         </p>
       </div>
 
       {/* Step indicator */}
-      <div className="flex items-center gap-2 mb-8">
+      <div className="flex items-center justify-center gap-3 mb-10 relative z-10">
         {[1, 2, 3].map((s) => (
-          <div key={s} className="flex items-center gap-2">
+          <div key={s} className="flex items-center gap-3">
             <div className={cn(
-              'w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all',
-              step >= s ? 'bg-brand text-white shadow-md shadow-brand/30' : 'bg-surface-2 text-muted-foreground',
-              step > s && 'bg-success text-white',
+              'w-10 h-10 rounded-xl flex items-center justify-center text-sm font-heading font-black transition-all duration-300',
+              step === s ? 'bg-primary text-on-primary shadow-lg shadow-primary/30 scale-110' : 
+              step > s ? 'bg-tertiary text-on-tertiary shadow-md' : 'bg-surface-container text-on-surface-variant',
+              'border border-outline-variant/10'
             )}>
-              {step > s ? <Check className="h-4 w-4" /> : s}
+              {step > s ? <Check className="h-5 w-5" /> : s}
             </div>
-            {s < 3 && <div className={cn('w-8 h-0.5 rounded-full', step > s ? 'bg-success' : 'bg-border')} />}
+            {s < 3 && <div className={cn(
+              'w-8 h-1 rounded-full transition-colors duration-500', 
+              step > s ? 'bg-tertiary' : 'bg-surface-container'
+            )} />}
           </div>
         ))}
       </div>
@@ -153,8 +160,9 @@ export default function RegisterPage() {
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className="rounded-lg bg-danger/10 border border-danger/20 px-4 py-3 text-sm text-danger mb-5"
+          className="rounded-xl bg-error-container/50 border border-error/20 px-4 py-3 text-sm font-medium text-error flex items-center gap-3 shadow-sm mb-6 relative z-10"
         >
+          <span className="material-symbols-outlined text-lg">error</span>
           {error}
         </motion.div>
       )}
@@ -167,59 +175,77 @@ export default function RegisterPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
             onSubmit={step1Form.handleSubmit(handleStep1)}
-            className="space-y-4"
+            className="space-y-5 relative z-10"
           >
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium">Full name</label>
+              <label htmlFor="name" className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Full Name</label>
               <input
                 id="name"
                 placeholder="Dr. Jane Smith"
-                className="flex h-11 w-full rounded-lg border border-border bg-surface px-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                className={cn(
+                  "flex h-12 w-full rounded-xl border border-outline-variant/50 bg-surface/50 px-4 text-sm transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest",
+                  step1Form.formState.errors.name && "border-error focus:ring-error"
+                )}
                 {...step1Form.register('name')}
               />
-              {step1Form.formState.errors.name && <p className="text-xs text-danger">{step1Form.formState.errors.name.message}</p>}
+              {step1Form.formState.errors.name && <p className="text-xs text-error font-medium mt-1">{step1Form.formState.errors.name.message}</p>}
             </div>
+            
             <div className="space-y-2">
-              <label htmlFor="reg-email" className="text-sm font-medium">Email</label>
+              <label htmlFor="reg-email" className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Email Address</label>
               <input
                 id="reg-email"
                 type="email"
                 placeholder="jane@medical.edu"
-                className="flex h-11 w-full rounded-lg border border-border bg-surface px-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                className={cn(
+                  "flex h-12 w-full rounded-xl border border-outline-variant/50 bg-surface/50 px-4 text-sm transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest",
+                  step1Form.formState.errors.email && "border-error focus:ring-error"
+                )}
                 {...step1Form.register('email')}
               />
-              {step1Form.formState.errors.email && <p className="text-xs text-danger">{step1Form.formState.errors.email.message}</p>}
+              {step1Form.formState.errors.email && <p className="text-xs text-error font-medium mt-1">{step1Form.formState.errors.email.message}</p>}
             </div>
-            <div className="space-y-2">
-              <label htmlFor="reg-password" className="text-sm font-medium">Password</label>
-              <div className="relative">
-                <input
-                  id="reg-password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Min 8 chars, 1 uppercase, 1 number"
-                  className="flex h-11 w-full rounded-lg border border-border bg-surface px-4 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
-                  {...step1Form.register('password')}
-                />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label htmlFor="reg-password" className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Password</label>
+                <div className="relative">
+                  <input
+                    id="reg-password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Min 8 chars"
+                    className={cn(
+                      "flex h-12 w-full rounded-xl border border-outline-variant/50 bg-surface/50 px-4 pr-11 text-sm transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest",
+                      step1Form.formState.errors.password && "border-error focus:ring-error"
+                    )}
+                    {...step1Form.register('password')}
+                  />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-all">
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {step1Form.formState.errors.password && <p className="text-xs text-error font-medium mt-1">{step1Form.formState.errors.password.message}</p>}
               </div>
-              {step1Form.formState.errors.password && <p className="text-xs text-danger">{step1Form.formState.errors.password.message}</p>}
+              <div className="space-y-2">
+                <label htmlFor="confirm-password" className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Confirm Password</label>
+                <input
+                  id="confirm-password"
+                  type="password"
+                  placeholder="••••••••"
+                  className={cn(
+                    "flex h-12 w-full rounded-xl border border-outline-variant/50 bg-surface/50 px-4 text-sm transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest",
+                    step1Form.formState.errors.confirmPassword && "border-error focus:ring-error"
+                  )}
+                  {...step1Form.register('confirmPassword')}
+                />
+                {step1Form.formState.errors.confirmPassword && <p className="text-xs text-error font-medium mt-1">{step1Form.formState.errors.confirmPassword.message}</p>}
+              </div>
             </div>
-            <div className="space-y-2">
-              <label htmlFor="confirm-password" className="text-sm font-medium">Confirm password</label>
-              <input
-                id="confirm-password"
-                type="password"
-                placeholder="••••••••"
-                className="flex h-11 w-full rounded-lg border border-border bg-surface px-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
-                {...step1Form.register('confirmPassword')}
-              />
-              {step1Form.formState.errors.confirmPassword && <p className="text-xs text-danger">{step1Form.formState.errors.confirmPassword.message}</p>}
-            </div>
-            <button type="submit" className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-brand text-white font-semibold text-sm hover:bg-brand/90 active:scale-[0.98] shadow-lg shadow-brand/20 transition-all">
-              Continue <ArrowRight className="h-4 w-4" />
+            
+            <button type="submit" className="flex h-12 w-full mt-4 items-center justify-center gap-3 rounded-xl bg-primary text-on-primary font-heading font-black text-sm uppercase tracking-widest hover:bg-primary-container hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] transition-all duration-300">
+              Continue Setup <ArrowRight className="h-4 w-4" />
             </button>
           </motion.form>
         )}
@@ -231,53 +257,59 @@ export default function RegisterPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
             onSubmit={step2Form.handleSubmit(handleStep2)}
-            className="space-y-5"
+            className="space-y-6 relative z-10"
           >
-            <p className="text-sm text-muted-foreground mb-4">How will you use Caseflow?</p>
-            <div className="grid grid-cols-2 gap-3">
+            <p className="text-sm font-medium text-on-surface-variant text-center mb-6">How will you use Caseflow?</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                { value: 'STUDENT' as const, label: 'Student', desc: 'Practice clinical cases', icon: GraduationCap },
-                { value: 'EDUCATOR' as const, label: 'Educator', desc: 'Author & manage cases', icon: Stethoscope },
-              ].map(({ value, label, desc, icon: Icon }) => (
+                { value: 'STUDENT' as const, label: 'Student Resident', desc: 'Practice and learn from clinical cases', icon: 'school' },
+                { value: 'EDUCATOR' as const, label: 'Clinical Educator', desc: 'Author and manage student cohorts', icon: 'stethoscope' },
+              ].map(({ value, label, desc, icon }) => (
                 <button
                   key={value}
                   type="button"
                   onClick={() => step2Form.setValue('role', value)}
                   className={cn(
-                    'flex flex-col items-center gap-3 rounded-xl border-2 p-6 text-center transition-all',
+                    'flex flex-col items-center gap-3 rounded-2xl border-2 p-6 text-center transition-all duration-300 relative overflow-hidden group',
                     selectedRole === value
-                      ? 'border-brand bg-brand/5 shadow-md shadow-brand/10'
-                      : 'border-border hover:border-brand/30',
+                      ? 'border-primary bg-primary/5 shadow-md'
+                      : 'border-outline-variant/30 hover:border-primary/50 bg-surface/50 hover:bg-surface-container-lowest',
                   )}
                 >
-                  <Icon className={cn('h-8 w-8', selectedRole === value ? 'text-brand' : 'text-muted-foreground')} />
+                  <div className={cn(
+                    "w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-300",
+                    selectedRole === value ? 'bg-primary text-on-primary shadow-inner' : 'bg-surface-container text-on-surface-variant group-hover:bg-primary/10 group-hover:text-primary'
+                  )}>
+                    <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+                  </div>
                   <div>
-                    <p className="font-semibold text-sm">{label}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{desc}</p>
+                    <p className={cn("font-heading font-black text-base", selectedRole === value ? "text-primary" : "text-on-surface")}>{label}</p>
+                    <p className="text-xs text-on-surface-variant mt-1.5 leading-relaxed">{desc}</p>
                   </div>
                 </button>
               ))}
             </div>
 
             {selectedRole === 'EDUCATOR' && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-2">
-                <label htmlFor="invite-code" className="text-sm font-medium">Educator invite code</label>
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-2 mt-4">
+                <label htmlFor="invite-code" className="text-[10px] font-bold text-on-surface uppercase tracking-widest">Educator Invitation Code</label>
                 <input
                   id="invite-code"
-                  placeholder="Enter invite code"
-                  className="flex h-11 w-full rounded-lg border border-border bg-surface px-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                  placeholder="Enter secure invite code"
+                  className="flex h-12 w-full rounded-xl border border-outline-variant/50 bg-surface/50 px-4 text-sm transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest"
                   {...step2Form.register('inviteCode')}
                 />
               </motion.div>
             )}
 
-            <div className="flex gap-3">
-              <button type="button" onClick={() => setStep(1)} className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-border text-sm font-medium hover:bg-surface-2 transition-colors">
+            <div className="flex gap-4 pt-4">
+              <button type="button" onClick={() => setStep(1)} className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-outline-variant/50 text-on-surface font-heading font-black text-sm uppercase tracking-widest hover:bg-surface-container transition-colors">
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
-              <button type="submit" disabled={loading} className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-brand text-white font-semibold text-sm hover:bg-brand/90 active:scale-[0.98] shadow-lg shadow-brand/20 transition-all disabled:opacity-60">
-                {loading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <>Continue <ArrowRight className="h-4 w-4" /></>}
+              <button type="submit" disabled={loading} className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-primary text-on-primary font-heading font-black text-sm uppercase tracking-widest hover:bg-primary-container hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] transition-all disabled:opacity-70">
+                {loading ? <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <>Continue <ArrowRight className="h-4 w-4" /></>}
               </button>
             </div>
           </motion.form>
@@ -290,52 +322,59 @@ export default function RegisterPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
             onSubmit={step3Form.handleSubmit(handleStep3)}
-            className="space-y-5"
+            className="space-y-6 relative z-10"
           >
-            <p className="text-sm text-muted-foreground mb-1">Select up to 3 specialty interests <span className="text-xs">(optional)</span></p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="text-center mb-6">
+              <p className="font-heading font-black text-on-surface text-lg">Select Clinical Interests</p>
+              <p className="text-sm font-medium text-on-surface-variant mt-1">Choose up to 3 specialties to personalize your training.</p>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
               {SPECIALTIES.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => toggleSpecialty(s)}
                   className={cn(
-                    'flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-all text-left',
+                    'flex items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-all text-left group',
                     selectedSpecialties.includes(s)
-                      ? 'border-brand bg-brand/5 text-brand font-medium'
-                      : 'border-border hover:border-brand/30 text-foreground',
+                      ? 'border-primary bg-primary/5 text-primary shadow-sm'
+                      : 'border-outline-variant/30 bg-surface/50 hover:border-primary/40 hover:bg-surface-container-lowest text-on-surface',
                   )}
                 >
                   <div className={cn(
-                    'h-4 w-4 rounded-full border-2 flex items-center justify-center transition-all',
-                    selectedSpecialties.includes(s) ? 'border-brand bg-brand' : 'border-border',
+                    'h-5 w-5 rounded-md flex items-center justify-center transition-all flex-shrink-0',
+                    selectedSpecialties.includes(s) ? 'bg-primary text-on-primary' : 'border-2 border-outline-variant/40 group-hover:border-primary/50',
                   )}>
-                    {selectedSpecialties.includes(s) && <Check className="h-2.5 w-2.5 text-white" />}
+                    {selectedSpecialties.includes(s) && <span className="material-symbols-outlined text-[14px] font-bold">check</span>}
                   </div>
-                  {s}
+                  <span className={cn("font-medium truncate", selectedSpecialties.includes(s) && "font-bold")}>{s}</span>
                 </button>
               ))}
             </div>
 
-            <div className="flex gap-3">
-              <button type="button" onClick={() => setStep(2)} className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-border text-sm font-medium hover:bg-surface-2 transition-colors">
+            <div className="flex gap-4 pt-4 border-t border-outline-variant/20">
+              <button type="button" onClick={() => setStep(2)} className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-outline-variant/50 text-on-surface font-heading font-black text-sm uppercase tracking-widest hover:bg-surface-container transition-colors">
                 <ArrowLeft className="h-4 w-4" /> Back
               </button>
-              <button type="submit" disabled={loading} className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-brand text-white font-semibold text-sm hover:bg-brand/90 active:scale-[0.98] shadow-lg shadow-brand/20 transition-all disabled:opacity-60">
-                {loading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <>Create account <ArrowRight className="h-4 w-4" /></>}
+              <button type="submit" disabled={loading} className="flex h-12 flex-[2] items-center justify-center gap-2 rounded-xl bg-primary text-on-primary font-heading font-black text-sm uppercase tracking-widest hover:bg-primary-container hover:shadow-lg hover:shadow-primary/30 active:scale-[0.98] transition-all disabled:opacity-70 shadow-md">
+                {loading ? <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <>Complete Setup <span className="material-symbols-outlined text-sm">rocket_launch</span></>}
               </button>
             </div>
           </motion.form>
         )}
       </AnimatePresence>
 
-      <p className="mt-8 text-center text-sm text-muted-foreground">
-        Already have an account?{' '}
-        <Link href="/login" className="font-semibold text-brand hover:text-brand/80 transition-colors">
-          Sign in
-        </Link>
-      </p>
+      <div className="mt-8 pt-6 border-t border-outline-variant/20 text-center relative z-10">
+        <p className="text-sm font-medium text-on-surface-variant">
+          Already have an account?{' '}
+          <Link href="/login" className="font-bold text-primary hover:text-primary-container transition-colors ml-1">
+            Sign in
+          </Link>
+        </p>
+      </div>
     </motion.div>
   )
 }
