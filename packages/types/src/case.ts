@@ -94,7 +94,18 @@ export const CreateCaseSchema = z.object({
 })
 export type CreateCaseInput = z.infer<typeof CreateCaseSchema>
 
-export const UpdateCaseSchema = CreateCaseSchema.partial()
+export const UpdateCaseSchema = CreateCaseSchema.partial().extend({
+  steps: z.array(z.object({
+    id: z.string().optional(),
+    order: z.number().int(),
+    type: z.enum(['history', 'examination', 'investigation', 'diagnosis', 'management']),
+    content: z.string().min(10),
+    expectedFindings: z.object({
+      keyPoints: z.array(z.string()).min(1),
+      redFlags: z.array(z.string()),
+    }),
+  })).optional()
+})
 export type UpdateCaseInput = z.infer<typeof UpdateCaseSchema>
 
 // ─── Case Step Create ────────────────────────────────────────────────

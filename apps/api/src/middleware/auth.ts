@@ -23,8 +23,14 @@ interface AuthEnv {
 }
 
 export const authMiddleware = createMiddleware<AuthEnv>(async (c, next) => {
+  const headers = new Headers(c.req.raw.headers)
+  const tokenQuery = c.req.query('token')
+  if (tokenQuery && !headers.get('Authorization')) {
+    headers.set('Authorization', `Bearer ${tokenQuery}`)
+  }
+
   const session = await auth.api.getSession({
-    headers: c.req.raw.headers,
+    headers,
   })
 
   if (!session?.user) {

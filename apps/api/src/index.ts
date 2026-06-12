@@ -6,7 +6,7 @@ import { config } from './lib/config.js'
 import { auth } from './lib/auth.js'
 import { AppError } from './lib/errors.js'
 import { error } from './lib/response.js'
-import { injectWebSocket } from './lib/ws.js'
+import { injectWebSocket, setRealApp } from './lib/ws.js'
 
 // Route imports
 import { casesRouter } from './routes/cases.js'
@@ -71,6 +71,7 @@ const server = serve(
   { fetch: app.fetch, port: config.PORT },
   () => console.log(`🚀 Caseflow API running on http://localhost:${config.PORT}`),
 )
+setRealApp(app)
 injectWebSocket(server)
 
 export type AppType = typeof app

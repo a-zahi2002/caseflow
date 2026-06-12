@@ -1,6 +1,6 @@
 import type { WSContext } from 'hono/ws'
 import { prisma } from '@caseflow/db'
-import { runEvaluator, buildPatientSystemPrompt, getAIProvider } from '@caseflow/ai'
+import { runEvaluator, runOverallEvaluator, buildPatientSystemPrompt, getAIProvider } from '@caseflow/ai'
 import type { WSMessageToClient, WSMessageToServer, CaseStep, Attempt, Case, EvaluationResult } from '@caseflow/types'
 import { WSErrorSchema, WSStreamChunkSchema, WSStreamEndSchema, WSEvaluationSchema, WSStepAdvanceSchema, WSAttemptCompleteSchema, WSAttemptFailedSchema } from '@caseflow/types'
 
@@ -83,6 +83,12 @@ export class SimulationSession {
       
       if (parsed.type === 'ping') {
         this.send({ type: 'heartbeat' })
+        this.isProcessing = false
+        return
+      }
+
+      if ((parsed as any).type === 'end_simulation') {
+        await this.completeAttempt()
         this.isProcessing = false
         return
       }
@@ -215,9 +221,15 @@ export class SimulationSession {
   private async completeAttempt() {
     await prisma.attempt.update({
       where: { id: this.attemptId },
-      data: { status: 'COMPLETED', completedAt: new Date(), score: 85, xpEarned: 150 } // Simplified scoring for now
+      data: { status: 'COMPLETED', completedAt: new Date() }
     })
-    this.send({ type: 'attempt_complete', finalScore: 85, xpEarned: 150 })
+    
+    // Trigger overall evaluation in background
+    runOverallEvaluationInBackground(this.attemptId).catch(err => {
+      console.error('Failed to run background evaluation:', err)
+    })
+
+    this.send({ type: 'attempt_complete', finalScore: 0, xpEarned: 0 })
   }
 
   private async failAttempt(reason: string) {
@@ -225,6 +237,12 @@ export class SimulationSession {
       where: { id: this.attemptId },
       data: { status: 'FAILED', completedAt: new Date() }
     })
+
+    // Trigger overall evaluation in background on failure too
+    runOverallEvaluationInBackground(this.attemptId).catch(err => {
+      console.error('Failed to run background evaluation:', err)
+    })
+
     this.send({ type: 'attempt_failed', reason })
   }
 
@@ -270,3 +288,74 @@ export class SimulationManager {
 }
 
 export const simulationManager = new SimulationManager()
+
+async function runOverallEvaluationInBackground(attemptId: string) {
+  try {
+    const attempt = await prisma.attempt.findUnique({
+      where: { id: attemptId },
+      include: {
+        case: { include: { steps: { orderBy: { order: 'asc' } } } },
+        messages: { orderBy: { createdAt: 'asc' } }
+      }
+    })
+
+    if (!attempt) return
+
+    // 1. Format expected findings
+    const expectedFindingsText = attempt.case.steps.map((step, idx) => {
+      return `Step ${idx + 1}: ${step.name}\n- Expected Findings: ${step.expectedFindings.join(', ')}\n- Critical Errors: ${step.criticalErrors.join(', ')}`
+    }).join('\n\n')
+
+    // 2. Format transcript
+    const transcriptText = attempt.messages
+      .filter(m => m.role === 'student' || m.role === 'patient')
+      .map(m => `${m.role === 'student' ? 'Student' : 'Patient'}: ${m.content}`)
+      .join('\n')
+
+    // 3. Run overall evaluator
+    const provider = getAIProvider()
+    const evalResult = await runOverallEvaluator(provider, expectedFindingsText, transcriptText)
+
+    // 4. Save AttemptEvaluation
+    await prisma.attemptEvaluation.upsert({
+      where: { attemptId },
+      create: {
+        attemptId,
+        overallScore: evalResult.overallScore,
+        overallFeedback: '',
+        stepEvaluations: evalResult as any,
+        missedFindings: [],
+        correctFindings: [],
+        criticalErrorCount: 0,
+      },
+      update: {
+        overallScore: evalResult.overallScore,
+        overallFeedback: '',
+        stepEvaluations: evalResult as any,
+      }
+    })
+
+    // 5. Update attempt with score and XP
+    const score = evalResult.overallScore
+    const xpEarned = Math.round(score * 2)
+
+    await prisma.attempt.update({
+      where: { id: attemptId },
+      data: {
+        score,
+        xpEarned,
+      }
+    })
+
+    // 6. Give XP to user profile
+    await prisma.userProfile.update({
+      where: { id: attempt.studentId },
+      data: {
+        xp: { increment: xpEarned }
+      }
+    })
+
+  } catch (err) {
+    console.error('Error running overall evaluation in background:', err)
+  }
+}

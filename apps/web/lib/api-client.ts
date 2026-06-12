@@ -1,4 +1,5 @@
 import type { ApiResponse } from '@caseflow/types'
+import { getToken } from './auth'
 
 const API_URL = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:3001'
 
@@ -7,11 +8,15 @@ async function request<T>(
   options: RequestInit = {},
 ): Promise<ApiResponse<T>> {
   const normalizedPath = path.startsWith('/api') ? path : `/api${path}`
+  const token = getToken()
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {}
+
   const res = await fetch(`${API_URL}${normalizedPath}`, {
     ...options,
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...authHeaders,
       ...(options.headers as Record<string, string>),
     },
   })

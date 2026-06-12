@@ -12,8 +12,8 @@
   "dependencies": {
     "@caseflow/ai": "workspace:*",
     "@caseflow/db": "workspace:*",
-    "@caseflow/types": "workspace:*",
     "@caseflow/email": "workspace:*",
+    "@caseflow/types": "workspace:*",
     "@hono/node-server": "^1.14.0",
     "@hono/node-ws": "^1.0.6",
     "@hono/zod-validator": "^0.4.0",
@@ -25,7 +25,11 @@
   },
   "devDependencies": {
     "@types/ws": "^8.5.0",
+    "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.0",
+    "eslint": "^9.0.0",
     "tsx": "^4.15.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.61.0"
   }
 }

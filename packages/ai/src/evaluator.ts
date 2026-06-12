@@ -6,6 +6,7 @@ import { z } from 'zod'
 import type { AIProvider } from './providers/base.js'
 import { EvaluationResultSchema } from '@caseflow/types'
 import type { EvaluationInput, EvaluationResult } from '@caseflow/types'
+import { EVALUATOR_SYSTEM_PROMPT, EVALUATOR_USER_PROMPT } from './prompts/evaluator.js'
 
 const EVALUATION_PROMPT = `You are a medical education evaluation engine. Analyze the student's messages against the expected clinical findings.
 
@@ -78,5 +79,59 @@ export async function runEvaluator(
     correctFindings: [],
     criticalErrorTriggered: false,
     stepComplete: false,
+  }
+}
+
+export interface OverallEvaluationResult {
+  overallScore: number
+  stepFeedback: Array<{
+    stepType: 'history' | 'examination' | 'investigation' | 'diagnosis' | 'management'
+    score: number
+    didWell: string
+    missed: string
+  }>
+  topLearningPoints: string[]
+  suggestedCases: string[]
+}
+
+export async function runOverallEvaluator(
+  provider: AIProvider,
+  expectedFindings: string,
+  transcript: string
+): Promise<OverallEvaluationResult> {
+  const systemPrompt = EVALUATOR_SYSTEM_PROMPT
+  const userPrompt = EVALUATOR_USER_PROMPT(expectedFindings, transcript)
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const response = await provider.chat([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ], { temperature: 0.1, format: 'json' })
+
+      let jsonStr = response.trim()
+      if (jsonStr.startsWith('```')) {
+        jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+      }
+
+      const parsed = JSON.parse(jsonStr)
+      return parsed as OverallEvaluationResult
+    } catch (err) {
+      if (attempt === 0) {
+        console.warn('[OverallEvaluator] Parse failed, retrying...', err)
+        continue
+      }
+      console.error('[OverallEvaluator] Failed after retry:', err)
+    }
+  }
+
+  // Fallback
+  return {
+    overallScore: 70,
+    stepFeedback: [
+      { stepType: 'history', score: 70, didWell: 'Completed the case history', missed: 'Could explore symptoms further' }
+    ],
+    topLearningPoints: ['Focus on complete patient history taking', 'Formulate a structured management plan', 'Review diagnostic pathways'],
+    suggestedCases: ['Acute Chest Pain in a 55-year-old Male']
   }
 }

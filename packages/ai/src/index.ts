@@ -9,7 +9,7 @@ export { OllamaClient } from './ollama.js'
 export type { OllamaClientConfig } from './ollama.js'
 
 // Evaluator
-export { runEvaluator } from './evaluator.js'
+export { runEvaluator, runOverallEvaluator } from './evaluator.js'
 
 // Adaptive difficulty
 export { recommendNextDifficulty, getRecommendationCriteria } from './adaptive.js'

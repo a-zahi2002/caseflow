@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { motion, AnimatePresence } from 'framer-motion'
 import { RegisterStep1Schema, RegisterStep2Schema, RegisterStep3Schema, SPECIALTIES } from '@caseflow/types'
 import type { RegisterStep1, RegisterStep2, RegisterStep3, User } from '@caseflow/types'
-import { signUp } from '@/lib/auth-client'
+import { signIn, signUp } from '@/lib/auth-client'
 import { saveAuth, getDashboardPath } from '@/lib/auth'
 import { api } from '@/lib/api-client'
 import { ArrowRight, ArrowLeft, Check, Eye, EyeOff, GraduationCap, Stethoscope } from 'lucide-react'
@@ -76,13 +76,26 @@ export default function RegisterPage() {
         return
       }
 
+      // Automatically sign in the user in the background to fetch token
+      const signInResult = await signIn.email({
+        email: s1.email,
+        password: s1.password,
+      })
+
+      if (signInResult.error) {
+        setError(signInResult.error.message ?? 'Sign in after registration failed')
+        return
+      }
+
+      const token = signInResult.data.token
+
       // Create UserProfile with role + specialties
       const patchRes = await api.patch('/users/me', {
         institution: undefined,
         specialties: s3.specialties,
         role: s2.role,
         inviteCode: s2.inviteCode || undefined,
-      })
+      }, token)
 
       if (!patchRes.success) {
         setError(patchRes.error ?? 'Failed to update user profile')
@@ -90,14 +103,13 @@ export default function RegisterPage() {
       }
 
       // Fetch completed user profile
-      const profileRes = await api.get<User>('/users/me')
+      const profileRes = await api.get<User>('/users/me', token)
       if (!profileRes.success || !profileRes.data) {
         setError('Failed to load user profile after registration')
         return
       }
 
       // Save auth details to local storage
-      const token = result.data.token ?? ''
       saveAuth(token, profileRes.data)
 
       // Redirect to the appropriate dashboard

@@ -76,12 +76,48 @@ casesRouter.get('/:id', async (c) => {
     where: { id, deletedAt: null },
     include: {
       steps: { orderBy: { order: 'asc' } },
-      author: { select: { id: true } },
+      author: {
+        select: {
+          id: true,
+          user: {
+            select: {
+              name: true,
+            }
+          }
+        }
+      },
+      _count: {
+        select: { attempts: true }
+      }
     },
   })
 
   if (!caseData) throw new NotFoundError('Case')
-  return success(c, caseData)
+
+  const stepTypes = ['history', 'examination', 'investigation', 'diagnosis', 'management']
+  
+  // Map steps to the structure expected by the frontend
+  const mappedSteps = caseData.steps.map(step => ({
+    id: step.id,
+    order: step.order,
+    type: stepTypes[step.order] || 'history',
+    content: step.name, // name field holds the content/instruction
+    expectedFindings: {
+      keyPoints: step.expectedFindings,
+      redFlags: step.criticalErrors
+    }
+  }))
+
+  const mappedCase = {
+    ...caseData,
+    steps: mappedSteps,
+    author: {
+      id: caseData.author.id,
+      name: caseData.author.user?.name || 'Unknown Author'
+    }
+  }
+
+  return success(c, mappedCase)
 })
 
 // POST /api/cases — educator only
@@ -105,6 +141,38 @@ casesRouter.post('/', authMiddleware, requireRole('EDUCATOR', 'ADMIN'), zValidat
   return success(c, newCase, 201)
 })
 
+// POST /api/cases/:id/steps — educator (own) or admin
+casesRouter.post('/:id/steps', authMiddleware, async (c) => {
+  const { id } = c.req.param()
+  const user = c.get('user')
+  const profile = c.get('userProfile')
+  
+  const existing = await prisma.case.findUnique({ where: { id } })
+  if (!existing) throw new NotFoundError('Case')
+
+  if (existing.authorId !== user.id && profile?.role !== 'ADMIN') {
+    throw new ForbiddenError('You can only add steps to your own cases')
+  }
+
+  const body = await c.req.json()
+  
+  // Find current step count to set order
+  const stepCount = await prisma.caseStep.count({ where: { caseId: id } })
+  
+  const newStep = await prisma.caseStep.create({
+    data: {
+      caseId: id,
+      order: stepCount,
+      name: body.content ?? body.type ?? `Step ${stepCount + 1}`,
+      expectedFindings: body.expectedFindings?.keyPoints || [],
+      criticalErrors: body.expectedFindings?.redFlags || [],
+      revealedData: {},
+    }
+  })
+
+  return success(c, newStep, 201)
+})
+
 // PATCH /api/cases/:id — educator (own) or admin (any)
 casesRouter.patch('/:id', authMiddleware, zValidator('json', UpdateCaseSchema), async (c) => {
   const { id } = c.req.param()
@@ -119,7 +187,7 @@ casesRouter.patch('/:id', authMiddleware, zValidator('json', UpdateCaseSchema), 
     throw new ForbiddenError('You can only edit your own cases')
   }
 
-  const { patientPersona, ...rest } = data
+  const { patientPersona, steps, ...rest } = data
   const updateData: any = { ...rest }
   if (patientPersona) {
     if (patientPersona.name) updateData.patientName = patientPersona.name
@@ -134,7 +202,24 @@ casesRouter.patch('/:id', authMiddleware, zValidator('json', UpdateCaseSchema), 
     Object.entries(updateData).filter(([_, v]) => v !== undefined)
   )
 
-  const updated = await prisma.case.update({ where: { id }, data: filteredUpdateData })
+  const updated = await prisma.$transaction(async (tx) => {
+    if (steps) {
+      await tx.caseStep.deleteMany({ where: { caseId: id } })
+      await tx.caseStep.createMany({
+        data: steps.map((s, index) => ({
+          caseId: id,
+          order: s.order ?? index,
+          name: s.content,
+          expectedFindings: s.expectedFindings.keyPoints,
+          criticalErrors: s.expectedFindings.redFlags || [],
+          revealedData: {},
+        })),
+      })
+    }
+    
+    return tx.case.update({ where: { id }, data: filteredUpdateData })
+  })
+
   return success(c, updated)
 })
 

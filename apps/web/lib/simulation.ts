@@ -33,7 +33,7 @@ export class SimulationClient {
 
     const token = getToken()
     this.ws = new WebSocket(
-      `${wsUrl}/simulation/${this.options.attemptId}/ws?token=${token}`
+      `${wsUrl}/api/simulation/${this.options.attemptId}/ws?token=${token}`
     )
 
     this.ws.onmessage = (event) => {

@@ -87,7 +87,12 @@ export const WSClientSyncNotesSchema = z.object({
   content: z.string(),
 })
 
+export const WSClientEndSimulationSchema = z.object({
+  type: z.literal('end_simulation'),
+})
+
 export type WSMessageToServer =
   | z.infer<typeof WSClientMessageSchema>
   | z.infer<typeof WSClientPingSchema>
   | z.infer<typeof WSClientSyncNotesSchema>
+  | z.infer<typeof WSClientEndSimulationSchema>

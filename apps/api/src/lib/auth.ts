@@ -2,6 +2,7 @@ import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import { prisma } from '@caseflow/db'
 import { config } from './config.js'
+import { bearer } from 'better-auth/plugins'
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -11,6 +12,7 @@ export const auth = betterAuth({
   baseURL: `http://localhost:${config.PORT}`,
   basePath: '/api/auth',
   trustedOrigins: [config.FRONTEND_URL],
+  plugins: [bearer()],
   emailAndPassword: {
     enabled: true,
   },

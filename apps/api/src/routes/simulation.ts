@@ -87,6 +87,20 @@ simulationRouter.get('/attempts/:id', async (c) => {
   if (!attempt) throw new NotFoundError('Attempt')
   if (attempt.studentId !== user.id) throw new ForbiddenError('Not your attempt')
 
+  if (attempt.evaluation) {
+    const richEval = attempt.evaluation.stepEvaluations as any
+    const mappedAttempt = {
+      ...attempt,
+      evalResult: {
+        overallFeedback: attempt.evaluation.overallFeedback,
+        stepFeedback: richEval?.stepFeedback || [],
+        topLearningPoints: richEval?.topLearningPoints || [],
+        suggestedCases: richEval?.suggestedCases || [],
+      }
+    }
+    return success(c, mappedAttempt)
+  }
+
   return success(c, attempt)
 })
 
